@@ -1,0 +1,15 @@
+MTS:
+  entity_based_grouping:
+    T1w:
+      description: "T1-weighted image assuming flip-02 is the larger flip angle"
+      flip: "flip-02"
+      mtransfer: "mt-off"
+    MTw:
+      description: "Magnetization transfer weighted image of the PD pair."
+      flip: "flip-01"
+      mtransfer: "mt-on"
+    PDw:
+      description: "Proton density weighted image assuming flip-01 is the larger flip angle"
+      flip: "flip-01"
+      mtransfer: "mt-off"
+  required: ["T1w", "MTw", "PDw"]
