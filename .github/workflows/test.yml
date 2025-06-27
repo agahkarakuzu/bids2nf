@@ -1,0 +1,61 @@
+name: Test bids2nf
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        java-version: [17]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+    
+    - name: Set up Java ${{ matrix.java-version }}
+      uses: actions/setup-java@v4
+      with:
+        java-version: ${{ matrix.java-version }}
+        distribution: 'temurin'
+    
+    - name: Install Nextflow
+      run: |
+        curl -fsSL https://get.nextflow.io | bash
+        sudo mv nextflow /usr/local/bin/
+        nextflow -version
+    
+    - name: Run basic workflow test
+      run: |
+        # Test the main workflow with the test dataset
+        nextflow run main.nf
+        ls -la work/
+    
+    - name: Validate workflow syntax
+      run: |
+        # Check that all workflows can be parsed
+        nextflow check main.nf
+        nextflow check workflows/entity_based_grouping.nf
+
+    - name: Validate YAML configuration
+      run: |
+        # Check that YAML files are valid
+        python3 -c "import yaml; yaml.safe_load(open('bids2nf.yaml'))"
+    
+    - name: Upload test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: test-results-${{ matrix.java-version }}
+        path: |
+          work/
+          .nextflow.log
+          .nextflow.log.*
+        retention-days: 7
