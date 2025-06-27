@@ -34,8 +34,7 @@ jobs:
     
     - name: Run basic workflow test
       run: |
-        # Test the main workflow with the test dataset
-        nextflow run main.nf
+        nextflow run test/test.nf -profile test
         ls -la work/
     
     - name: Validate workflow syntax
