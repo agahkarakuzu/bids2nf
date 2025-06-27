@@ -16,7 +16,7 @@ process DISPLAY_FILES_BY_GROUP {
   def mtw_nii_files = all_grouped_files['MTS']['MTw']['nii']
   def mtw_json_files = all_grouped_files['MTS']['MTw']['json']
 
-  println "DISPLAYING: ${subject} ${session}"
+  println "Entity based grouping .... ${subject} ${session}"
 
   """
   echo "================================="

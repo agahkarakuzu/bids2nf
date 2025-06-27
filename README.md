@@ -16,8 +16,7 @@
 - **Flexible grouping:** Supports entity-based grouping (e.g., by subject, session, modality).
 - **Customizable configuration:** Use `bids2nf.yaml` to tailor grouping and parsing to your workflow.
 - **Cross-platform:** Works on macOS and Linux (see notes for macOS users below).
-- **Easy integration:** Designed to plug into any Nextflow pipeline.
-
+- **Easy integration:** Designed to plug into any Nextflow DSL2 pipeline.
 
 ## Installation
 
@@ -39,17 +38,6 @@
 - File selection patterns
 - Output structure
 
-## Configuration: `bids2nf.yaml`
-
-
-## Supported Patterns
-
-**bids2nf** offers a range of pre-configured patterns designed to meet the requirements of various neuroimaging workflows.
-
-### Entity based grouping
-
-### Another pattern.
-
 ## Usage
 
 1. **Prepare your BIDS dataset** in a directory (see `test/data/` for examples).
@@ -59,7 +47,39 @@
    nextflow run main.nf --bids_dir /path/to/bids_dataset
    ```
    
-   Adjust parameters as needed for your workflow.
+>[!WARNING]
+> Current `main.tf` is a WIP, so is the entire project.
+
+## Configuration: `bids2nf.yaml`
+
+TBE.
+
+## Supported Patterns
+
+**bids2nf** offers a range of pre-configured patterns designed to meet the requirements of various neuroimaging workflows.
+
+### Common rules
+
+#### Core channel-defining entities: `sub`, `ses` and `run`
+
+These entities form the primary grouping structure and determine channel multiplicity.
+
+For example:
+
+* Subject only: [subject] (when session/run are "NA")
+* Subject + Session: [subject, session] (when run is "NA")
+* Subject + Session + Run: [subject, session, run] (when all entities exist)
+* Subject + Run: [subject, run] (when session is "NA" but run exists)
+
+> [!NOTE]
+> Add `task` as well? 
+
+### Entity based grouping
+
+TBE.
+
+### Another pattern.
+
 
 ## Contributing
 

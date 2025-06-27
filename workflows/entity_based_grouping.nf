@@ -33,20 +33,20 @@ workflow ENTITY_BASED_GROUPING {
         }
       }
       
-      tuple([row.subject, row.session, row.suffix, group_name, row.extension], "${bids_dir}/${row.path}")
+      tuple([row.subject, row.session, row.run, row.suffix, group_name, row.extension], "${bids_dir}/${row.path}")
     }
-    .filter { subject_session_suffix_group_ext, file_path -> 
-      subject_session_suffix_group_ext[3] != ''
+    .filter { subject_session_run_suffix_group_ext, file_path -> 
+      subject_session_run_suffix_group_ext[4] != ''
     }
 
     input_pairs = input_files
-    .map { subject_session_suffix_group_ext, file_path ->
-      def (subject, session, suffix, group_name, extension) = subject_session_suffix_group_ext
-      tuple([subject, session, suffix, group_name], [extension, file_path])
+    .map { subject_session_run_suffix_group_ext, file_path ->
+      def (subject, session, run, suffix, group_name, extension) = subject_session_run_suffix_group_ext
+      tuple([subject, session, run, suffix, group_name], [extension, file_path])
     }
     .groupTuple()
-    .map { subject_session_suffix_group, ext_files ->
-      def (subject, session, suffix, group_name) = subject_session_suffix_group
+    .map { subject_session_run_suffix_group, ext_files ->
+      def (subject, session, run, suffix, group_name) = subject_session_run_suffix_group
       
       def file_map = [:]
       ext_files.each { extension, file_path ->
@@ -59,23 +59,35 @@ workflow ENTITY_BASED_GROUPING {
       if (has_nii && has_json) {
         def nii_file = file_map.containsKey('nii.gz') ? file_map['nii.gz'] : file_map['nii']
         def json_file = file_map['json']
-        tuple([subject, session, suffix, group_name], [nii_file, json_file])
+        tuple([subject, session, run, suffix, group_name], [nii_file, json_file])
       } else {
-        log.warn "Subject ${subject}, Session ${session}, Suffix ${suffix}, grouping ${group_name}: Missing required extensions. Available: ${file_map.keySet()}, Required: nii/nii.gz and json"
+        log.warn "Subject ${subject}, Session ${session}, Run ${run}, Suffix ${suffix}, grouping ${group_name}: Missing required extensions. Available: ${file_map.keySet()}, Required: nii/nii.gz and json"
         null
       }
     }
     .filter { it != null }
 
   final_groups = input_pairs
-    .map { subject_session_suffix_group, nii_json_pair ->
-      def (subject, session, suffix, group_name) = subject_session_suffix_group
+    .map { subject_session_run_suffix_group, nii_json_pair ->
+      def (subject, session, run, suffix, group_name) = subject_session_run_suffix_group
       def (nii_file, json_file) = nii_json_pair
-      tuple([subject, session], [suffix, group_name, nii_file, json_file])
+      
+      // Create flexible grouping key that includes available entities
+      def grouping_key = [subject]
+      if (session && session != "NA") {
+        grouping_key << session
+      }
+      if (run && run != "NA") {
+        grouping_key << run
+      }
+      
+      tuple(grouping_key, [suffix, group_name, nii_file, json_file])
     }
     .groupTuple()
-    .map { subject_session, suffix_grouping_files ->
-      def (subject, session) = subject_session
+    .map { grouping_key, suffix_grouping_files ->
+      def subject = grouping_key[0]
+      def session = grouping_key.size() > 1 ? grouping_key[1] : "NA"
+      def run = grouping_key.size() > 2 ? grouping_key[2] : "NA"
       
       def all_grouping_maps = [:]
       def all_file_paths = []
@@ -99,13 +111,13 @@ workflow ENTITY_BASED_GROUPING {
           grouping_map.containsKey(required_grouping)
         }
         if (!has_all_groupings) {
-          log.warn "Subject ${subject}, Session ${session}, Suffix ${suffix}: Missing required groupings. Available: ${grouping_map.keySet()}, Required: ${suffix_config.required}"
+          log.warn "Subject ${subject}, Session ${session}, Run ${run}, Suffix ${suffix}: Missing required groupings. Available: ${grouping_map.keySet()}, Required: ${suffix_config.required}"
           all_complete = false
         }
       }
       
       if (all_complete) {
-        tuple([subject, session], [all_grouping_maps, all_file_paths])
+        tuple(grouping_key, [all_grouping_maps, all_file_paths])
       } else {
         null
       }
