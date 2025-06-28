@@ -34,7 +34,7 @@ jobs:
     
     - name: Run test workflows
       run: |
-        nextflow run tests/test_ebg_mts.nf --bids_dir $PWD/tests/data/custom/ds-mtsat -profile test
+        nextflow run tests/integration/test_ebg_mts.nf --bids_dir $PWD/tests/data/custom/ds-mtsat -profile test
         ls -la work/
     
     - name: Assert outputs
