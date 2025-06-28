@@ -39,6 +39,9 @@ jobs:
     
     - name: Assert outputs
       run: |
+        tree test/new_outputs
+        echo "---------------------------------"
+        tree test/expected_outputs
         ./test/assert_outputs.sh test/expected_outputs test/new_outputs
 
     - name: Validate YAML configuration
