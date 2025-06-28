@@ -1,3 +1,6 @@
+# https://bids-specification.readthedocs.io/en/stable/common-principles.html#entity-linked-file-collections
+# Entity based grouping is for entity linked file collections.
+
 MTS:
   entity_based_grouping:
     T1w:

@@ -32,16 +32,14 @@ jobs:
         sudo mv nextflow /usr/local/bin/
         nextflow -version
     
-    - name: Run basic workflow test
+    - name: Run test workflows
       run: |
-        nextflow run test/test.nf -profile test
+        nextflow run test/test_ebg_mts.nf --bids_dir $PWD/test/data/custom/ds-mtsat -profile test
         ls -la work/
     
-    - name: Validate workflow syntax
+    - name: Assert outputs
       run: |
-        # Check that all workflows can be parsed
-        nextflow check main.nf
-        nextflow check workflows/entity_based_grouping.nf
+        ./test/assert_outputs.sh test/expected_outputs test/new_outputs
 
     - name: Validate YAML configuration
       run: |

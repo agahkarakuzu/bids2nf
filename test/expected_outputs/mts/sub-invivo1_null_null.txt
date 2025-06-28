@@ -1,0 +1,14 @@
+Entity based grouping .... sub-invivo1 null null
+=================================
+  - PDw
+    - NII: ds-mtsat/sub-invivo1/anat/sub-invivo1_flip-01_mt-off_MTS.nii.gz
+    - JSON: ds-mtsat/sub-invivo1/anat/sub-invivo1_flip-01_mt-off_MTS.json
+----------------------------------
+  - T1w
+    - NII: ds-mtsat/sub-invivo1/anat/sub-invivo1_flip-02_mt-off_MTS.nii.gz
+    - JSON: ds-mtsat/sub-invivo1/anat/sub-invivo1_flip-02_mt-off_MTS.json
+----------------------------------
+  - MTw
+    - NII: ds-mtsat/sub-invivo1/anat/sub-invivo1_flip-01_mt-on_MTS.nii.gz
+    - JSON: ds-mtsat/sub-invivo1/anat/sub-invivo1_flip-01_mt-on_MTS.json
+=================================

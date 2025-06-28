@@ -5,11 +5,10 @@ include { LIBBIDS_SH_PARSE } from '../modules/lib_bids_sh_parser.nf'
 workflow ENTITY_BASED_GROUPING {
   take:
   bids_dir
-  libbids_sh
   bids2nf_config
 
   main:
-  parsed_csv = LIBBIDS_SH_PARSE(bids_dir, libbids_sh)
+  parsed_csv = LIBBIDS_SH_PARSE(bids_dir, params.libbids_sh)
   
   def config = new Yaml().load(new FileReader(bids2nf_config))
 
@@ -33,7 +32,7 @@ workflow ENTITY_BASED_GROUPING {
         }
       }
       
-      tuple([row.subject, row.session, row.run, row.suffix, group_name, row.extension], "${bids_dir}/${row.path}")
+      tuple([row.subject, row.session, row.run, row.suffix, group_name, row.extension], "${row.path}")
     }
     .filter { subject_session_run_suffix_group_ext, file_path -> 
       subject_session_run_suffix_group_ext[4] != ''
