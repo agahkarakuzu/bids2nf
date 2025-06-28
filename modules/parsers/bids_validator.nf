@@ -25,14 +25,14 @@ def validateBidsDirectory(bidsDir) {
         error "BIDS path is not a directory: ${bidsDir}"
     }
     
-    log.info "Skipping BIDS validation (Docker container issues) - ${bidsDir}"
-    log.warn "BIDS validation is temporarily disabled due to Docker platform compatibility issues"
+    // Check if BIDS validation is enabled in config
+    if (!params.bids_validation) {
+        log.info "BIDS validation disabled by configuration - ${bidsDir}"
+        return true
+    }
     
-    // Skip BIDS validator for now due to Docker platform issues
-    // TODO: Re-enable when Docker ARM64/AMD64 compatibility is resolved
-    // def validationResult = BIDS_VALIDATOR(file(bidsDir))
+    def validationResult = BIDS_VALIDATOR(file(bidsDir))
     
-    log.info "BIDS directory validation skipped: ${bidsDir}"
     return true
 }
 
