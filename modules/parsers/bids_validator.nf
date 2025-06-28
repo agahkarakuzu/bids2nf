@@ -2,7 +2,7 @@ process BIDS_VALIDATOR {
     tag "BIDS validation"
     label 'process_low'
     
-    container 'bids/validator:latest'
+    container 'agahkarakuzu/bids-validatorx:latest'
     
     input:
     path bids_dir
@@ -12,7 +12,7 @@ process BIDS_VALIDATOR {
     
     script:
     """
-    bids-validator ${bids_dir} --json
+    bids-validator --config.ignore=99 ${bids_dir}
     """
 }
 

@@ -30,11 +30,11 @@ jobs:
     
     - name: Pull BIDS validator container
       run: |
-        docker pull bids/validator
+        docker pull agahkarakuzu/bids-validator-amd64
     
     - name: Run test workflows
       run: |
-        nextflow run tests/integration/test_ebg_mts.nf --bids_dir $PWD/tests/data/custom/ds-mtsat -profile test
+        nextflow run tests/integration/test_ebg_mts.nf --bids_dir $PWD/tests/data/custom/ds-mtsat -profile amd64
         ls -la work/
     
     - name: Assert outputs
@@ -49,6 +49,14 @@ jobs:
         # Check that YAML files are valid
         python3 -c "import yaml; yaml.safe_load(open('bids2nf.yaml'))"
     
+    - name: Debug available files
+      if: always()
+      run: |
+        echo "Current directory contents:"
+        ls -la
+        echo "Looking for nextflow logs:"
+        find . -name ".nextflow.log*" -type f || echo "No nextflow log files found"
+    
     - name: Upload test results
       uses: actions/upload-artifact@v4
       if: always()
@@ -56,6 +64,5 @@ jobs:
         name: test-results-bids2nf
         path: |
           work/
-          .nextflow.log
-          .nextflow.log.*
+          .nextflow.log*
         retention-days: 7
