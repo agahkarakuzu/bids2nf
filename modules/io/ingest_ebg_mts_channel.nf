@@ -1,6 +1,6 @@
 process INGEST_EBG_MTS_CHANNEL {
   
-  publishDir "test/new_outputs/mts", mode: 'copy'
+  publishDir "tests/new_outputs/mts", mode: 'copy'
 
   input:
   tuple val(key), val(value)

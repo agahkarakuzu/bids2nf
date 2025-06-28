@@ -1,0 +1,185 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "bids2nf Configuration Schema"
+description: "JSON Schema for validating bids2nf configuration files"
+type: object
+
+# Define reusable schema components
+definitions:
+  entity_value:
+    type: string
+    pattern: "^[a-zA-Z0-9-]+$"
+    description: "Valid BIDS entity value (alphanumeric and hyphens only)"
+  
+  file_extension:
+    type: string
+    enum: ["nii", "nii.gz", "json", "tsv", "bval", "bvec"]
+    description: "Supported file extensions"
+  
+  grouping_config:
+    type: object
+    properties:
+      description:
+        type: string
+        description: "Human-readable description of this grouping"
+      flip:
+        type: string
+        pattern: "^flip-[0-9]+$"
+        description: "Flip angle specification"
+      mtransfer:
+        type: string
+        enum: ["mt-on", "mt-off"]
+        description: "Magnetization transfer status"
+      echo:
+        type: string
+        pattern: "^echo-[0-9]+$"
+        description: "Echo specification"
+      run:
+        type: string
+        pattern: "^run-[0-9]+$"
+        description: "Run specification"
+      task:
+        $ref: "#/definitions/entity_value"
+        description: "Task specification"
+      session:
+        $ref: "#/definitions/entity_value"
+        description: "Session specification"
+      acquisition:
+        $ref: "#/definitions/entity_value"
+        description: "Acquisition specification"
+    required: ["description"]
+    additionalProperties: true
+    description: "Configuration for a specific entity-based grouping"
+
+# Main schema properties
+properties:
+  # MTS (Magnetization Transfer Saturation) configuration
+  MTS:
+    type: object
+    properties:
+      entity_based_grouping:
+        type: object
+        properties:
+          T1w:
+            $ref: "#/definitions/grouping_config"
+            properties:
+              flip:
+                type: string
+                pattern: "^flip-[0-9]+$"
+              mtransfer:
+                type: string
+                enum: ["mt-off"]
+            required: ["description", "flip", "mtransfer"]
+          
+          MTw:
+            $ref: "#/definitions/grouping_config"
+            properties:
+              flip:
+                type: string
+                pattern: "^flip-[0-9]+$"
+              mtransfer:
+                type: string
+                enum: ["mt-on"]
+            required: ["description", "flip", "mtransfer"]
+          
+          PDw:
+            $ref: "#/definitions/grouping_config"
+            properties:
+              flip:
+                type: string
+                pattern: "^flip-[0-9]+$"
+              mtransfer:
+                type: string
+                enum: ["mt-off"]
+            required: ["description", "flip", "mtransfer"]
+        
+        required: ["T1w", "MTw", "PDw"]
+        additionalProperties:
+          $ref: "#/definitions/grouping_config"
+        description: "Entity-based grouping configurations for MTS"
+      
+      required:
+        type: array
+        items:
+          type: string
+          enum: ["T1w", "MTw", "PDw"]
+        uniqueItems: true
+        minItems: 1
+        description: "List of required groupings that must be present"
+    
+    required: ["entity_based_grouping", "required"]
+    additionalProperties: false
+    description: "MTS (Magnetization Transfer Saturation) configuration"
+  
+  # BOLD fMRI configuration (example for extensibility)
+  BOLD:
+    type: object
+    properties:
+      entity_based_grouping:
+        type: object
+        patternProperties:
+          "^[A-Za-z0-9]+$":
+            $ref: "#/definitions/grouping_config"
+        additionalProperties: false
+        description: "Entity-based grouping configurations for BOLD"
+      
+      required:
+        type: array
+        items:
+          type: string
+        uniqueItems: true
+        minItems: 1
+        description: "List of required groupings for BOLD"
+    
+    required: ["entity_based_grouping", "required"]
+    additionalProperties: false
+    description: "BOLD fMRI configuration"
+  
+  # DWI configuration (example for extensibility)
+  DWI:
+    type: object
+    properties:
+      entity_based_grouping:
+        type: object
+        patternProperties:
+          "^[A-Za-z0-9]+$":
+            $ref: "#/definitions/grouping_config"
+        additionalProperties: false
+        description: "Entity-based grouping configurations for DWI"
+      
+      required:
+        type: array
+        items:
+          type: string
+        uniqueItems: true
+        minItems: 1
+        description: "List of required groupings for DWI"
+    
+    required: ["entity_based_grouping", "required"]
+    additionalProperties: false
+    description: "Diffusion Weighted Imaging configuration"
+
+# At least one modality must be specified
+anyOf:
+  - required: ["MTS"]
+  - required: ["BOLD"]
+  - required: ["DWI"]
+
+additionalProperties: false
+
+# Examples for documentation
+examples:
+  - MTS:
+      entity_based_grouping:
+        T1w:
+          description: "T1-weighted image assuming flip-02 is the larger flip angle"
+          flip: "flip-02"
+          mtransfer: "mt-off"
+        MTw:
+          description: "Magnetization transfer weighted image of the PD pair"
+          flip: "flip-01"
+          mtransfer: "mt-on"
+        PDw:
+          description: "Proton density weighted image assuming flip-01 is the larger flip angle"
+          flip: "flip-01"
+          mtransfer: "mt-off"
+      required: ["T1w", "MTw", "PDw"]

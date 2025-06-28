@@ -10,20 +10,16 @@ jobs:
   test:
     runs-on: ubuntu-latest
     
-    strategy:
-      matrix:
-        java-version: [17]
-    
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
       with:
         submodules: recursive
     
-    - name: Set up Java ${{ matrix.java-version }}
+    - name: Set up Java 17
       uses: actions/setup-java@v4
       with:
-        java-version: ${{ matrix.java-version }}
+        java-version: 17
         distribution: 'temurin'
     
     - name: Install Nextflow
@@ -32,17 +28,21 @@ jobs:
         sudo mv nextflow /usr/local/bin/
         nextflow -version
     
+    - name: Pull BIDS validator container
+      run: |
+        docker pull bids/validator
+    
     - name: Run test workflows
       run: |
-        nextflow run test/test_ebg_mts.nf --bids_dir $PWD/test/data/custom/ds-mtsat -profile test
+        nextflow run tests/test_ebg_mts.nf --bids_dir $PWD/tests/data/custom/ds-mtsat -profile test
         ls -la work/
     
     - name: Assert outputs
       run: |
-        tree test/new_outputs
+        tree tests/new_outputs
         echo "---------------------------------"
-        tree test/expected_outputs
-        ./test/assert_outputs.sh test/expected_outputs test/new_outputs
+        tree tests/expected_outputs
+        ./tests/assert_outputs.sh tests/expected_outputs tests/new_outputs
 
     - name: Validate YAML configuration
       run: |
@@ -53,7 +53,7 @@ jobs:
       uses: actions/upload-artifact@v4
       if: always()
       with:
-        name: test-results-${{ matrix.java-version }}
+        name: test-results-bids2nf
         path: |
           work/
           .nextflow.log

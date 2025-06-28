@@ -26,3 +26,4 @@ work/
 hs_err_pid*
 replay_pid*
 new_outputs/
+results/
