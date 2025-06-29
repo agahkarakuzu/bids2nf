@@ -39,14 +39,15 @@ jobs:
     
     - name: Assert outputs
       run: |
-        tree tests/new_outputs
-        echo "---------------------------------"
-        tree tests/expected_outputs
-        ./tests/assert_outputs.sh tests/expected_outputs tests/new_outputs
+        echo "#️⃣ Comparing directory trees to see whether the number of files are the same ..."
+        ./tests/compare_json_dirs.sh $PWD/tests/expected_outputs $PWD/tests/new_outputs
+        echo "🔍 Comparing JSON files to see whether the (new/expected) content is the same ..."
+        nextflow run tests/integration/assert_json_outputs.nf --expected_dir $PWD/tests/expected_outputs --new_dir $PWD/tests/new_outputs -profile arm64
+        echo "🎉 All assertion tests passed!"
 
     - name: Validate YAML configuration
       run: |
-        # Check that YAML files are valid
+        echo "🐒 Ensuring that you did not break the YAML config ..."
         python3 -c "import yaml; yaml.safe_load(open('bids2nf.yaml'))"
     
     - name: Debug available files

@@ -1,0 +1,16 @@
+{
+    "MTS": {
+        "PDw": {
+            "nii": "ds-mtsat/sub-phantom/ses-vendorSKYrev/anat/sub-phantom_ses-vendorSKYrev_flip-01_mt-off_MTS.nii.gz",
+            "json": "ds-mtsat/sub-phantom/ses-vendorSKYrev/anat/sub-phantom_ses-vendorSKYrev_flip-01_mt-off_MTS.json"
+        },
+        "MTw": {
+            "nii": "ds-mtsat/sub-phantom/ses-vendorSKYrev/anat/sub-phantom_ses-vendorSKYrev_flip-01_mt-on_MTS.nii.gz",
+            "json": "ds-mtsat/sub-phantom/ses-vendorSKYrev/anat/sub-phantom_ses-vendorSKYrev_flip-01_mt-on_MTS.json"
+        },
+        "T1w": {
+            "nii": "ds-mtsat/sub-phantom/ses-vendorSKYrev/anat/sub-phantom_ses-vendorSKYrev_flip-02_mt-off_MTS.nii.gz",
+            "json": "ds-mtsat/sub-phantom/ses-vendorSKYrev/anat/sub-phantom_ses-vendorSKYrev_flip-02_mt-off_MTS.json"
+        }
+    }
+}

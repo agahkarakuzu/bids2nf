@@ -1,0 +1,16 @@
+{
+    "MTS": {
+        "PDw": {
+            "nii": "ds-mtsat/sub-invivo2/anat/sub-invivo2_run-02_flip-01_mt-off_MTS.nii.gz",
+            "json": "ds-mtsat/sub-invivo2/anat/sub-invivo2_run-02_flip-01_mt-off_MTS.json"
+        },
+        "MTw": {
+            "nii": "ds-mtsat/sub-invivo2/anat/sub-invivo2_run-02_flip-01_mt-on_MTS.nii.gz",
+            "json": "ds-mtsat/sub-invivo2/anat/sub-invivo2_run-02_flip-01_mt-on_MTS.json"
+        },
+        "T1w": {
+            "nii": "ds-mtsat/sub-invivo2/anat/sub-invivo2_run-02_flip-02_mt-off_MTS.nii.gz",
+            "json": "ds-mtsat/sub-invivo2/anat/sub-invivo2_run-02_flip-02_mt-off_MTS.json"
+        }
+    }
+}
