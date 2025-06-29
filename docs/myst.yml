@@ -2,7 +2,7 @@ version: 1
 project:
   id: f1aa9951-4afc-4857-b913-8017492f3d97
   title: 'bids2nf: BIDS to Nextflow channels'
-  description: A tool for converting BIDS datasets to nextflow channels.
+  description: A tool to emit nextflow channels from BIDS datasets.
   abbreviations:
     BIDS: "Brain Imaging Data Structure"
     NF: "Nextflow"
