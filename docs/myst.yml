@@ -11,6 +11,7 @@ project:
   toc:
     - file: index.md
     - file: installation.md
+    - file: quickstart.md
     - file: basics.md
     - file: configuration.md
     - file: examples.md

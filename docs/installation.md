@@ -1,24 +1,38 @@
 # Installation
 
+::::{danger} Prerequisites
+:class: dropdown
+:label: prereq
+
 ## Prerequisites
 
-1. **Install Nextflow**  
-   Follow the [Nextflow installation guide](https://www.nextflow.io/docs/stable/install.html).
+## 🔀 Install Nextflow
+Follow the [Nextflow installation guide](https://www.nextflow.io/docs/stable/install.html).
 
-## Get bids2nf
+## 🐳 Pull Docker image for the BIDS Validator (optional)
 
-Clone this repository with its submodules:
+Download a Nextflow-compatible BIDS Validator image tailored to your system architecture:
 
-```bash
-git clone --recurse-submodules https://github.com/agahkarakuzu/bids2nf.git
+* Standard Unix systems (`amd64`)
+```
+docker pull agahkarakuzu/bids-validator-amd64
 ```
 
-**Submodules included:**
-- [CoBrALab/libBIDS.sh](https://github.com/CoBrALab/libBIDS.sh) (for parsing BIDS)
-- [bids-examples](https://github.com/bids-standard/bids-examples) (for testing purposes)
+* Apple silicon (`arm64`)
+```
+docker pull agahkarakuzu/bids-validator-arm64
+```
 
-:::{warning} macOS users
-The default bash version on macOS does not meet libBIDS requirements. Install a newer bash with Homebrew:
+:::{note}
+By default, `bids2nf` validates your BIDS dataset. You can configure it to use a local installation of [`bids-validator`](https://bids-validator.readthedocs.io/en/stable/), or disable validation entirely if preferred.
+:::
+::::
+
+:::{warning} 🍎 Important warning for macOS users
+:icon: false
+:class: dropdown
+
+The default bash version on macOS does not meet `libBIDS` requirements. Install a newer bash with Homebrew:
 
 ```bash
 brew install bash
@@ -29,14 +43,41 @@ Then set `process.shell` in your `nextflow.config` to:
 - Intel Macs: `/usr/local/bin/bash`
 :::
 
-# Quick Start
 
-1. **Prepare your BIDS dataset** in a directory
-2. **Configure** your `bids2nf.yaml` file  
-3. **Run your Nextflow pipeline:**
-   ```bash
-   nextflow run main.nf --bids_dir /path/to/bids_dataset
-   ```
+## 🧠 Get bids2nf
+
+After installing the [prerequisites](#prereq), simply clone this repository with its submodules:
+
+```bash
+git clone --recurse-submodules https://github.com/agahkarakuzu/bids2nf.git
+```
+
+### Submodules included
+
+:::::{grid} 1 1 2 2
+::::{card} `libBIDS.sh`
+:link: https://github.com/CoBrALab/libBIDS.sh
+
+A Bash library for parsing and processing BIDS datasets into CSV-like structures, enabling flexible data filtering, extraction, and iteration within shell scripts.
+
+:::{image} https://avatars.githubusercontent.com/u/8516777?s=200&v=4
+:height: 100
+:align: center
+:::
+::::
+
+::::{card} `BIDS examples`
+:link: https://github.com/bids-standard/bids-examples
+A set of BIDS compatible datasets with empty raw data files that can be used for writing lightweight software tests.
+
+:::{image} https://upload.wikimedia.org/wikipedia/commons/d/de/BIDS_Logo.png
+:height: 100
+:align: center
+:::
+
+::::
+
+:::::
 
 # What's Next?
 

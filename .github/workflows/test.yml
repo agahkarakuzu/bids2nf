@@ -1,4 +1,4 @@
-name: Test bids2nf
+name: CI Tests
 
 on:
   push:

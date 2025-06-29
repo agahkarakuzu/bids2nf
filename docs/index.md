@@ -8,14 +8,23 @@ title: About
 :align: center
 :::
 
+:::{image} https://upload.wikimedia.org/wikipedia/commons/d/de/BIDS_Logo.png
+:width: 150
+:align: center
+:::
+
+:::{image} https://upload.wikimedia.org/wikipedia/commons/e/e1/Logo_Nextflow_%28new%29.png
+:width: 150
+:align: center
+:::
+
 :::{image} ../nfneuro.svg
 :width: 150
 :align: center
-:background-color: black
 :::
 ::::
 
-**bids2nf** is a Nextflow-native utility that ingests BIDS (Brain Imaging Data Structure) datasets and emits Nextflow channels for seamless integration into your neuroimaging pipelines. For parsing, it leverages [libBIDS.sh](https://github.com/CoBrALab/libBIDS.sh), a lightweight, shell-based BIDS parser.
+**bids2nf** is a lightweight utility that parses BIDS (Brain Imaging Data Structure) datasets and emits structured Nextflow [channels](https://www.nextflow.io/docs/latest/channel.html). These channels provide a standardized interface for building scalable, modular, and reproducible neuroimaging workflows with [Nextflow](https://nextflow.io).
 
 ::::{grid} 1 1 2 3
 

@@ -10,7 +10,7 @@
 </table>
 
 
-[![Documentation](https://github.com/agahkarakuzu/bids2nf/actions/workflows/docs.yml/badge.svg)](https://github.com/agahkarakuzu/bids2nf/actions/workflows/docs.yml) [![Tests](https://github.com/agahkarakuzu/bids2nf/actions/workflows/test.yml/badge.svg)](https://github.com/agahkarakuzu/bids2nf/actions/workflows/test.yml)
+[![Documentation](https://github.com/agahkarakuzu/bids2nf/actions/workflows/docs.yml/badge.svg)](https://agah.dev/bids2nf) [![Tests](https://github.com/agahkarakuzu/bids2nf/actions/workflows/test.yml/badge.svg)](https://github.com/agahkarakuzu/bids2nf/actions/workflows/test.yml)
 
 ## Features
 

@@ -2,7 +2,6 @@
   authors:
   - affiliations: polymtl; mhi
     corresponding: true
-    email: agah.karakuzu@polymtl.ca
     github: agahkarakuzu
     name: Agah Karakuzu
     orcid: 0000-0001-7283-271X
