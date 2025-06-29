@@ -6,10 +6,12 @@ on:
       - main
     paths:
       - 'docs/**'
+      - 'bids2nf.yaml'
       - '.github/workflows/docs.yml'
   pull_request:
     paths:
       - 'docs/**'
+      - 'bids2nf.yaml'
       - '.github/workflows/docs.yml'
 
 env:
@@ -37,6 +39,17 @@ jobs:
           node-version: '18'
           cache: 'npm'
           cache-dependency-path: docs/
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install Python dependencies
+        run: pip install pyyaml
+
+      - name: Generate supported documentation
+        run: python scripts/generate_supported_docs.py
 
       - name: Install MyST
         run: npm install -g mystmd

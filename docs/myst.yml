@@ -15,6 +15,7 @@ project:
     - file: basics.md
     - file: configuration.md
     - file: examples.md
+    - file: supported.md
     - file: contributors.md
 site:
   template: book-theme
