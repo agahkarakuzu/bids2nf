@@ -10,6 +10,8 @@
 </table>
 
 
+[![Documentation](https://github.com/agahkarakuzu/bids2nf/actions/workflows/docs.yml/badge.svg)](https://github.com/agahkarakuzu/bids2nf/actions/workflows/docs.yml) [![Tests](https://github.com/agahkarakuzu/bids2nf/actions/workflows/test.yml/badge.svg)](https://github.com/agahkarakuzu/bids2nf/actions/workflows/test.yml)
+
 ## Features
 
 - **Lightweight BIDS parsing:** Validates (TBD) and reads BIDS datasets for use in Nextflow.

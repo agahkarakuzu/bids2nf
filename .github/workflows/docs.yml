@@ -12,6 +12,9 @@ on:
       - 'docs/**'
       - '.github/workflows/docs.yml'
 
+env:
+  BASE_URL: /${{ github.event.repository.name }}
+
 permissions:
   contents: read
   pages: write
