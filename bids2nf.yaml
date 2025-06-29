@@ -17,6 +17,13 @@ MTS:
       mtransfer: "mt-off"
   required: ["T1w", "MTw", "PDw"]
 
+# Single entity sequential set
 VFA:
   sequential_set:
     by_entity: flip
+
+# Multi entity sequential set
+# VFA:
+#   sequential_set:
+#     by_entities: [flip,echo]
+#     order: hierarchical
