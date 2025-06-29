@@ -46,7 +46,7 @@ jobs:
           python-version: '3.x'
 
       - name: Install Python dependencies
-        run: pip install pyyaml
+        run: pip install pyyaml requests
 
       - name: Generate supported documentation
         run: python scripts/generate_supported_docs.py

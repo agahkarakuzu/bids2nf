@@ -6,7 +6,16 @@ This page documents the BIDS data types supported by bids2nf.
 
 Named sets define specific collections of files with predefined names and properties.
 
-### MTS
+### Magnetization transfer saturation
+
+*This method is to calculate a semi-quantitative magnetization transfer
+saturation index map.
+The MTS method involves three sets of anatomical images that differ in terms
+of application of a magnetization transfer RF pulse (MTon or MToff) and flip
+angle ([Helms et al. 2008](https://doi.org/10.1002/mrm.21732)).
+*
+
+**Suffix:** `MTS`
 
 **Required files:** T1w, MTw, PDw
 
@@ -18,6 +27,14 @@ Named sets define specific collections of files with predefined names and proper
 
 ### TB1TFL
 
+*The result of a Siemens `tfl_b1_map` product sequence.
+This sequence produces two images.
+The first image appears like an anatomical image and the second output is a
+scaled flip angle map.
+*
+
+**Suffix:** `TB1TFL`
+
 **Required files:** anat, famp
 
 | File | Description | Properties |
@@ -26,6 +43,14 @@ Named sets define specific collections of files with predefined names and proper
 | famp | scaled flip angle map | acquisition: acq-famp |
 
 ### RB1COR
+
+*Low resolution images acquired by the body coil
+(in the gantry of the scanner) and the head coil using identical acquisition
+parameters to generate a combined sensitivity map as described in
+[Papp et al. (2016)](https://doi.org/10.1002/mrm.26058).
+*
+
+**Suffix:** `RB1COR`
 
 **Required files:** bodyMTw, bodyT1w, bodyPDw, headMTw, headT1w, headPDw
 
@@ -42,31 +67,92 @@ Named sets define specific collections of files with predefined names and proper
 
 Sequential sets define collections of files organized by BIDS entities.
 
-### VFA
+### Variable flip angle
+
+*The VFA method involves at least two spoiled gradient echo (SPGR) of
+steady-state free precession (SSFP) images acquired at different flip angles.
+Depending on the provided metadata fields and the sequence type,
+data may be eligible for DESPOT1, DESPOT2 and their variants
+([Deoni et al. 2005](https://doi.org/10.1002/mrm.20314)).
+*
+
+**Suffix:** `VFA`
 
 **Organized by entity:** flip
 
-### IRT1
+### Inversion recovery T1 mapping
+
+*The IRT1 method involves multiple inversion recovery spin-echo images
+acquired at different inversion times
+([Barral et al. 2010](https://doi.org/10.1002/mrm.22497)).
+*
+
+**Suffix:** `IRT1`
 
 **Organized by entity:** inversion
 
 ### TB1DAM
 
+*The double-angle B1<sup>+</sup> method
+([Insko and Bolinger 1993](https://doi.org/10.1006/jmra.1993.1133)) is based
+on the calculation of the actual angles from signal ratios,
+collected by two acquisitions at different nominal excitation flip angles.
+Common sequence types for this application include spin echo and echo planar
+imaging.
+*
+
+**Suffix:** `TB1DAM`
+
 **Organized by entity:** flip
 
-### MEGRE
+### Multi-echo Gradient Recalled Echo
+
+*Anatomical gradient echo images acquired at different echo times.
+Please note that this suffix is not intended for the logical grouping of
+images acquired using an Echo Planar Imaging (EPI) readout.
+*
+
+**Suffix:** `MEGRE`
 
 **Organized by entity:** echo
 
-### MESE
+### Multi-echo Spin Echo
+
+*The MESE method involves multiple spin echo images acquired at different echo
+times and is primarily used for T2 mapping.
+Please note that this suffix is not intended for the logical grouping of
+images acquired using an Echo Planar Imaging (EPI) readout.
+*
+
+**Suffix:** `MESE`
 
 **Organized by entity:** echo
 
 ### TB1SRGE
 
+*Saturation-prepared with 2 rapid gradient echoes (SA2RAGE) uses a ratio of
+two saturation recovery images with different time delays,
+and a simulated look-up table to estimate B1+
+([Eggenschwiler et al. 2011](https://doi.org/10.1002/mrm.23145)).
+This sequence can also be used in conjunction with MP2RAGE T1 mapping to
+iteratively improve B1+ and T1 map estimation
+([Marques & Gruetter 2013](https://doi.org/10.1371/journal.pone.0069294)).
+*
+
+**Suffix:** `TB1SRGE`
+
 **Organized by entities:** flip, inversion (hierarchical order)
 
 ### TB1EPI
+
+*This B1<sup>+</sup> mapping method
+([Jiru and Klose 2006](https://doi.org/10.1002/mrm.21083)) is based on two
+EPI readouts to acquire spin echo (SE) and stimulated echo (STE) images at
+multiple flip angles in one sequence, used in the calculation of deviations
+from the nominal flip angle.
+*
+
+**Suffix:** `TB1EPI`
 
 **Organized by entities:** echo, flip (hierarchical order)
 

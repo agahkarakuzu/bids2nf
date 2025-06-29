@@ -5,7 +5,20 @@ Generate supported.md documentation from bids2nf.yaml configuration.
 
 import yaml
 import argparse
+import requests
 from pathlib import Path
+
+
+def fetch_bids_suffixes():
+    """Fetch suffix information from BIDS specification."""
+    url = "https://raw.githubusercontent.com/bids-standard/bids-specification/refs/heads/master/src/schema/objects/suffixes.yaml"
+    try:
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()
+        return yaml.safe_load(response.text)
+    except Exception as e:
+        print(f"Warning: Could not fetch BIDS suffixes schema: {e}")
+        return {}
 
 
 def generate_supported_docs(yaml_file: Path, output_file: Path):
@@ -13,6 +26,9 @@ def generate_supported_docs(yaml_file: Path, output_file: Path):
     
     with open(yaml_file, 'r') as f:
         config = yaml.safe_load(f)
+    
+    # Fetch BIDS suffixes information
+    bids_suffixes = fetch_bids_suffixes()
     
     content = []
     content.append("# Supported BIDS Data Types")
@@ -37,12 +53,22 @@ def generate_supported_docs(yaml_file: Path, output_file: Path):
         content.append("")
         
         for name, config_data in named_sets:
-            content.append(f"### {name}")
+            # Get BIDS suffix information
+            suffix_info = bids_suffixes.get(name, {})
+            display_name = suffix_info.get('display_name', name)
+            description = suffix_info.get('description', '')
+            
+            content.append(f"### {display_name}")
+            if description:
+                content.append("")
+                content.append(f"*{description}*")
             content.append("")
             
             named_set = config_data['named_set']
             required = config_data.get('required', [])
             
+            content.append(f"**Suffix:** `{name}`")
+            content.append("")
             content.append(f"**Required files:** {', '.join(required)}")
             content.append("")
             
@@ -70,10 +96,21 @@ def generate_supported_docs(yaml_file: Path, output_file: Path):
         content.append("")
         
         for name, config_data in sequential_sets:
-            content.append(f"### {name}")
+            # Get BIDS suffix information
+            suffix_info = bids_suffixes.get(name, {})
+            display_name = suffix_info.get('display_name', name)
+            description = suffix_info.get('description', '')
+            
+            content.append(f"### {display_name}")
+            if description:
+                content.append("")
+                content.append(f"*{description}*")
             content.append("")
             
             sequential_set = config_data['sequential_set']
+            
+            content.append(f"**Suffix:** `{name}`")
+            content.append("")
             
             if 'by_entity' in sequential_set:
                 entity = sequential_set['by_entity']
