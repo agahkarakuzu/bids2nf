@@ -1,5 +1,5 @@
 import org.yaml.snakeyaml.Yaml
-include { LIBBIDS_SH_PARSE } from '../modules/parsers/lib_bids_sh_parser.nf'
+include { libbids_sh_parse } from '../modules/parsers/lib_bids_sh_parser.nf'
 include { 
     findMatchingGrouping; 
     createFileMap; 
@@ -18,7 +18,7 @@ include {
     tryWithContext
 } from '../modules/utils/error_handling.nf'
 
-workflow ENTITY_BASED_GROUPING {
+workflow emit_named_sets {
     take:
     bids_dir
     bids2nf_config
@@ -26,18 +26,18 @@ workflow ENTITY_BASED_GROUPING {
     main:
     
     // Input validation
-    logProgress("ENTITY_BASED_GROUPING", "Starting entity-based grouping workflow")
+    logProgress("emit_named_sets", "Creating named set channels ...")
     
     // Validate all inputs before processing
     tryWithContext("INPUT_VALIDATION") {
         validateAllInputs(bids_dir, bids2nf_config, params.libbids_sh)
     }
     
-    logProgress("ENTITY_BASED_GROUPING", "Input validation completed successfully")
+    logProgress("emit_named_sets", "Input validation completed successfully")
     
     // Parse BIDS directory
     parsed_csv = tryWithContext("BIDS_PARSING") {
-        LIBBIDS_SH_PARSE(bids_dir, params.libbids_sh)
+        libbids_sh_parse(bids_dir, params.libbids_sh)
     }
     
     // Load and validate configuration

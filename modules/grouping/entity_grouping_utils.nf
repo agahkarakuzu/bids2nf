@@ -1,9 +1,9 @@
 def findMatchingGrouping(row, suffixConfig) {
-    if (!suffixConfig.containsKey('entity_based_grouping')) {
+    if (!suffixConfig.containsKey('named_set')) {
         return null
     }
     
-    for (entry in suffixConfig.entity_based_grouping) {
+    for (entry in suffixConfig.named_set) {
         def groupingName = entry.key
         def groupingConfig = entry.value
         

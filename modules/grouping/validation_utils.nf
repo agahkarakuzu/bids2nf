@@ -55,8 +55,8 @@ def validateGroupingConfiguration(config, suffix) {
     
     def suffixConfig = config[suffix]
     
-    if (!suffixConfig.containsKey('entity_based_grouping')) {
-        log.warn "${context}: No entity_based_grouping configuration for suffix: ${suffix}"
+    if (!suffixConfig.containsKey('named_set')) {
+        log.warn "${context}: No named_set configuration for suffix: ${suffix}"
         return true // This is optional
     }
     
@@ -71,10 +71,10 @@ def validateGroupingConfiguration(config, suffix) {
         return false
     }
     
-    def entityBasedGrouping = suffixConfig.entity_based_grouping
+    def entityBasedGrouping = suffixConfig.named_set
     for (requiredGroup in required) {
         if (!entityBasedGrouping.containsKey(requiredGroup)) {
-            log.error "${context}: Required grouping '${requiredGroup}' not found in entity_based_grouping for suffix: ${suffix}"
+            log.error "${context}: Required grouping '${requiredGroup}' not found in named_set for suffix: ${suffix}"
             return false
         }
     }

@@ -6,13 +6,15 @@ process BIDS_VALIDATOR {
     
     input:
     path bids_dir
+    val ignore_codes
     
     output:
     stdout
     
     script:
+    def ignore_args = ignore_codes ? ignore_codes.collect { "--config.ignore=${it}" }.join(' ') : ''
     """
-    bids-validator --config.ignore=99 ${bids_dir}
+    bids-validator ${ignore_args} ${bids_dir}
     """
 }
 
@@ -31,7 +33,7 @@ def validateBidsDirectory(bidsDir) {
         return true
     }
     
-    def validationResult = BIDS_VALIDATOR(file(bidsDir))
+    def validationResult = BIDS_VALIDATOR(file(bidsDir), [99, 36])
     
     return true
 }

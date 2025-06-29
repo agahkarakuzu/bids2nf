@@ -1,3 +1,4 @@
+# Dockerfile for agahkarakuzu/bids-validator-amd64 and agahkarakuzu/bids-validator-arm64
 FROM node:18-alpine
 
 # Install bash and bids-validator

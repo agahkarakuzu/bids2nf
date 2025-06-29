@@ -2,7 +2,7 @@
 # Entity based grouping is for entity linked file collections.
 
 MTS:
-  entity_based_grouping:
+  named_set:
     T1w:
       description: "T1-weighted image assuming flip-02 is the larger flip angle"
       flip: "flip-02"
@@ -12,7 +12,11 @@ MTS:
       flip: "flip-01"
       mtransfer: "mt-on"
     PDw:
-      description: "Proton density weighted image assuming flip-01 is the larger flip angle"
+      description: "Proton density weighted image assuming flip-01 is the lower flip angle"
       flip: "flip-01"
       mtransfer: "mt-off"
   required: ["T1w", "MTw", "PDw"]
+
+VFA:
+  sequential_set:
+    by_entity: flip

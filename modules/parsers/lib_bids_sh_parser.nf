@@ -1,4 +1,4 @@
-process LIBBIDS_SH_PARSE {
+process libbids_sh_parse {
   input:
   path bids_dir
   path libbids_sh

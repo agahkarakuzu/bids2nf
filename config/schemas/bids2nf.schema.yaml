@@ -56,7 +56,7 @@ properties:
   MTS:
     type: object
     properties:
-      entity_based_grouping:
+      named_set:
         type: object
         properties:
           T1w:
@@ -106,7 +106,7 @@ properties:
         minItems: 1
         description: "List of required groupings that must be present"
     
-    required: ["entity_based_grouping", "required"]
+    required: ["named_set", "required"]
     additionalProperties: false
     description: "MTS (Magnetization Transfer Saturation) configuration"
   
@@ -114,7 +114,7 @@ properties:
   BOLD:
     type: object
     properties:
-      entity_based_grouping:
+      named_set:
         type: object
         patternProperties:
           "^[A-Za-z0-9]+$":
@@ -130,7 +130,7 @@ properties:
         minItems: 1
         description: "List of required groupings for BOLD"
     
-    required: ["entity_based_grouping", "required"]
+    required: ["named_set", "required"]
     additionalProperties: false
     description: "BOLD fMRI configuration"
   
@@ -138,7 +138,7 @@ properties:
   DWI:
     type: object
     properties:
-      entity_based_grouping:
+      named_set:
         type: object
         patternProperties:
           "^[A-Za-z0-9]+$":
@@ -154,7 +154,7 @@ properties:
         minItems: 1
         description: "List of required groupings for DWI"
     
-    required: ["entity_based_grouping", "required"]
+    required: ["named_set", "required"]
     additionalProperties: false
     description: "Diffusion Weighted Imaging configuration"
 
@@ -169,7 +169,7 @@ additionalProperties: false
 # Examples for documentation
 examples:
   - MTS:
-      entity_based_grouping:
+      named_set:
         T1w:
           description: "T1-weighted image assuming flip-02 is the larger flip angle"
           flip: "flip-02"
