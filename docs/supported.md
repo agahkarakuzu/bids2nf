@@ -28,15 +28,27 @@ angle ([Helms et al. 2008](https://doi.org/10.1002/mrm.21732)).
 :::{seealso} Example usage within a process
 :class: dropdown
 ```groovy
-  bids_channel['MTS']['T1w']['nii']
-  bids_channel['MTS']['T1w']['json']
-  bids_channel['MTS']['MTw']['nii']
-  bids_channel['MTS']['MTw']['json']
+  // Access PDw files:
   bids_channel['MTS']['PDw']['nii']
+  // → ds-mtsat/sub-phantom/ses-rth750rev/anat/sub-phantom_ses-rth750rev_run-01_flip-01_mt-off_MTS.nii.gz
   bids_channel['MTS']['PDw']['json']
+  // → ds-mtsat/sub-phantom/ses-rth750rev/anat/sub-phantom_ses-rth750rev_run-01_flip-01_mt-off_MTS.json
+
+  // Access MTw files:
+  bids_channel['MTS']['MTw']['nii']
+  // → ds-mtsat/sub-phantom/ses-rth750rev/anat/sub-phantom_ses-rth750rev_run-01_flip-01_mt-on_MTS.nii.gz
+  bids_channel['MTS']['MTw']['json']
+  // → ds-mtsat/sub-phantom/ses-rth750rev/anat/sub-phantom_ses-rth750rev_run-01_flip-01_mt-on_MTS.json
+
+  // Access T1w files:
+  bids_channel['MTS']['T1w']['nii']
+  // → ds-mtsat/sub-phantom/ses-rth750rev/anat/sub-phantom_ses-rth750rev_run-01_flip-02_mt-off_MTS.nii.gz
+  bids_channel['MTS']['T1w']['json']
+  // → ds-mtsat/sub-phantom/ses-rth750rev/anat/sub-phantom_ses-rth750rev_run-01_flip-02_mt-off_MTS.json
+
 ```
 :::
-{button}`Nextflow process template <https://github.com/agahkarakuzu/bids2nf/blob/main/modules/templates/mts_process_template.nf>`
+{button}`Example channel data structure <https://github.com/agahkarakuzu/bids2nf/blob/main/tests/expected_outputs/ds-mtsat/sub-phantom_ses-rth750rev_run-01_unified.json>`
 ::::
 
 ::::{card}
@@ -58,12 +70,56 @@ scaled flip angle map.
 :::{seealso} Example usage within a process
 :class: dropdown
 ```groovy
+  // Access anat files:
   bids_channel['TB1TFL']['anat']['nii']
+  // → qmri_tb1tfl/sub-01/fmap/sub-01_acq-anat_TB1TFL.nii.gz
   bids_channel['TB1TFL']['anat']['json']
+  // → qmri_tb1tfl/sub-01/fmap/sub-01_acq-anat_TB1TFL.json
+
+  // Access famp files:
   bids_channel['TB1TFL']['famp']['nii']
+  // → qmri_tb1tfl/sub-01/fmap/sub-01_acq-famp_TB1TFL.nii.gz
   bids_channel['TB1TFL']['famp']['json']
+  // → qmri_tb1tfl/sub-01/fmap/sub-01_acq-famp_TB1TFL.json
+
 ```
 :::
+{button}`Example channel data structure <https://github.com/agahkarakuzu/bids2nf/blob/main/tests/expected_outputs/qmri_tb1tfl/sub-01_null_null_unified.json>`
+::::
+
+::::{card}
+:header: <span class="custom-heading"><h4>TB1AFI</h4></span>
+:footer: **Required keys:** `tr1`, `tr2`
+
+
+This method ([Yarnykh 2007](https://doi.org/10.1002/mrm.21120))
+calculates a B1<sup>+</sup> map from two images acquired at interleaved (two)
+TRs with identical RF pulses using a steady-state sequence.
+
+
+| Key | Description | Entity-based mapping |
+|------|-------------|------------|
+| tr1 | Image from the first interleaved TR of the AFI sequence | acquisition: acq-tr1 |
+| tr2 | Image from the second interleaved TR of the AFI sequence | acquisition: acq-tr2 |
+
+:::{seealso} Example usage within a process
+:class: dropdown
+```groovy
+  // Access tr1 files:
+  bids_channel['TB1AFI']['tr1']['nii']
+  // → qmri_vfa/sub-01/fmap/sub-01_acq-tr1_TB1AFI.nii.gz
+  bids_channel['TB1AFI']['tr1']['json']
+  // → qmri_vfa/sub-01/fmap/sub-01_acq-tr1_TB1AFI.json
+
+  // Access tr2 files:
+  bids_channel['TB1AFI']['tr2']['nii']
+  // → qmri_vfa/sub-01/fmap/sub-01_acq-tr2_TB1AFI.nii.gz
+  bids_channel['TB1AFI']['tr2']['json']
+  // → qmri_vfa/sub-01/fmap/sub-01_acq-tr2_TB1AFI.json
+
+```
+:::
+{button}`Example channel data structure <https://github.com/agahkarakuzu/bids2nf/blob/main/tests/expected_outputs/qmri_vfa/sub-01_null_null_unified.json>`
 ::::
 
 ::::{card}
@@ -89,20 +145,45 @@ parameters to generate a combined sensitivity map as described in
 :::{seealso} Example usage within a process
 :class: dropdown
 ```groovy
+  // Access bodyMTw files:
   bids_channel['RB1COR']['bodyMTw']['nii']
+  // → qmri_mpm/sub-01/fmap/sub-01_acq-bodyMTw_RB1COR.nii
   bids_channel['RB1COR']['bodyMTw']['json']
-  bids_channel['RB1COR']['bodyT1w']['nii']
-  bids_channel['RB1COR']['bodyT1w']['json']
+  // → qmri_mpm/sub-01/fmap/sub-01_acq-bodyMTw_RB1COR.json
+
+  // Access bodyPDw files:
   bids_channel['RB1COR']['bodyPDw']['nii']
+  // → qmri_mpm/sub-01/fmap/sub-01_acq-bodyPDw_RB1COR.nii
   bids_channel['RB1COR']['bodyPDw']['json']
+  // → qmri_mpm/sub-01/fmap/sub-01_acq-bodyPDw_RB1COR.json
+
+  // Access bodyT1w files:
+  bids_channel['RB1COR']['bodyT1w']['nii']
+  // → qmri_mpm/sub-01/fmap/sub-01_acq-bodyT1w_RB1COR.nii
+  bids_channel['RB1COR']['bodyT1w']['json']
+  // → qmri_mpm/sub-01/fmap/sub-01_acq-bodyT1w_RB1COR.json
+
+  // Access headMTw files:
   bids_channel['RB1COR']['headMTw']['nii']
+  // → qmri_mpm/sub-01/fmap/sub-01_acq-headMTw_RB1COR.nii
   bids_channel['RB1COR']['headMTw']['json']
-  bids_channel['RB1COR']['headT1w']['nii']
-  bids_channel['RB1COR']['headT1w']['json']
+  // → qmri_mpm/sub-01/fmap/sub-01_acq-headMTw_RB1COR.json
+
+  // Access headPDw files:
   bids_channel['RB1COR']['headPDw']['nii']
+  // → qmri_mpm/sub-01/fmap/sub-01_acq-headPDw_RB1COR.nii
   bids_channel['RB1COR']['headPDw']['json']
+  // → qmri_mpm/sub-01/fmap/sub-01_acq-headPDw_RB1COR.json
+
+  // Access headT1w files:
+  bids_channel['RB1COR']['headT1w']['nii']
+  // → qmri_mpm/sub-01/fmap/sub-01_acq-headT1w_RB1COR.nii
+  bids_channel['RB1COR']['headT1w']['json']
+  // → qmri_mpm/sub-01/fmap/sub-01_acq-headT1w_RB1COR.json
+
 ```
 :::
+{button}`Example channel data structure <https://github.com/agahkarakuzu/bids2nf/blob/main/tests/expected_outputs/qmri_mpm/sub-01_null_null_unified.json>`
 ::::
 
 ## Sequential Sets
@@ -127,13 +208,22 @@ data may be eligible for DESPOT1, DESPOT2 and their variants
 :class: dropdown
 ```groovy
   // Get number of items in sequential set
-  bids_channel['VFA']['nii'].size()
+  bids_channel['VFA']['nii'].size()  // → 2
   // Access first item
   bids_channel['VFA']['nii'][0]
+  // → qmri_vfa/sub-01/anat/sub-01_flip-1_VFA.nii.gz
   bids_channel['VFA']['json'][0]
+  // → qmri_vfa/sub-01/anat/sub-01_flip-1_VFA.json
+
+  // Access second item
+  bids_channel['VFA']['nii'][1]
+  // → qmri_vfa/sub-01/anat/sub-01_flip-2_VFA.nii.gz
+  bids_channel['VFA']['json'][1]
+  // → qmri_vfa/sub-01/anat/sub-01_flip-2_VFA.json
+
 ```
 :::
-{button}`Process template <https://github.com/agahkarakuzu/bids2nf/blob/main/modules/templates/vfa_process_template.nf>`
+{button}`Example channel data structure <https://github.com/agahkarakuzu/bids2nf/blob/main/tests/expected_outputs/qmri_vfa/sub-01_null_null_unified.json>`
 ::::
 
 ::::{card}
@@ -152,12 +242,22 @@ acquired at different inversion times
 :class: dropdown
 ```groovy
   // Get number of items in sequential set
-  bids_channel['IRT1']['nii'].size()
+  bids_channel['IRT1']['nii'].size()  // → 4
   // Access first item
   bids_channel['IRT1']['nii'][0]
+  // → qmri_irt1/sub-01/anat/sub-01_inv-01_IRT1.nii.gz
   bids_channel['IRT1']['json'][0]
+  // → qmri_irt1/sub-01/anat/sub-01_inv-01_IRT1.json
+
+  // Access second item
+  bids_channel['IRT1']['nii'][1]
+  // → qmri_irt1/sub-01/anat/sub-01_inv-02_IRT1.nii.gz
+  bids_channel['IRT1']['json'][1]
+  // → qmri_irt1/sub-01/anat/sub-01_inv-02_IRT1.json
+
 ```
 :::
+{button}`Example channel data structure <https://github.com/agahkarakuzu/bids2nf/blob/main/tests/expected_outputs/qmri_irt1/sub-01_null_null_unified.json>`
 ::::
 
 ::::{card}
@@ -178,12 +278,22 @@ imaging.
 :class: dropdown
 ```groovy
   // Get number of items in sequential set
-  bids_channel['TB1DAM']['nii'].size()
+  bids_channel['TB1DAM']['nii'].size()  // → 2
   // Access first item
   bids_channel['TB1DAM']['nii'][0]
+  // → qmri_mtsat/sub-01/fmap/sub-01_flip-1_TB1DAM.nii.gz
   bids_channel['TB1DAM']['json'][0]
+  // → qmri_mtsat/sub-01/fmap/sub-01_flip-1_TB1DAM.json
+
+  // Access second item
+  bids_channel['TB1DAM']['nii'][1]
+  // → qmri_mtsat/sub-01/fmap/sub-01_flip-2_TB1DAM.nii.gz
+  bids_channel['TB1DAM']['json'][1]
+  // → qmri_mtsat/sub-01/fmap/sub-01_flip-2_TB1DAM.json
+
 ```
 :::
+{button}`Example channel data structure <https://github.com/agahkarakuzu/bids2nf/blob/main/tests/expected_outputs/qmri_mtsat/sub-01_null_null_unified.json>`
 ::::
 
 ::::{card}
@@ -202,12 +312,22 @@ images acquired using an Echo Planar Imaging (EPI) readout.
 :class: dropdown
 ```groovy
   // Get number of items in sequential set
-  bids_channel['MEGRE']['nii'].size()
+  bids_channel['MEGRE']['nii'].size()  // → 8
   // Access first item
   bids_channel['MEGRE']['nii'][0]
+  // → qmri_megre/sub-01/anat/sub-01_echo-01_MEGRE.nii.gz
   bids_channel['MEGRE']['json'][0]
+  // → qmri_megre/sub-01/anat/sub-01_echo-01_MEGRE.json
+
+  // Access second item
+  bids_channel['MEGRE']['nii'][1]
+  // → qmri_megre/sub-01/anat/sub-01_echo-02_MEGRE.nii.gz
+  bids_channel['MEGRE']['json'][1]
+  // → qmri_megre/sub-01/anat/sub-01_echo-02_MEGRE.json
+
 ```
 :::
+{button}`Example channel data structure <https://github.com/agahkarakuzu/bids2nf/blob/main/tests/expected_outputs/qmri_megre/sub-01_null_null_unified.json>`
 ::::
 
 ::::{card}
@@ -227,12 +347,22 @@ images acquired using an Echo Planar Imaging (EPI) readout.
 :class: dropdown
 ```groovy
   // Get number of items in sequential set
-  bids_channel['MESE']['nii'].size()
+  bids_channel['MESE']['nii'].size()  // → 32
   // Access first item
   bids_channel['MESE']['nii'][0]
+  // → qmri_mese/sub-01/anat/sub-01_echo-01_MESE.nii.gz
   bids_channel['MESE']['json'][0]
+  // → qmri_mese/sub-01/anat/sub-01_echo-01_MESE.json
+
+  // Access second item
+  bids_channel['MESE']['nii'][1]
+  // → qmri_mese/sub-01/anat/sub-01_echo-02_MESE.nii.gz
+  bids_channel['MESE']['json'][1]
+  // → qmri_mese/sub-01/anat/sub-01_echo-02_MESE.json
+
 ```
 :::
+{button}`Example channel data structure <https://github.com/agahkarakuzu/bids2nf/blob/main/tests/expected_outputs/qmri_mese/sub-01_null_null_unified.json>`
 ::::
 
 ::::{card}
@@ -253,17 +383,23 @@ iteratively improve B1+ and T1 map estimation
 :::{seealso} Example usage within a process
 :class: dropdown
 ```groovy
-  // Multiple entities organized by: flip, inversion
-  // First dimension: flip, Second dimension: inversion
-  // Get size of first dimension (flip)
-  bids_channel['TB1SRGE']['nii'].size()
-  // Get size of second dimension (inversion) for first flip
-  bids_channel['TB1SRGE']['nii'][0].size()
+  // Get number of items in sequential set
+  bids_channel['TB1SRGE']['nii'].size()  // → 2
   // Access first item
-  bids_channel['TB1SRGE']['nii'][0][0]
-  bids_channel['TB1SRGE']['json'][0][0]
+  bids_channel['TB1SRGE']['nii'][0]
+  // → ['qmri_sa2rage/sub-01/fmap/sub-01_flip-1_inv-1_TB1SRGE.nii.gz']
+  bids_channel['TB1SRGE']['json'][0]
+  // → ['qmri_sa2rage/sub-01/fmap/sub-01_flip-1_inv-1_TB1SRGE.json']
+
+  // Access second item
+  bids_channel['TB1SRGE']['nii'][1]
+  // → ['qmri_sa2rage/sub-01/fmap/sub-01_flip-2_inv-2_TB1SRGE.nii.gz']
+  bids_channel['TB1SRGE']['json'][1]
+  // → ['qmri_sa2rage/sub-01/fmap/sub-01_flip-2_inv-2_TB1SRGE.json']
+
 ```
 :::
+{button}`Example channel data structure <https://github.com/agahkarakuzu/bids2nf/blob/main/tests/expected_outputs/qmri_sa2rage/sub-01_null_null_unified.json>`
 ::::
 
 ::::{card}
@@ -282,17 +418,97 @@ from the nominal flip angle.
 :::{seealso} Example usage within a process
 :class: dropdown
 ```groovy
-  // Multiple entities organized by: echo, flip
-  // First dimension: echo, Second dimension: flip
-  // Get size of first dimension (echo)
-  bids_channel['TB1EPI']['nii'].size()
-  // Get size of second dimension (flip) for first echo
-  bids_channel['TB1EPI']['nii'][0].size()
+  // Get number of items in sequential set
+  bids_channel['TB1EPI']['nii'].size()  // → 2
   // Access first item
-  bids_channel['TB1EPI']['nii'][0][0]
-  bids_channel['TB1EPI']['json'][0][0]
+  bids_channel['TB1EPI']['nii'][0]
+  // → ['qmri_mpm/sub-01/fmap/sub-01_echo-1_flip-01_TB1EPI.nii', 'qmri_mpm/sub-01/fmap/sub-01_echo-1_flip-02_TB1EPI.nii', 'qmri_mpm/sub-01/fmap/sub-01_echo-1_flip-03_TB1EPI.nii', 'qmri_mpm/sub-01/fmap/sub-01_echo-1_flip-04_TB1EPI.nii', 'qmri_mpm/sub-01/fmap/sub-01_echo-1_flip-05_TB1EPI.nii', 'qmri_mpm/sub-01/fmap/sub-01_echo-1_flip-06_TB1EPI.nii', 'qmri_mpm/sub-01/fmap/sub-01_echo-1_flip-07_TB1EPI.nii', 'qmri_mpm/sub-01/fmap/sub-01_echo-1_flip-08_TB1EPI.nii', 'qmri_mpm/sub-01/fmap/sub-01_echo-1_flip-09_TB1EPI.nii', 'qmri_mpm/sub-01/fmap/sub-01_echo-1_flip-10_TB1EPI.nii', 'qmri_mpm/sub-01/fmap/sub-01_echo-1_flip-11_TB1EPI.nii']
+  bids_channel['TB1EPI']['json'][0]
+  // → ['qmri_mpm/sub-01/fmap/sub-01_echo-1_flip-01_TB1EPI.json', 'qmri_mpm/sub-01/fmap/sub-01_echo-1_flip-02_TB1EPI.json', 'qmri_mpm/sub-01/fmap/sub-01_echo-1_flip-03_TB1EPI.json', 'qmri_mpm/sub-01/fmap/sub-01_echo-1_flip-04_TB1EPI.json', 'qmri_mpm/sub-01/fmap/sub-01_echo-1_flip-05_TB1EPI.json', 'qmri_mpm/sub-01/fmap/sub-01_echo-1_flip-06_TB1EPI.json', 'qmri_mpm/sub-01/fmap/sub-01_echo-1_flip-07_TB1EPI.json', 'qmri_mpm/sub-01/fmap/sub-01_echo-1_flip-08_TB1EPI.json', 'qmri_mpm/sub-01/fmap/sub-01_echo-1_flip-09_TB1EPI.json', 'qmri_mpm/sub-01/fmap/sub-01_echo-1_flip-10_TB1EPI.json', 'qmri_mpm/sub-01/fmap/sub-01_echo-1_flip-11_TB1EPI.json']
+
+  // Access second item
+  bids_channel['TB1EPI']['nii'][1]
+  // → ['qmri_mpm/sub-01/fmap/sub-01_echo-2_flip-01_TB1EPI.nii', 'qmri_mpm/sub-01/fmap/sub-01_echo-2_flip-02_TB1EPI.nii', 'qmri_mpm/sub-01/fmap/sub-01_echo-2_flip-03_TB1EPI.nii', 'qmri_mpm/sub-01/fmap/sub-01_echo-2_flip-04_TB1EPI.nii', 'qmri_mpm/sub-01/fmap/sub-01_echo-2_flip-05_TB1EPI.nii', 'qmri_mpm/sub-01/fmap/sub-01_echo-2_flip-06_TB1EPI.nii', 'qmri_mpm/sub-01/fmap/sub-01_echo-2_flip-07_TB1EPI.nii', 'qmri_mpm/sub-01/fmap/sub-01_echo-2_flip-08_TB1EPI.nii', 'qmri_mpm/sub-01/fmap/sub-01_echo-2_flip-09_TB1EPI.nii', 'qmri_mpm/sub-01/fmap/sub-01_echo-2_flip-10_TB1EPI.nii', 'qmri_mpm/sub-01/fmap/sub-01_echo-2_flip-11_TB1EPI.nii']
+  bids_channel['TB1EPI']['json'][1]
+  // → ['qmri_mpm/sub-01/fmap/sub-01_echo-2_flip-01_TB1EPI.json', 'qmri_mpm/sub-01/fmap/sub-01_echo-2_flip-02_TB1EPI.json', 'qmri_mpm/sub-01/fmap/sub-01_echo-2_flip-03_TB1EPI.json', 'qmri_mpm/sub-01/fmap/sub-01_echo-2_flip-04_TB1EPI.json', 'qmri_mpm/sub-01/fmap/sub-01_echo-2_flip-05_TB1EPI.json', 'qmri_mpm/sub-01/fmap/sub-01_echo-2_flip-06_TB1EPI.json', 'qmri_mpm/sub-01/fmap/sub-01_echo-2_flip-07_TB1EPI.json', 'qmri_mpm/sub-01/fmap/sub-01_echo-2_flip-08_TB1EPI.json', 'qmri_mpm/sub-01/fmap/sub-01_echo-2_flip-09_TB1EPI.json', 'qmri_mpm/sub-01/fmap/sub-01_echo-2_flip-10_TB1EPI.json', 'qmri_mpm/sub-01/fmap/sub-01_echo-2_flip-11_TB1EPI.json']
+
 ```
 :::
+{button}`Example channel data structure <https://github.com/agahkarakuzu/bids2nf/blob/main/tests/expected_outputs/qmri_mpm/sub-01_null_null_unified.json>`
+::::
+
+## Mixed Sets
+
+Mixed sets combine named groups with sequential organization within each group.
+
+::::{card}
+:header: <span class="custom-heading-3"><h4>MPM</h4></span>
+:footer: **Named: `acquisition`, Sequential: `echo`**
+
+**Multi-parametric Mapping**
+
+The MPM approaches (a.k.a hMRI) involves the acquisition of highly-similar
+anatomical images that differ in terms of application of a magnetization
+transfer RF pulse (MTon or MToff), flip angle and (optionally) echo time and
+magnitue/phase parts
+([Weiskopf et al. 2013](https://doi.org/10.3389/fnins.2013.00095)).
+See [here](https://owncloud.gwdg.de/index.php/s/iv2TOQwGy4FGDDZ) for
+suggested MPM acquisition protocols.
+
+
+| Named Group | Description | Entity-based mapping |
+|-------------|-------------|------------|
+| MTw | Magnetization transfer weighted images | acquisition: acq-MTw, flip: flip-1, mtransfer: mt-on |
+| PDw | Proton density weighted images | acquisition: acq-PDw, flip: flip-1, mtransfer: mt-off |
+| T1w | T1-weighted images | acquisition: acq-T1w, flip: flip-2, mtransfer: mt-off |
+
+**Required groups:** None
+
+:::{seealso} Example usage within a process
+:class: dropdown
+```groovy
+  // Access MTw group:
+  bids_channel['MPM']['MTw']['nii'].size()  // → 6
+  bids_channel['MPM']['MTw']['nii'][0]
+  // → qmri_mpm/sub-01/anat/sub-01_acq-MTw_echo-1_flip-1_mt-on_MPM.nii
+  bids_channel['MPM']['MTw']['json'][0]
+  // → qmri_mpm/sub-01/anat/sub-01_acq-MTw_echo-1_flip-1_mt-on_MPM.json
+
+  // Access second echo in MTw:
+  bids_channel['MPM']['MTw']['nii'][1]
+  // → qmri_mpm/sub-01/anat/sub-01_acq-MTw_echo-2_flip-1_mt-on_MPM.nii
+  bids_channel['MPM']['MTw']['json'][1]
+  // → qmri_mpm/sub-01/anat/sub-01_acq-MTw_echo-2_flip-1_mt-on_MPM.json
+
+  // Access PDw group:
+  bids_channel['MPM']['PDw']['nii'].size()  // → 8
+  bids_channel['MPM']['PDw']['nii'][0]
+  // → qmri_mpm/sub-01/anat/sub-01_acq-PDw_echo-1_flip-1_mt-off_MPM.nii
+  bids_channel['MPM']['PDw']['json'][0]
+  // → qmri_mpm/sub-01/anat/sub-01_acq-PDw_echo-1_flip-1_mt-off_MPM.json
+
+  // Access second echo in PDw:
+  bids_channel['MPM']['PDw']['nii'][1]
+  // → qmri_mpm/sub-01/anat/sub-01_acq-PDw_echo-2_flip-1_mt-off_MPM.nii
+  bids_channel['MPM']['PDw']['json'][1]
+  // → qmri_mpm/sub-01/anat/sub-01_acq-PDw_echo-2_flip-1_mt-off_MPM.json
+
+  // Access T1w group:
+  bids_channel['MPM']['T1w']['nii'].size()  // → 8
+  bids_channel['MPM']['T1w']['nii'][0]
+  // → qmri_mpm/sub-01/anat/sub-01_acq-T1w_echo-1_flip-2_mt-off_MPM.nii
+  bids_channel['MPM']['T1w']['json'][0]
+  // → qmri_mpm/sub-01/anat/sub-01_acq-T1w_echo-1_flip-2_mt-off_MPM.json
+
+  // Access second echo in T1w:
+  bids_channel['MPM']['T1w']['nii'][1]
+  // → qmri_mpm/sub-01/anat/sub-01_acq-T1w_echo-2_flip-2_mt-off_MPM.nii
+  bids_channel['MPM']['T1w']['json'][1]
+  // → qmri_mpm/sub-01/anat/sub-01_acq-T1w_echo-2_flip-2_mt-off_MPM.json
+
+```
+:::
+{button}`Example channel data structure <https://github.com/agahkarakuzu/bids2nf/blob/main/tests/expected_outputs/qmri_mpm/sub-01_null_null_unified.json>`
 ::::
 
 ---

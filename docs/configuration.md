@@ -152,7 +152,7 @@ include { bids2nf } from './workflows/bids2nf.nf'
 
 workflow {
     // Single call handles all pattern types in your config
-    unified_results = bids2nf(params.bids_dir, params.bids2nf_config)
+    unified_results = bids2nf(params.bids_dir)
     
     // Process all results regardless of their pattern type
     my_analysis_process(unified_results)

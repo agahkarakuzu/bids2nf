@@ -25,9 +25,11 @@ include {
 workflow bids2nf {
     take:
     bids_dir
-    bids2nf_config
 
     main:
+    
+    // Use the built-in configuration
+    bids2nf_config = "${params.bids2nf_config}"
     
     // Perform shared validation and parsing once
     logProgress("bids2nf", "Starting unified bids2nf workflow...")
