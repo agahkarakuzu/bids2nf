@@ -1,0 +1,19 @@
+{
+  "subject": "sub-01",
+  "session": "null",
+  "run": "null",
+  "bids2nfTypes": ["named"],
+  "totalFiles": 4,
+  "data": {
+    "TB1TFL": {
+        "anat": {
+            "nii": "qmri_tb1tfl/sub-01/fmap/sub-01_acq-anat_TB1TFL.nii.gz",
+            "json": "qmri_tb1tfl/sub-01/fmap/sub-01_acq-anat_TB1TFL.json"
+        },
+        "famp": {
+            "nii": "qmri_tb1tfl/sub-01/fmap/sub-01_acq-famp_TB1TFL.nii.gz",
+            "json": "qmri_tb1tfl/sub-01/fmap/sub-01_acq-famp_TB1TFL.json"
+        }
+    }
+}
+}

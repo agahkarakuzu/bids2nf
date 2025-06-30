@@ -34,9 +34,8 @@ jobs:
     
     - name: Run test workflows
       run: |
-        nextflow run tests/integration/test_named_set_mts.nf --bids_dir $PWD/tests/data/custom/ds-mtsat -profile amd64
-        nextflow run tests/integration/test_sequential_set_vfa.nf --bids_dir $PWD/tests/data/bids-examples/qmri_vfa -profile amd64
-        ls -la work/
+        nextflow run tests/integration/test_unified_bids2nf.nf --bids_dir $PWD/tests/data/custom/ds-mtsat -profile amd64
+        sh tests/run_bids_tests.sh --profile amd64
     
     - name: Assert outputs
       run: |

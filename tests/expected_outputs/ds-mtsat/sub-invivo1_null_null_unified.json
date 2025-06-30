@@ -1,4 +1,10 @@
 {
+  "subject": "sub-invivo1",
+  "session": "null",
+  "run": "null",
+  "bids2nfTypes": ["named"],
+  "totalFiles": 6,
+  "data": {
     "MTS": {
         "PDw": {
             "nii": "ds-mtsat/sub-invivo1/anat/sub-invivo1_flip-01_mt-off_MTS.nii.gz",
@@ -13,4 +19,5 @@
             "json": "ds-mtsat/sub-invivo1/anat/sub-invivo1_flip-02_mt-off_MTS.json"
         }
     }
+}
 }

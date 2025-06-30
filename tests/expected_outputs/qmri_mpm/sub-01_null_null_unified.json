@@ -1,0 +1,157 @@
+{
+  "subject": "sub-01",
+  "session": "null",
+  "run": "null",
+  "bids2nfTypes": ["named", "sequential", "mixed"],
+  "totalFiles": 100,
+  "data": {
+    "RB1COR": {
+        "bodyMTw": {
+            "nii": "qmri_mpm/sub-01/fmap/sub-01_acq-bodyMTw_RB1COR.nii",
+            "json": "qmri_mpm/sub-01/fmap/sub-01_acq-bodyMTw_RB1COR.json"
+        },
+        "bodyPDw": {
+            "nii": "qmri_mpm/sub-01/fmap/sub-01_acq-bodyPDw_RB1COR.nii",
+            "json": "qmri_mpm/sub-01/fmap/sub-01_acq-bodyPDw_RB1COR.json"
+        },
+        "bodyT1w": {
+            "nii": "qmri_mpm/sub-01/fmap/sub-01_acq-bodyT1w_RB1COR.nii",
+            "json": "qmri_mpm/sub-01/fmap/sub-01_acq-bodyT1w_RB1COR.json"
+        },
+        "headMTw": {
+            "nii": "qmri_mpm/sub-01/fmap/sub-01_acq-headMTw_RB1COR.nii",
+            "json": "qmri_mpm/sub-01/fmap/sub-01_acq-headMTw_RB1COR.json"
+        },
+        "headPDw": {
+            "nii": "qmri_mpm/sub-01/fmap/sub-01_acq-headPDw_RB1COR.nii",
+            "json": "qmri_mpm/sub-01/fmap/sub-01_acq-headPDw_RB1COR.json"
+        },
+        "headT1w": {
+            "nii": "qmri_mpm/sub-01/fmap/sub-01_acq-headT1w_RB1COR.nii",
+            "json": "qmri_mpm/sub-01/fmap/sub-01_acq-headT1w_RB1COR.json"
+        }
+    },
+    "TB1EPI": {
+        "nii": [
+            [
+                "qmri_mpm/sub-01/fmap/sub-01_echo-1_flip-01_TB1EPI.nii",
+                "qmri_mpm/sub-01/fmap/sub-01_echo-1_flip-02_TB1EPI.nii",
+                "qmri_mpm/sub-01/fmap/sub-01_echo-1_flip-03_TB1EPI.nii",
+                "qmri_mpm/sub-01/fmap/sub-01_echo-1_flip-04_TB1EPI.nii",
+                "qmri_mpm/sub-01/fmap/sub-01_echo-1_flip-05_TB1EPI.nii",
+                "qmri_mpm/sub-01/fmap/sub-01_echo-1_flip-06_TB1EPI.nii",
+                "qmri_mpm/sub-01/fmap/sub-01_echo-1_flip-07_TB1EPI.nii",
+                "qmri_mpm/sub-01/fmap/sub-01_echo-1_flip-08_TB1EPI.nii",
+                "qmri_mpm/sub-01/fmap/sub-01_echo-1_flip-09_TB1EPI.nii",
+                "qmri_mpm/sub-01/fmap/sub-01_echo-1_flip-10_TB1EPI.nii",
+                "qmri_mpm/sub-01/fmap/sub-01_echo-1_flip-11_TB1EPI.nii"
+            ],
+            [
+                "qmri_mpm/sub-01/fmap/sub-01_echo-2_flip-01_TB1EPI.nii",
+                "qmri_mpm/sub-01/fmap/sub-01_echo-2_flip-02_TB1EPI.nii",
+                "qmri_mpm/sub-01/fmap/sub-01_echo-2_flip-03_TB1EPI.nii",
+                "qmri_mpm/sub-01/fmap/sub-01_echo-2_flip-04_TB1EPI.nii",
+                "qmri_mpm/sub-01/fmap/sub-01_echo-2_flip-05_TB1EPI.nii",
+                "qmri_mpm/sub-01/fmap/sub-01_echo-2_flip-06_TB1EPI.nii",
+                "qmri_mpm/sub-01/fmap/sub-01_echo-2_flip-07_TB1EPI.nii",
+                "qmri_mpm/sub-01/fmap/sub-01_echo-2_flip-08_TB1EPI.nii",
+                "qmri_mpm/sub-01/fmap/sub-01_echo-2_flip-09_TB1EPI.nii",
+                "qmri_mpm/sub-01/fmap/sub-01_echo-2_flip-10_TB1EPI.nii",
+                "qmri_mpm/sub-01/fmap/sub-01_echo-2_flip-11_TB1EPI.nii"
+            ]
+        ],
+        "json": [
+            [
+                "qmri_mpm/sub-01/fmap/sub-01_echo-1_flip-01_TB1EPI.json",
+                "qmri_mpm/sub-01/fmap/sub-01_echo-1_flip-02_TB1EPI.json",
+                "qmri_mpm/sub-01/fmap/sub-01_echo-1_flip-03_TB1EPI.json",
+                "qmri_mpm/sub-01/fmap/sub-01_echo-1_flip-04_TB1EPI.json",
+                "qmri_mpm/sub-01/fmap/sub-01_echo-1_flip-05_TB1EPI.json",
+                "qmri_mpm/sub-01/fmap/sub-01_echo-1_flip-06_TB1EPI.json",
+                "qmri_mpm/sub-01/fmap/sub-01_echo-1_flip-07_TB1EPI.json",
+                "qmri_mpm/sub-01/fmap/sub-01_echo-1_flip-08_TB1EPI.json",
+                "qmri_mpm/sub-01/fmap/sub-01_echo-1_flip-09_TB1EPI.json",
+                "qmri_mpm/sub-01/fmap/sub-01_echo-1_flip-10_TB1EPI.json",
+                "qmri_mpm/sub-01/fmap/sub-01_echo-1_flip-11_TB1EPI.json"
+            ],
+            [
+                "qmri_mpm/sub-01/fmap/sub-01_echo-2_flip-01_TB1EPI.json",
+                "qmri_mpm/sub-01/fmap/sub-01_echo-2_flip-02_TB1EPI.json",
+                "qmri_mpm/sub-01/fmap/sub-01_echo-2_flip-03_TB1EPI.json",
+                "qmri_mpm/sub-01/fmap/sub-01_echo-2_flip-04_TB1EPI.json",
+                "qmri_mpm/sub-01/fmap/sub-01_echo-2_flip-05_TB1EPI.json",
+                "qmri_mpm/sub-01/fmap/sub-01_echo-2_flip-06_TB1EPI.json",
+                "qmri_mpm/sub-01/fmap/sub-01_echo-2_flip-07_TB1EPI.json",
+                "qmri_mpm/sub-01/fmap/sub-01_echo-2_flip-08_TB1EPI.json",
+                "qmri_mpm/sub-01/fmap/sub-01_echo-2_flip-09_TB1EPI.json",
+                "qmri_mpm/sub-01/fmap/sub-01_echo-2_flip-10_TB1EPI.json",
+                "qmri_mpm/sub-01/fmap/sub-01_echo-2_flip-11_TB1EPI.json"
+            ]
+        ]
+    },
+    "MPM": {
+        "MTw": {
+            "nii": [
+                "qmri_mpm/sub-01/anat/sub-01_acq-MTw_echo-1_flip-1_mt-on_MPM.nii",
+                "qmri_mpm/sub-01/anat/sub-01_acq-MTw_echo-2_flip-1_mt-on_MPM.nii",
+                "qmri_mpm/sub-01/anat/sub-01_acq-MTw_echo-3_flip-1_mt-on_MPM.nii",
+                "qmri_mpm/sub-01/anat/sub-01_acq-MTw_echo-4_flip-1_mt-on_MPM.nii",
+                "qmri_mpm/sub-01/anat/sub-01_acq-MTw_echo-5_flip-1_mt-on_MPM.nii",
+                "qmri_mpm/sub-01/anat/sub-01_acq-MTw_echo-6_flip-1_mt-on_MPM.nii"
+            ],
+            "json": [
+                "qmri_mpm/sub-01/anat/sub-01_acq-MTw_echo-1_flip-1_mt-on_MPM.json",
+                "qmri_mpm/sub-01/anat/sub-01_acq-MTw_echo-2_flip-1_mt-on_MPM.json",
+                "qmri_mpm/sub-01/anat/sub-01_acq-MTw_echo-3_flip-1_mt-on_MPM.json",
+                "qmri_mpm/sub-01/anat/sub-01_acq-MTw_echo-4_flip-1_mt-on_MPM.json",
+                "qmri_mpm/sub-01/anat/sub-01_acq-MTw_echo-5_flip-1_mt-on_MPM.json",
+                "qmri_mpm/sub-01/anat/sub-01_acq-MTw_echo-6_flip-1_mt-on_MPM.json"
+            ]
+        },
+        "PDw": {
+            "nii": [
+                "qmri_mpm/sub-01/anat/sub-01_acq-PDw_echo-1_flip-1_mt-off_MPM.nii",
+                "qmri_mpm/sub-01/anat/sub-01_acq-PDw_echo-2_flip-1_mt-off_MPM.nii",
+                "qmri_mpm/sub-01/anat/sub-01_acq-PDw_echo-3_flip-1_mt-off_MPM.nii",
+                "qmri_mpm/sub-01/anat/sub-01_acq-PDw_echo-4_flip-1_mt-off_MPM.nii",
+                "qmri_mpm/sub-01/anat/sub-01_acq-PDw_echo-5_flip-1_mt-off_MPM.nii",
+                "qmri_mpm/sub-01/anat/sub-01_acq-PDw_echo-6_flip-1_mt-off_MPM.nii",
+                "qmri_mpm/sub-01/anat/sub-01_acq-PDw_echo-7_flip-1_mt-off_MPM.nii",
+                "qmri_mpm/sub-01/anat/sub-01_acq-PDw_echo-8_flip-1_mt-off_MPM.nii"
+            ],
+            "json": [
+                "qmri_mpm/sub-01/anat/sub-01_acq-PDw_echo-1_flip-1_mt-off_MPM.json",
+                "qmri_mpm/sub-01/anat/sub-01_acq-PDw_echo-2_flip-1_mt-off_MPM.json",
+                "qmri_mpm/sub-01/anat/sub-01_acq-PDw_echo-3_flip-1_mt-off_MPM.json",
+                "qmri_mpm/sub-01/anat/sub-01_acq-PDw_echo-4_flip-1_mt-off_MPM.json",
+                "qmri_mpm/sub-01/anat/sub-01_acq-PDw_echo-5_flip-1_mt-off_MPM.json",
+                "qmri_mpm/sub-01/anat/sub-01_acq-PDw_echo-6_flip-1_mt-off_MPM.json",
+                "qmri_mpm/sub-01/anat/sub-01_acq-PDw_echo-7_flip-1_mt-off_MPM.json",
+                "qmri_mpm/sub-01/anat/sub-01_acq-PDw_echo-8_flip-1_mt-off_MPM.json"
+            ]
+        },
+        "T1w": {
+            "nii": [
+                "qmri_mpm/sub-01/anat/sub-01_acq-T1w_echo-1_flip-2_mt-off_MPM.nii",
+                "qmri_mpm/sub-01/anat/sub-01_acq-T1w_echo-2_flip-2_mt-off_MPM.nii",
+                "qmri_mpm/sub-01/anat/sub-01_acq-T1w_echo-3_flip-2_mt-off_MPM.nii",
+                "qmri_mpm/sub-01/anat/sub-01_acq-T1w_echo-4_flip-2_mt-off_MPM.nii",
+                "qmri_mpm/sub-01/anat/sub-01_acq-T1w_echo-5_flip-2_mt-off_MPM.nii",
+                "qmri_mpm/sub-01/anat/sub-01_acq-T1w_echo-6_flip-2_mt-off_MPM.nii",
+                "qmri_mpm/sub-01/anat/sub-01_acq-T1w_echo-7_flip-2_mt-off_MPM.nii",
+                "qmri_mpm/sub-01/anat/sub-01_acq-T1w_echo-8_flip-2_mt-off_MPM.nii"
+            ],
+            "json": [
+                "qmri_mpm/sub-01/anat/sub-01_acq-T1w_echo-1_flip-2_mt-off_MPM.json",
+                "qmri_mpm/sub-01/anat/sub-01_acq-T1w_echo-2_flip-2_mt-off_MPM.json",
+                "qmri_mpm/sub-01/anat/sub-01_acq-T1w_echo-3_flip-2_mt-off_MPM.json",
+                "qmri_mpm/sub-01/anat/sub-01_acq-T1w_echo-4_flip-2_mt-off_MPM.json",
+                "qmri_mpm/sub-01/anat/sub-01_acq-T1w_echo-5_flip-2_mt-off_MPM.json",
+                "qmri_mpm/sub-01/anat/sub-01_acq-T1w_echo-6_flip-2_mt-off_MPM.json",
+                "qmri_mpm/sub-01/anat/sub-01_acq-T1w_echo-7_flip-2_mt-off_MPM.json",
+                "qmri_mpm/sub-01/anat/sub-01_acq-T1w_echo-8_flip-2_mt-off_MPM.json"
+            ]
+        }
+    }
+}
+}

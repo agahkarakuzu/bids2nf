@@ -1,0 +1,29 @@
+{
+  "subject": "sub-01",
+  "session": "null",
+  "run": "null",
+  "bids2nfTypes": ["sequential", "named"],
+  "totalFiles": 8,
+  "data": {
+    "VFA": {
+        "nii": [
+            "qmri_vfa/sub-01/anat/sub-01_flip-1_VFA.nii.gz",
+            "qmri_vfa/sub-01/anat/sub-01_flip-2_VFA.nii.gz"
+        ],
+        "json": [
+            "qmri_vfa/sub-01/anat/sub-01_flip-1_VFA.json",
+            "qmri_vfa/sub-01/anat/sub-01_flip-2_VFA.json"
+        ]
+    },
+    "TB1AFI": {
+        "tr1": {
+            "nii": "qmri_vfa/sub-01/fmap/sub-01_acq-tr1_TB1AFI.nii.gz",
+            "json": "qmri_vfa/sub-01/fmap/sub-01_acq-tr1_TB1AFI.json"
+        },
+        "tr2": {
+            "nii": "qmri_vfa/sub-01/fmap/sub-01_acq-tr2_TB1AFI.nii.gz",
+            "json": "qmri_vfa/sub-01/fmap/sub-01_acq-tr2_TB1AFI.json"
+        }
+    }
+}
+}

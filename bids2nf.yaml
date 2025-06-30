@@ -27,6 +27,16 @@ TB1TFL:
       acquisition: "acq-famp"
   required: ["anat", "famp"]
 
+TB1AFI:
+  named_set:
+    tr1:
+      description: "Image from the first interleaved TR of the AFI sequence"
+      acquisition: "acq-tr1"
+    tr2:
+      description: "Image from the second interleaved TR of the AFI sequence"
+      acquisition: "acq-tr2"
+  required: ["tr1", "tr2"]
+
 RB1COR:
   named_set:
     bodyMTw:
@@ -79,3 +89,26 @@ TB1EPI:
   sequential_set:
     by_entities: [echo,flip]
     order: hierarchical
+
+# Mixed sets (combines named and sequential grouping)
+MPM:
+  mixed_set:
+    named_dimension: "acquisition"
+    sequential_dimension: "echo"
+    named_groups:
+      MTw:
+        description: "Magnetization transfer weighted images"
+        acquisition: "acq-MTw"
+        flip: "flip-1"
+        mtransfer: "mt-on"
+      PDw:
+        description: "Proton density weighted images"
+        acquisition: "acq-PDw"
+        flip: "flip-1" 
+        mtransfer: "mt-off"
+      T1w:
+        description: "T1-weighted images"
+        acquisition: "acq-T1w"
+        flip: "flip-2"
+        mtransfer: "mt-off"
+    required: ["MTw", "PDw", "T1w"]

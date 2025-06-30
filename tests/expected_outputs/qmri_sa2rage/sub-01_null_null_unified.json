@@ -1,0 +1,27 @@
+{
+  "subject": "sub-01",
+  "session": "null",
+  "run": "null",
+  "bids2nfTypes": ["sequential"],
+  "totalFiles": 4,
+  "data": {
+    "TB1SRGE": {
+        "nii": [
+            [
+                "qmri_sa2rage/sub-01/fmap/sub-01_flip-1_inv-1_TB1SRGE.nii.gz"
+            ],
+            [
+                "qmri_sa2rage/sub-01/fmap/sub-01_flip-2_inv-2_TB1SRGE.nii.gz"
+            ]
+        ],
+        "json": [
+            [
+                "qmri_sa2rage/sub-01/fmap/sub-01_flip-1_inv-1_TB1SRGE.json"
+            ],
+            [
+                "qmri_sa2rage/sub-01/fmap/sub-01_flip-2_inv-2_TB1SRGE.json"
+            ]
+        ]
+    }
+}
+}

@@ -1,17 +1,9 @@
-import org.yaml.snakeyaml.Yaml
-include { libbids_sh_parse } from '../modules/parsers/lib_bids_sh_parser.nf'
 include { 
     findMatchingGrouping; 
     createFileMap; 
     validateRequiredFiles; 
     createGroupingKey 
 } from '../modules/grouping/entity_grouping_utils.nf'
-include { 
-    validateAllInputs;
-    validateBidsDirectory;
-    validateBids2nfConfig;
-    validateLibBidsScript
-} from '../modules/parsers/bids_validator.nf'
 include {
     handleError;
     logProgress;
@@ -20,30 +12,13 @@ include {
 
 workflow emit_named_sets {
     take:
-    bids_dir
-    bids2nf_config
+    parsed_csv
+    config
 
     main:
     
-    // Input validation
+    // Input validation and parsing now done by calling workflow
     logProgress("emit_named_sets", "Creating named set channels ...")
-    
-    // Validate all inputs before processing
-    tryWithContext("INPUT_VALIDATION") {
-        validateAllInputs(bids_dir, bids2nf_config, params.libbids_sh)
-    }
-    
-    logProgress("emit_named_sets", "Input validation completed successfully")
-    
-    // Parse BIDS directory
-    parsed_csv = tryWithContext("BIDS_PARSING") {
-        libbids_sh_parse(bids_dir, params.libbids_sh)
-    }
-    
-    // Load and validate configuration
-    def config = tryWithContext("CONFIG_LOADING") {
-        new Yaml().load(new FileReader(bids2nf_config))
-    }
 
     input_files = parsed_csv
         .splitCsv(header: true)

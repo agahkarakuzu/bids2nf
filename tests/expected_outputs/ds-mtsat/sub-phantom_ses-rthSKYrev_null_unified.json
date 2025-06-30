@@ -1,4 +1,10 @@
 {
+  "subject": "sub-phantom",
+  "session": "ses-rthSKYrev",
+  "run": "null",
+  "bids2nfTypes": ["named"],
+  "totalFiles": 6,
+  "data": {
     "MTS": {
         "PDw": {
             "nii": "ds-mtsat/sub-phantom/ses-rthSKYrev/anat/sub-phantom_ses-rthSKYrev_flip-01_mt-off_MTS.nii.gz",
@@ -13,4 +19,5 @@
             "json": "ds-mtsat/sub-phantom/ses-rthSKYrev/anat/sub-phantom_ses-rthSKYrev_flip-02_mt-off_MTS.json"
         }
     }
+}
 }

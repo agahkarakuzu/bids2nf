@@ -1,4 +1,10 @@
 {
+  "subject": "sub-phantom",
+  "session": "ses-rth750rev",
+  "run": "run-01",
+  "bids2nfTypes": ["named"],
+  "totalFiles": 6,
+  "data": {
     "MTS": {
         "PDw": {
             "nii": "ds-mtsat/sub-phantom/ses-rth750rev/anat/sub-phantom_ses-rth750rev_run-01_flip-01_mt-off_MTS.nii.gz",
@@ -13,4 +19,5 @@
             "json": "ds-mtsat/sub-phantom/ses-rth750rev/anat/sub-phantom_ses-rth750rev_run-01_flip-02_mt-off_MTS.json"
         }
     }
+}
 }

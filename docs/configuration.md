@@ -66,6 +66,43 @@ VFA:
 
 This groups files by both flip angle and echo time, organizing them hierarchically.
 
+### Mixed Sets
+
+**Mixed sets** combine both named and sequential grouping for complex data structures. They first group files by named categories, then within each category, organize files sequentially by another entity.
+
+**Use case**: Multi-Parameter Mapping (MPM) data where you have multiple acquisition types (MTw, PDw, T1w), each with multiple echoes.
+
+```yaml
+MPM:
+  mixed_set:
+    named_dimension: "acq"
+    sequential_dimension: "echo"
+    named_groups:
+      MTw:
+        description: "Magnetization transfer weighted images"
+        acq: "MTw"
+        flip: "flip-01"
+        mt: "mt-on"
+      PDw:
+        description: "Proton density weighted images"  
+        acq: "PDw"
+        flip: "flip-01"
+        mt: "mt-off"
+      T1w:
+        description: "T1-weighted images"
+        acq: "T1w"
+        flip: "flip-02"
+        mt: "mt-off"
+    required: ["MTw", "PDw", "T1w"]
+```
+
+**What this means:**
+- First, group files by acquisition type (MTw, PDw, T1w) using named grouping
+- Within each acquisition type, group files sequentially by echo number
+- Each acquisition type must have specific entity constraints (flip, mt, etc.)
+- The output channel will contain named groups, each with arrays of sequential files
+- Final structure: `{MPM: {MTw: {nii: [echo1, echo2, ...], json: [...]}, PDw: {...}, T1w: {...}}}`
+
 ## Configuration Structure
 
 ### Basic Pattern
@@ -74,10 +111,12 @@ Each pattern in `bids2nf.yaml` follows this structure:
 
 ```yaml
 PATTERN_NAME:
-  # Either named_set OR sequential_set
+  # One of: named_set, sequential_set, or mixed_set
   named_set: { ... }
   # OR
   sequential_set: { ... }
+  # OR
+  mixed_set: { ... }
   
   # Optional: additional constraints
   required: [ ... ]
@@ -95,7 +134,51 @@ Pattern names (like `MTS`, `VFA`) become:
 bids2nf includes workflows that handle each pattern type:
 
 - **`emit_named_sets.nf`**: Processes named set patterns
-- **`emit_sequential_sets.nf`**: Processes sequential set patterns
+- **`emit_sequential_sets.nf`**: Processes sequential set patterns  
+- **`emit_mixed_sets.nf`**: Processes mixed set patterns
+- **`bids2nf.nf`**: **Unified workflow** that automatically detects and processes all pattern types
+
+### Unified Workflow (Recommended)
+
+The **unified workflow** (`bids2nf.nf`) is the recommended entry point. It:
+
+1. **Automatically analyzes** your configuration file
+2. **Detects** which pattern types are present (named, sequential, mixed)
+3. **Routes** to the appropriate specialized workflows
+4. **Combines** all results into a single output channel
+
+```nextflow
+include { bids2nf } from './workflows/bids2nf.nf'
+
+workflow {
+    // Single call handles all pattern types in your config
+    unified_results = bids2nf(params.bids_dir, params.bids2nf_config)
+    
+    // Process all results regardless of their pattern type
+    my_analysis_process(unified_results)
+}
+```
+
+**Benefits:**
+- **Single entry point** - no need to know which patterns your config contains
+- **Mixed configurations** - handle datasets with multiple pattern types
+- **Future-proof** - automatically supports new pattern types
+- **Unified output** - all results in the same channel format
+
+### Individual Workflows
+
+You can still use individual workflows for specific use cases:
+
+```nextflow
+// For configurations with only named sets
+named_only = emit_named_sets(params.bids_dir, params.bids2nf_config)
+
+// For configurations with only sequential sets  
+sequential_only = emit_sequential_sets(params.bids_dir, params.bids2nf_config)
+
+// For configurations with only mixed sets
+mixed_only = emit_mixed_sets(params.bids_dir, params.bids2nf_config)
+```
 
 Your `bids2nf.yaml` configuration determines which workflow is used for each pattern.
 

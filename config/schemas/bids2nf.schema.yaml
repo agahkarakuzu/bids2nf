@@ -157,12 +157,102 @@ properties:
     required: ["named_set", "required"]
     additionalProperties: false
     description: "Diffusion Weighted Imaging configuration"
+  
+  # Sequential set configuration (for VFA, MEGRE, etc.)
+  VFA:
+    type: object
+    properties:
+      sequential_set:
+        type: object
+        properties:
+          by_entity:
+            type: string
+            enum: ["flip", "echo", "inversion", "run", "task", "session", "acquisition"]
+            description: "Single entity to group sequentially"
+          by_entities:
+            type: array
+            items:
+              type: string
+              enum: ["flip", "echo", "inversion", "run", "task", "session", "acquisition"]
+            uniqueItems: true
+            minItems: 2
+            description: "Multiple entities to group sequentially"
+          order:
+            type: string
+            enum: ["hierarchical", "flat"]
+            default: "flat"
+            description: "Ordering strategy for multiple entities"
+        oneOf:
+          - required: ["by_entity"]
+          - required: ["by_entities"]
+        additionalProperties: false
+        description: "Sequential grouping configuration"
+    
+    required: ["sequential_set"]
+    additionalProperties: false
+    description: "Sequential set configuration"
+  
+  # Mixed set configuration (for MPM and other complex cases)
+  MPM:
+    type: object
+    properties:
+      mixed_set:
+        type: object
+        properties:
+          named_dimension:
+            type: string
+            enum: ["acq", "acquisition", "flip", "echo", "inversion", "run", "task", "session"]
+            description: "Entity to use for named grouping (primary dimension)"
+          sequential_dimension:
+            type: string
+            enum: ["flip", "echo", "inversion", "run", "task", "session", "acquisition"]
+            description: "Entity to use for sequential grouping within each named group"
+          named_groups:
+            type: object
+            patternProperties:
+              "^[A-Za-z0-9]+$":
+                allOf:
+                  - $ref: "#/definitions/grouping_config"
+                  - type: object
+                    properties:
+                      acq:
+                        $ref: "#/definitions/entity_value"
+                      acquisition:
+                        $ref: "#/definitions/entity_value"
+                      flip:
+                        type: string
+                        pattern: "^flip-[0-9]+$"
+                      mt:
+                        type: string
+                        enum: ["mt-on", "mt-off"]
+                      mtransfer:
+                        type: string
+                        enum: ["mt-on", "mt-off"]
+            additionalProperties: false
+            description: "Named group definitions with their entity constraints"
+          required:
+            type: array
+            items:
+              type: string
+            uniqueItems: true
+            minItems: 1
+            description: "List of required named groups"
+        
+        required: ["named_dimension", "sequential_dimension", "named_groups"]
+        additionalProperties: false
+        description: "Mixed set configuration combining named and sequential grouping"
+    
+    required: ["mixed_set"]
+    additionalProperties: false
+    description: "Mixed set configuration for complex multi-parameter data"
 
 # At least one modality must be specified
 anyOf:
   - required: ["MTS"]
   - required: ["BOLD"]
   - required: ["DWI"]
+  - required: ["VFA"]
+  - required: ["MPM"]
 
 additionalProperties: false
 

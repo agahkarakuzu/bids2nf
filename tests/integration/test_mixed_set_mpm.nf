@@ -1,7 +1,7 @@
 import org.yaml.snakeyaml.Yaml
 include { libbids_sh_parse } from '../../modules/parsers/lib_bids_sh_parser.nf'
-include { emit_named_sets } from '../../subworkflows/emit_named_sets.nf'
-include { mts_process_template } from '../../modules/templates/mts_process_template.nf'
+include { emit_mixed_sets } from '../../subworkflows/emit_mixed_sets.nf'
+include { mpm_process_template } from '../../modules/templates/mpm_process_template.nf'
 include { validateAllInputs } from '../../modules/parsers/bids_validator.nf'
 
 workflow {
@@ -10,6 +10,6 @@ workflow {
   parsed_csv = libbids_sh_parse(params.bids_dir, params.libbids_sh)
   config = new Yaml().load(new FileReader(params.bids2nf_config))
   
-  mts_named_set = emit_named_sets(parsed_csv, config)
-  mts_process_template(mts_named_set)
+  mpm_mixed_set = emit_mixed_sets(parsed_csv, config)
+  mpm_process_template(mpm_mixed_set)
 }
