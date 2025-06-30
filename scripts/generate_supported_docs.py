@@ -31,9 +31,9 @@ def generate_supported_docs(yaml_file: Path, output_file: Path):
     bids_suffixes = fetch_bids_suffixes()
     
     content = []
-    content.append("# Supported BIDS Data Types")
+    content.append("# Supported BIDS suffixes")
     content.append("")
-    content.append("This page documents the BIDS data types supported by bids2nf.")
+    content.append("This page documents the BIDS suffixes currently supported by bids2nf.")
     content.append("")
     
     # Process named sets
@@ -58,25 +58,29 @@ def generate_supported_docs(yaml_file: Path, output_file: Path):
             display_name = suffix_info.get('display_name', name)
             description = suffix_info.get('description', '')
             
-            content.append(f"### {display_name}")
-            if description:
-                content.append("")
-                content.append(f"*{description}*")
-            content.append("")
-            
             named_set = config_data['named_set']
             required = config_data.get('required', [])
             
-            content.append(f"**Suffix:** `{name}`")
-            content.append("")
-            content.append(f"**Required files:** {', '.join(required)}")
+            # Format required files for footer
+            required_str = ', '.join([f"`{req}`" for req in required]) if required else "None"
+            
+            content.append("::::{card}")
+            content.append(f":header: <span class=\"custom-heading\"><h4>{name}</h4></span>")
+            content.append(f":footer: **Required keys:** {required_str}")
             content.append("")
             
-            content.append("| File | Description | Properties |")
+            if description:
+                if display_name != name:
+                    content.append(f"**{display_name}**")
+                content.append("")
+                content.append(description)
+                content.append("")
+            
+            content.append("| Key | Description | Entity-based mapping |")
             content.append("|------|-------------|------------|")
             
             for file_key, file_config in named_set.items():
-                description = file_config.get('description', 'No description')
+                file_description = file_config.get('description', 'No description')
                 
                 # Extract properties (excluding description)
                 properties = []
@@ -85,8 +89,22 @@ def generate_supported_docs(yaml_file: Path, output_file: Path):
                         properties.append(f"{prop_key}: {prop_value}")
                 
                 properties_str = ', '.join(properties) if properties else 'None'
-                content.append(f"| {file_key} | {description} | {properties_str} |")
+                content.append(f"| {file_key} | {file_description} | {properties_str} |")
             
+            content.append("")
+            content.append(":::{seealso} Example usage within a process")
+            content.append(":class: dropdown")
+            content.append("```groovy")
+            # Add example access patterns for each file in the named set
+            for file_key in named_set.keys():
+                content.append(f"  bids_channel['{name}']['{file_key}']['nii']")
+                content.append(f"  bids_channel['{name}']['{file_key}']['json']")
+            content.append("```")
+            content.append(":::")
+            tmp_url = f"https://github.com/agahkarakuzu/bids2nf/blob/main/modules/templates/{name.lower()}_process_template.nf"
+            if requests.get(tmp_url).status_code == 200:
+                content.append(f"{{button}}`Nextflow process template <{tmp_url}>`")
+            content.append("::::")
             content.append("")
     
     if sequential_sets:
@@ -101,25 +119,78 @@ def generate_supported_docs(yaml_file: Path, output_file: Path):
             display_name = suffix_info.get('display_name', name)
             description = suffix_info.get('description', '')
             
-            content.append(f"### {display_name}")
-            if description:
-                content.append("")
-                content.append(f"*{description}*")
-            content.append("")
-            
             sequential_set = config_data['sequential_set']
+            required = config_data.get('required', [])
             
-            content.append(f"**Suffix:** `{name}`")
-            content.append("")
-            
+            # Format organization info for footer
+            organization_info = []
             if 'by_entity' in sequential_set:
                 entity = sequential_set['by_entity']
-                content.append(f"**Organized by entity:** {entity}")
+                organization_info.append(f"Entity: `{entity}`")
             elif 'by_entities' in sequential_set:
                 entities = sequential_set['by_entities']
                 order = sequential_set.get('order', 'sequential')
-                content.append(f"**Organized by entities:** {', '.join(entities)} ({order} order)")
+                organization_info.append(f"Entities: {', '.join([f'`{e}`' for e in entities])} ({order} order)")
             
+            # Format required files for footer
+            required_str = ', '.join([f"`{req}`" for req in required]) if required else "None"
+            if organization_info:
+                footer_text = f"**{organization_info[0]}**"
+            else:
+                footer_text = f"🐈‍⬛"
+            
+            content.append("::::{card}")
+            content.append(f":header: <span class=\"custom-heading-2\"><h4>{name}</h4></span>")
+            content.append(f":footer: {footer_text}")
+            content.append("")
+            
+            if description:
+                if display_name != name:
+                    content.append(f"**{display_name}**")
+                content.append("")
+                content.append(description)
+                content.append("")
+            
+            content.append("")
+            
+            content.append(":::{seealso} Example usage within a process")
+            content.append(":class: dropdown")
+            content.append("```groovy")
+            
+            # Check if it's a single entity or multiple entities
+            if 'by_entity' in sequential_set:
+                # Single entity - show size() and [0] access
+                content.append(f"  // Get number of items in sequential set")
+                content.append(f"  bids_channel['{name}']['nii'].size()")
+                content.append(f"  // Access first item")
+                content.append(f"  bids_channel['{name}']['nii'][0]")
+                content.append(f"  bids_channel['{name}']['json'][0]")
+            elif 'by_entities' in sequential_set:
+                # Multiple entities - show which entity comes first and use double brackets
+                entities = sequential_set['by_entities']
+                first_entity = entities[0]
+                second_entity = entities[1] if len(entities) > 1 else None
+                content.append(f"  // Multiple entities organized by: {', '.join(entities)}")
+                content.append(f"  // First dimension: {first_entity}, Second dimension: {second_entity}")
+                content.append(f"  // Get size of first dimension ({first_entity})")
+                content.append(f"  bids_channel['{name}']['nii'].size()")
+                if second_entity:
+                    content.append(f"  // Get size of second dimension ({second_entity}) for first {first_entity}")
+                    content.append(f"  bids_channel['{name}']['nii'][0].size()")
+                content.append(f"  // Access first item")
+                content.append(f"  bids_channel['{name}']['nii'][0][0]")
+                content.append(f"  bids_channel['{name}']['json'][0][0]")
+            else:
+                # Fallback to original format
+                content.append(f"  bids_channel['{name}']['nii']")
+                content.append(f"  bids_channel['{name}']['json']")
+                
+            content.append("```")
+            content.append(":::")
+            tmp_url = f"https://github.com/agahkarakuzu/bids2nf/blob/main/modules/templates/{name.lower()}_process_template.nf"
+            if requests.get(tmp_url).status_code == 200:
+                content.append(f"{{button}}`Process template <{tmp_url}>`")
+            content.append("::::")
             content.append("")
     
     content.append("---")

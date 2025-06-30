@@ -1,0 +1,39 @@
+.green-bg {
+    background-color: green;
+}
+
+h4 {
+    margin-top:0.1em!important;
+}
+
+h3{
+    margin-top:0.1em!important;
+}
+
+.custom-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.1em;
+}
+
+.custom-heading::after {
+    content: "named set";
+    color: rgba(0, 0, 0, 0.2);
+    margin-right: 8px;
+    font-weight: 600;
+}
+
+.custom-heading-2 {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.1em;
+}
+
+.custom-heading-2::after {
+    content: "sequential set";
+    color: rgba(0, 0, 0, 0.2);
+    margin-right: 8px;
+    font-weight: 600;
+}
