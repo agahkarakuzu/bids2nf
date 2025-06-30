@@ -1,3 +1,21 @@
+/* Define CSS custom properties for light mode */
+html.light {
+    --named-set-color: rgba(0, 100, 0, 0.6);
+    --sequential-set-color: rgba(0, 0, 150, 0.6);
+}
+
+/* Dark mode overrides */
+html.dark {
+    --named-set-color: rgba(100, 255, 100, 0.8);
+    --sequential-set-color: rgba(100, 150, 255, 0.8);
+}
+
+/* Fallback for default/system preference */
+:root {
+    --named-set-color: rgba(0, 100, 0, 0.6);
+    --sequential-set-color: rgba(0, 0, 150, 0.6);
+}
+
 .green-bg {
     background-color: green;
 }
@@ -19,7 +37,7 @@ h3{
 
 .custom-heading::after {
     content: "named set";
-    color: rgba(0, 0, 0, 0.2);
+    color: var(--named-set-color);
     margin-right: 8px;
     font-weight: 600;
 }
@@ -33,7 +51,7 @@ h3{
 
 .custom-heading-2::after {
     content: "sequential set";
-    color: rgba(0, 0, 0, 0.2);
+    color: var(--sequential-set-color);
     margin-right: 8px;
     font-weight: 600;
 }
