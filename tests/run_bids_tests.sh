@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Script to run bids2nf workflow tests on multiple BIDS example directories
 # Usage: ./run_bids_tests.sh [--profile PROFILE] [directory1] [directory2] ...
@@ -88,7 +88,7 @@ for dir in "${DIRS[@]}"; do
     echo "Running: nextflow run tests/integration/test_unified_bids2nf.nf --bids_dir $BIDS_DIR -profile $PROFILE"
     
     # Run the workflow
-    if cd "$PROJECT_ROOT" && /Users/agah/nextflow run tests/integration/test_unified_bids2nf.nf --bids_dir "$BIDS_DIR" -profile "$PROFILE"; then
+    if cd "$PROJECT_ROOT" && nextflow run tests/integration/test_unified_bids2nf.nf --bids_dir "$BIDS_DIR" -profile "$PROFILE"; then
         echo "✓ PASSED: $dir"
         PASSED=$((PASSED + 1))
     else

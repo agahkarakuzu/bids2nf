@@ -35,7 +35,7 @@ jobs:
     - name: Run test workflows
       run: |
         nextflow run tests/integration/test_unified_bids2nf.nf --bids_dir $PWD/tests/data/custom/ds-mtsat -profile amd64
-        sh tests/run_bids_tests.sh --profile amd64
+        ./tests/run_bids_tests.sh --profile amd64
     
     - name: Assert outputs
       run: |
