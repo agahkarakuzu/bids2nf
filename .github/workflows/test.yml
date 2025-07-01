@@ -42,7 +42,7 @@ jobs:
         echo "#️⃣ Comparing directory trees to see whether the number of files are the same ..."
         ./tests/compare_json_dirs.sh $PWD/tests/expected_outputs $PWD/tests/new_outputs
         echo "🔍 Comparing JSON files to see whether the (new/expected) content is the same ..."
-        nextflow run tests/integration/assert_json_outputs.nf --expected_dir $PWD/tests/expected_outputs --new_dir $PWD/tests/new_outputs -profile arm64
+        nextflow run tests/integration/assert_json_outputs.nf --expected_dir $PWD/tests/expected_outputs --new_dir $PWD/tests/new_outputs -profile amd64_test
         echo "🎉 All assertion tests passed!"
 
     - name: Validate YAML configuration
