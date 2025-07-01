@@ -1,7 +1,8 @@
 include { 
     findMatchingGrouping; 
     createFileMap; 
-    validateRequiredFiles; 
+    validateRequiredFiles;
+    validateRequiredFilesWithConfig; 
     createGroupingKey 
 } from '../modules/grouping/entity_grouping_utils.nf'
 include {
@@ -46,7 +47,8 @@ workflow emit_named_sets {
             
             def fileMap = createFileMap(extFiles)
             
-            if (validateRequiredFiles(fileMap, subject, session, run, suffix, groupName)) {
+            def suffixConfig = config[suffix]
+            if (validateRequiredFilesWithConfig(fileMap, subject, session, run, suffix, groupName, suffixConfig)) {
                 def niiFile = fileMap.containsKey('nii.gz') ? fileMap['nii.gz'] : fileMap['nii']
                 def jsonFile = fileMap['json']
                 tuple([subject, session, run, suffix, groupName], [niiFile, jsonFile])

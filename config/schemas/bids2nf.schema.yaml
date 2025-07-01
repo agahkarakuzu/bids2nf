@@ -12,8 +12,15 @@ definitions:
   
   file_extension:
     type: string
-    enum: ["nii", "nii.gz", "json", "tsv", "bval", "bvec"]
+    enum: ["nii", "nii.gz", "json", "tsv", "bval", "bvec", "txt"]
     description: "Supported file extensions"
+  
+  additional_extensions:
+    type: array
+    items:
+      $ref: "#/definitions/file_extension"
+    uniqueItems: true
+    description: "Additional file extensions beyond the default nii.gz and json"
   
   grouping_config:
     type: object
@@ -105,6 +112,10 @@ properties:
         uniqueItems: true
         minItems: 1
         description: "List of required groupings that must be present"
+      
+      additional_extensions:
+        $ref: "#/definitions/additional_extensions"
+        description: "Additional file extensions for MTS data"
     
     required: ["named_set", "required"]
     additionalProperties: false
@@ -187,6 +198,10 @@ properties:
           - required: ["by_entities"]
         additionalProperties: false
         description: "Sequential grouping configuration"
+      
+      additional_extensions:
+        $ref: "#/definitions/additional_extensions"
+        description: "Additional file extensions for VFA data"
     
     required: ["sequential_set"]
     additionalProperties: false
@@ -241,18 +256,54 @@ properties:
         required: ["named_dimension", "sequential_dimension", "named_groups"]
         additionalProperties: false
         description: "Mixed set configuration combining named and sequential grouping"
+      
+      additional_extensions:
+        $ref: "#/definitions/additional_extensions"
+        description: "Additional file extensions for MPM data"
     
     required: ["mixed_set"]
     additionalProperties: false
     description: "Mixed set configuration for complex multi-parameter data"
+  
+  # Plain set configuration (for DWI and other simple multi-extension cases)
+  DWI:
+    type: object
+    properties:
+      plain_set:
+        type: object
+        properties:
+          description:
+            type: string
+            description: "Human-readable description of this plain set"
+          required_extensions:
+            type: array
+            items:
+              $ref: "#/definitions/file_extension"
+            uniqueItems: true
+            default: ["json"]
+            description: "Required file extensions (nii/nii.gz is always required)"
+          additional_extensions:
+            $ref: "#/definitions/additional_extensions"
+            description: "Additional optional file extensions"
+        required: ["description"]
+        additionalProperties: false
+        description: "Plain set configuration for simple multi-extension data"
+      
+      additional_extensions:
+        $ref: "#/definitions/additional_extensions"
+        description: "Additional file extensions for this plain set"
+    
+    required: ["plain_set"]
+    additionalProperties: false
+    description: "Plain set configuration for DWI and similar data types"
 
 # At least one modality must be specified
 anyOf:
   - required: ["MTS"]
   - required: ["BOLD"]
-  - required: ["DWI"]
   - required: ["VFA"]
   - required: ["MPM"]
+  - required: ["DWI"]
 
 additionalProperties: false
 

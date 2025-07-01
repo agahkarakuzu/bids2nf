@@ -10,9 +10,11 @@ def analyzeConfiguration(bids2nf_config) {
         hasNamedSets: false,
         hasSequentialSets: false,
         hasMixedSets: false,
+        hasPlainSets: false,
         namedSetSuffixes: [],
         sequentialSetSuffixes: [],
-        mixedSetSuffixes: []
+        mixedSetSuffixes: [],
+        plainSetSuffixes: []
     ]
     
     config.each { suffix, suffixConfig ->
@@ -29,6 +31,11 @@ def analyzeConfiguration(bids2nf_config) {
         if (suffixConfig.containsKey('mixed_set')) {
             analysis.hasMixedSets = true
             analysis.mixedSetSuffixes << suffix
+        }
+        
+        if (suffixConfig.containsKey('plain_set')) {
+            analysis.hasPlainSets = true
+            analysis.plainSetSuffixes << suffix
         }
     }
     
@@ -57,13 +64,20 @@ def hasMixedSets(bids2nf_config) {
 }
 
 /**
+ * Check if configuration has any plain sets
+ */
+def hasPlainSets(bids2nf_config) {
+    return analyzeConfiguration(bids2nf_config).hasPlainSets
+}
+
+/**
  * Get detailed configuration analysis with counts and types
  */
 def getConfigurationSummary(bids2nf_config) {
     def analysis = analyzeConfiguration(bids2nf_config)
     
     def summary = [
-        totalPatterns: analysis.namedSetSuffixes.size() + analysis.sequentialSetSuffixes.size() + analysis.mixedSetSuffixes.size(),
+        totalPatterns: analysis.namedSetSuffixes.size() + analysis.sequentialSetSuffixes.size() + analysis.mixedSetSuffixes.size() + analysis.plainSetSuffixes.size(),
         namedSets: [
             count: analysis.namedSetSuffixes.size(),
             suffixes: analysis.namedSetSuffixes
@@ -75,6 +89,10 @@ def getConfigurationSummary(bids2nf_config) {
         mixedSets: [
             count: analysis.mixedSetSuffixes.size(),
             suffixes: analysis.mixedSetSuffixes
+        ],
+        plainSets: [
+            count: analysis.plainSetSuffixes.size(),
+            suffixes: analysis.plainSetSuffixes
         ]
     ]
     

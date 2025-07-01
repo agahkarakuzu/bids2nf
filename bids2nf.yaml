@@ -1,5 +1,43 @@
+# PLAIN SETS
+# Inputs that do not require a grouping logic.
+# 🔑 plain_set:
+#     🔑 description: "Description of the plain set"
+#     🔑 additional_extensions: ["extension1", "extension2"]
+#        ℹ️ Additional extensions to be added to the channel.
+#     🔑 example_output: "path/to/example_output.json"
+#        ℹ️ Example output file for the channel for documentation generation purposes.
+#        Not intended for users.        
+
+dwi:
+  example_output: "tests/expected_outputs/dwi/sub-01_null_null_unified.json"
+  plain_set:
+    description: "Diffusion weighted imaging (DWI) with gradient directions (bvec, b-vectors) and b-values (bval)"
+    additional_extensions: ["bval", "bvec"]
+
+# NAMED (GROUPING) SETS
+# File collections that call for a grouping logic that depends on single or multiple entities.
+# There's typically need to create custom grouping keys (such as MTw, PDw, T1w in MTS)
 # https://bids-specification.readthedocs.io/en/stable/common-principles.html#entity-linked-file-collections
-# Entity based grouping is for entity linked file collections.
+# 🔑 named_set:
+#     🔑 custom_grouping_key_1:
+#        ℹ️ A custom grouping key that is not an entity.
+#          🔑 description: "Description of the custom grouping key"
+#          🔑 acquisition: "acq-value"
+#          🔑 flip: "flip-value"
+#          🔑 mtransfer: "mt-value"
+#          🔑 echo: "echo-value"
+#          🔑 inversion: "inv-value"
+#          🔑 flip: "flip-value"
+#     🔑 custom_grouping_key_2:
+#     🔑 custom_grouping_key_N:
+#     🔑 required: [index, index, nIndex]
+#        ℹ️ The required entities to be present in the file collection. If this condition is not met, a
+#          channel will not be emitted from the respective directory
+#     🔑 additional_extensions: ["extension1", "extension2"]
+#        ℹ️ Additional extensions to be added to the channel.
+#     🔑 example_output: "path/to/example_output.json"
+#        ℹ️ Example output file for the channel for documentation generation purposes.
+#        Not intended for users.
 
 MTS:
   example_output: "tests/expected_outputs/ds-mtsat/sub-phantom_ses-rth750rev_run-01_unified.json"
@@ -63,7 +101,25 @@ RB1COR:
       acquisition: "acq-headPDw"
   required: ["bodyMTw", "bodyT1w", "bodyPDw", "headMTw", "headT1w", "headPDw"]
 
-# Single entity sequential sets
+# SEQUENTIAL SETS
+# File collections that require sequential logic based on one or more entities.
+# These groups of files are organized as flat ([index]) or nested lists ([index][index]).
+# 🔑 sequential_set:
+#     🔑 by_entity: [index]
+#        ℹ️ A flat list of files collected by a single entity.
+#     🔑 by_entities: [index, index, nIndex]
+#        ℹ️ A nested list of files collected by multiple entities.
+#         🔑 order: hierarchical | flat
+#             - Hierarchical: The files are organized as a nested list. The index order is inferred from the
+#                             entity order.
+#             - Flat: The files are organized as a flat list. It is up to the user to infer the position 
+#                     of a file in the list.
+#     🔑 additional_extensions: ["extension1", "extension2"]
+#        ℹ️ Additional extensions to be added to the channel.
+#     🔑 example_output: "path/to/example_output.json"
+#        ℹ️ Example output file for the channel for documentation generation purposes.
+#        Not intended for users.
+
 VFA:
   example_output: "tests/expected_outputs/qmri_vfa/sub-01_null_null_unified.json"
   sequential_set:
@@ -101,7 +157,21 @@ TB1EPI:
     by_entities: [echo,flip]
     order: hierarchical
 
-# Mixed sets (combines named and sequential grouping)
+# MIXED SETS
+# File collections that require a combination of named and sequential logic.
+# 🔑 mixed_set:
+#     🔑 named_dimension: "acquisition"
+#        ℹ️ The dimension that is used to group the files.
+#     🔑 sequential_dimension: "echo"
+#        ℹ️ The dimension that is used to order the files.
+#     🔑 named_groups:
+#        ℹ️ A list of named groups following the same structure as the named_set.
+#     🔑 additional_extensions: ["extension1", "extension2"]
+#        ℹ️ Additional extensions to be added to the channel.
+#     🔑 example_output: "path/to/example_output.json"
+#        ℹ️ Example output file for the channel for documentation generation purposes.
+#        Not intended for users.
+
 MPM:
   example_output: "tests/expected_outputs/qmri_mpm/sub-01_null_null_unified.json"
   mixed_set:

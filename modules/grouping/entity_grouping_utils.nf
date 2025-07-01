@@ -37,6 +37,33 @@ def validateRequiredFiles(fileMap, subject, session, run, suffix, groupName) {
     return true
 }
 
+def validateRequiredFilesWithConfig(fileMap, subject, session, run, suffix, groupName, suffixConfig) {
+    // Check NIfTI files (required)
+    def hasNii = fileMap.containsKey('nii') || fileMap.containsKey('nii.gz')
+    if (!hasNii) {
+        log.warn "Subject ${subject}, Session ${session}, Run ${run}, Suffix ${suffix}, grouping ${groupName}: Missing NIfTI file. Available: ${fileMap.keySet()}, Required: nii/nii.gz"
+        return false
+    }
+    
+    // Check JSON file (required by default)
+    def hasJson = fileMap.containsKey('json')
+    if (!hasJson) {
+        log.warn "Subject ${subject}, Session ${session}, Run ${run}, Suffix ${suffix}, grouping ${groupName}: Missing JSON file. Available: ${fileMap.keySet()}, Required: json"
+        return false
+    }
+    
+    // Check additional extensions if specified (optional by default)
+    if (suffixConfig.containsKey('additional_extensions')) {
+        def additionalExtensions = suffixConfig.additional_extensions
+        def missingAdditional = additionalExtensions.findAll { ext -> !fileMap.containsKey(ext) }
+        if (missingAdditional) {
+            log.info "Subject ${subject}, Session ${session}, Run ${run}, Suffix ${suffix}, grouping ${groupName}: Optional additional extensions not found: ${missingAdditional}. Available: ${fileMap.keySet()}"
+        }
+    }
+    
+    return true
+}
+
 def createGroupingKey(subject, session, run) {
     def key = [subject]
     if (session && session != "NA") {

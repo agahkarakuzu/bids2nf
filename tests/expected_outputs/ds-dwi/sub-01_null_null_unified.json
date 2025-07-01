@@ -1,0 +1,14 @@
+{
+  "subject": "sub-01",
+  "session": "null",
+  "run": "null",
+  "totalFiles": 4,
+  "data": {
+    "dwi": {
+        "bval": "ds-dwi/sub-01/dwi/sub-01_dwi.bval",
+        "bvec": "ds-dwi/sub-01/dwi/sub-01_dwi.bvec",
+        "json": "ds-dwi/sub-01/dwi/sub-01_dwi.json",
+        "nii": "ds-dwi/sub-01/dwi/sub-01_dwi.nii"
+    }
+}
+}

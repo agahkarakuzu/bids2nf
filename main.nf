@@ -3,11 +3,13 @@ include { libbids_sh_parse } from './modules/parsers/lib_bids_sh_parser.nf'
 include { emit_named_sets } from './subworkflows/emit_named_sets.nf'
 include { emit_sequential_sets } from './subworkflows/emit_sequential_sets.nf'
 include { emit_mixed_sets } from './subworkflows/emit_mixed_sets.nf'
+include { emit_plain_sets } from './subworkflows/emit_plain_sets.nf'
 include {
     analyzeConfiguration;
     hasNamedSets;
     hasSequentialSets;
     hasMixedSets;
+    hasPlainSets;
     getConfigurationSummary
 } from './modules/utils/config_analyzer.nf'
 include { 
@@ -68,6 +70,7 @@ workflow bids2nf {
     logProgress("bids2nf", "  - Named sets: ${summary.namedSets.count} patterns (${summary.namedSets.suffixes.join(', ')})")
     logProgress("bids2nf", "  - Sequential sets: ${summary.sequentialSets.count} patterns (${summary.sequentialSets.suffixes.join(', ')})")
     logProgress("bids2nf", "  - Mixed sets: ${summary.mixedSets.count} patterns (${summary.mixedSets.suffixes.join(', ')})")
+    logProgress("bids2nf", "  - Plain sets: ${summary.plainSets.count} patterns (${summary.plainSets.suffixes.join(', ')})")
     logProgress("bids2nf", "  - Total patterns: ${summary.totalPatterns}")
     
     // Route to appropriate workflows based on configuration analysis, passing pre-processed data
@@ -92,12 +95,20 @@ workflow bids2nf {
         } : 
         Channel.empty()
     
+    plain_results = configAnalysis.hasPlainSets ? 
+        tryWithContext("PLAIN_SETS") {
+            logProgress("bids2nf", "Processing plain sets...")
+            emit_plain_sets(parsed_csv, config)
+        } : 
+        Channel.empty()
+    
     // Combine all results into a unified channel and merge by grouping key
     logProgress("bids2nf", "Combining results from all workflow types...")
     
     combined_results = named_results
         .mix(sequential_results)
         .mix(mixed_results)
+        .mix(plain_results)
     
     // Group by subject/session/run and merge all data types
     unified_results = combined_results
