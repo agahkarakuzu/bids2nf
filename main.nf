@@ -10,7 +10,8 @@ include {
     hasSequentialSets;
     hasMixedSets;
     hasPlainSets;
-    getConfigurationSummary
+    getConfigurationSummary;
+    getLoopOverEntities
 } from './modules/utils/config_analyzer.nf'
 include { 
     validateAllInputs;
@@ -64,9 +65,15 @@ workflow bids2nf {
         analyzeConfiguration(bids2nf_config)
     }
     
+    // Get loop over entities from configuration
+    def loopOverEntities = tryWithContext("LOOP_OVER_CONFIG") {
+        getLoopOverEntities(bids2nf_config)
+    }
+    
     def summary = getConfigurationSummary(bids2nf_config)
     
     logProgress("bids2nf", "Configuration analysis complete:")
+    logProgress("bids2nf", "  - Loop over entities: ${loopOverEntities.join(', ')}")
     logProgress("bids2nf", "  - Named sets: ${summary.namedSets.count} patterns (${summary.namedSets.suffixes.join(', ')})")
     logProgress("bids2nf", "  - Sequential sets: ${summary.sequentialSets.count} patterns (${summary.sequentialSets.suffixes.join(', ')})")
     logProgress("bids2nf", "  - Mixed sets: ${summary.mixedSets.count} patterns (${summary.mixedSets.suffixes.join(', ')})")
@@ -77,28 +84,28 @@ workflow bids2nf {
     named_results = configAnalysis.hasNamedSets ? 
         tryWithContext("NAMED_SETS") {
             logProgress("bids2nf", "Processing named sets...")
-            emit_named_sets(parsed_csv, config)
+            emit_named_sets(parsed_csv, config, loopOverEntities)
         } : 
         Channel.empty()
     
     sequential_results = configAnalysis.hasSequentialSets ? 
         tryWithContext("SEQUENTIAL_SETS") {
             logProgress("bids2nf", "Processing sequential sets...")
-            emit_sequential_sets(parsed_csv, config)
+            emit_sequential_sets(parsed_csv, config, loopOverEntities)
         } : 
         Channel.empty()
     
     mixed_results = configAnalysis.hasMixedSets ? 
         tryWithContext("MIXED_SETS") {
             logProgress("bids2nf", "Processing mixed sets...")
-            emit_mixed_sets(parsed_csv, config)
+            emit_mixed_sets(parsed_csv, config, loopOverEntities)
         } : 
         Channel.empty()
     
     plain_results = configAnalysis.hasPlainSets ? 
         tryWithContext("PLAIN_SETS") {
             logProgress("bids2nf", "Processing plain sets...")
-            emit_plain_sets(parsed_csv, config)
+            emit_plain_sets(parsed_csv, config, loopOverEntities)
         } : 
         Channel.empty()
     
@@ -110,11 +117,15 @@ workflow bids2nf {
         .mix(mixed_results)
         .mix(plain_results)
     
-    // Group by subject/session/run and merge all data types
+    // Group by loop_over entities and merge all data types
     unified_results = combined_results
         .groupTuple()
         .map { groupingKey, dataList ->
-            def (subject, session, run) = groupingKey
+            // Dynamically unpack grouping key based on loop_over entities
+            def entityValues = [:]
+            loopOverEntities.eachWithIndex { entity, index ->
+                entityValues[entity] = groupingKey[index] ?: "NA"
+            }
             
             // Merge all data maps and file paths
             def mergedDataMap = [:]
@@ -135,11 +146,13 @@ workflow bids2nf {
             def enrichedData = [
                 data: mergedDataMap,
                 filePaths: allFilePaths.unique(),
-                subject: subject,
-                session: session ?: "NA", 
-                run: run ?: "NA",
                 bidsParentDir: "${bids_parent_dir}"
             ]
+            
+            // Add dynamic entity values to enrichedData
+            entityValues.each { entity, value ->
+                enrichedData[entity] = value
+            }
             
             tuple(groupingKey, enrichedData)
         }

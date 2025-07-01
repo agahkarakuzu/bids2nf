@@ -18,6 +18,11 @@ def analyzeConfiguration(bids2nf_config) {
     ]
     
     config.each { suffix, suffixConfig ->
+        // Skip global configuration keys that are not set definitions
+        if (suffix == 'loop_over') {
+            return
+        }
+        
         if (suffixConfig.containsKey('named_set')) {
             analysis.hasNamedSets = true
             analysis.namedSetSuffixes << suffix
@@ -68,6 +73,14 @@ def hasMixedSets(bids2nf_config) {
  */
 def hasPlainSets(bids2nf_config) {
     return analyzeConfiguration(bids2nf_config).hasPlainSets
+}
+
+/**
+ * Get loop_over entities from configuration
+ */
+def getLoopOverEntities(bids2nf_config) {
+    def config = new Yaml().load(new FileReader(bids2nf_config))
+    return config.containsKey('loop_over') ? config.loop_over : ['subject', 'session', 'run']
 }
 
 /**

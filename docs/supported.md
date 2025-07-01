@@ -84,7 +84,7 @@ scaled flip angle map.
 
 ```
 :::
-{button}`Example channel data structure <https://github.com/agahkarakuzu/bids2nf/blob/main/tests/expected_outputs/qmri_tb1tfl/sub-01_null_null_unified.json>`
+{button}`Example channel data structure <https://github.com/agahkarakuzu/bids2nf/blob/main/tests/expected_outputs/qmri_tb1tfl/sub-01_NA_NA_unified.json>`
 ::::
 
 ::::{card}
@@ -119,7 +119,7 @@ TRs with identical RF pulses using a steady-state sequence.
 
 ```
 :::
-{button}`Example channel data structure <https://github.com/agahkarakuzu/bids2nf/blob/main/tests/expected_outputs/qmri_vfa/sub-01_null_null_unified.json>`
+{button}`Example channel data structure <https://github.com/agahkarakuzu/bids2nf/blob/main/tests/expected_outputs/qmri_vfa/sub-01_NA_NA_unified.json>`
 ::::
 
 ::::{card}
@@ -183,7 +183,7 @@ parameters to generate a combined sensitivity map as described in
 
 ```
 :::
-{button}`Example channel data structure <https://github.com/agahkarakuzu/bids2nf/blob/main/tests/expected_outputs/qmri_mpm/sub-01_null_null_unified.json>`
+{button}`Example channel data structure <https://github.com/agahkarakuzu/bids2nf/blob/main/tests/expected_outputs/qmri_mpm/sub-01_NA_NA_unified.json>`
 ::::
 
 ## Sequential Sets
@@ -223,7 +223,7 @@ data may be eligible for DESPOT1, DESPOT2 and their variants
 
 ```
 :::
-{button}`Example channel data structure <https://github.com/agahkarakuzu/bids2nf/blob/main/tests/expected_outputs/qmri_vfa/sub-01_null_null_unified.json>`
+{button}`Example channel data structure <https://github.com/agahkarakuzu/bids2nf/blob/main/tests/expected_outputs/qmri_vfa/sub-01_NA_NA_unified.json>`
 ::::
 
 ::::{card}
@@ -257,7 +257,7 @@ acquired at different inversion times
 
 ```
 :::
-{button}`Example channel data structure <https://github.com/agahkarakuzu/bids2nf/blob/main/tests/expected_outputs/qmri_irt1/sub-01_null_null_unified.json>`
+{button}`Example channel data structure <https://github.com/agahkarakuzu/bids2nf/blob/main/tests/expected_outputs/qmri_irt1/sub-01_NA_NA_unified.json>`
 ::::
 
 ::::{card}
@@ -293,7 +293,7 @@ imaging.
 
 ```
 :::
-{button}`Example channel data structure <https://github.com/agahkarakuzu/bids2nf/blob/main/tests/expected_outputs/qmri_mtsat/sub-01_null_null_unified.json>`
+{button}`Example channel data structure <https://github.com/agahkarakuzu/bids2nf/blob/main/tests/expected_outputs/qmri_mtsat/sub-01_NA_NA_unified.json>`
 ::::
 
 ::::{card}
@@ -327,7 +327,7 @@ images acquired using an Echo Planar Imaging (EPI) readout.
 
 ```
 :::
-{button}`Example channel data structure <https://github.com/agahkarakuzu/bids2nf/blob/main/tests/expected_outputs/qmri_megre/sub-01_null_null_unified.json>`
+{button}`Example channel data structure <https://github.com/agahkarakuzu/bids2nf/blob/main/tests/expected_outputs/qmri_megre/sub-01_NA_NA_unified.json>`
 ::::
 
 ::::{card}
@@ -362,7 +362,7 @@ images acquired using an Echo Planar Imaging (EPI) readout.
 
 ```
 :::
-{button}`Example channel data structure <https://github.com/agahkarakuzu/bids2nf/blob/main/tests/expected_outputs/qmri_mese/sub-01_null_null_unified.json>`
+{button}`Example channel data structure <https://github.com/agahkarakuzu/bids2nf/blob/main/tests/expected_outputs/qmri_mese/sub-01_NA_NA_unified.json>`
 ::::
 
 ::::{card}
@@ -399,7 +399,7 @@ iteratively improve B1+ and T1 map estimation
 
 ```
 :::
-{button}`Example channel data structure <https://github.com/agahkarakuzu/bids2nf/blob/main/tests/expected_outputs/qmri_sa2rage/sub-01_null_null_unified.json>`
+{button}`Example channel data structure <https://github.com/agahkarakuzu/bids2nf/blob/main/tests/expected_outputs/qmri_sa2rage/sub-01_NA_NA_unified.json>`
 ::::
 
 ::::{card}
@@ -434,7 +434,7 @@ from the nominal flip angle.
 
 ```
 :::
-{button}`Example channel data structure <https://github.com/agahkarakuzu/bids2nf/blob/main/tests/expected_outputs/qmri_mpm/sub-01_null_null_unified.json>`
+{button}`Example channel data structure <https://github.com/agahkarakuzu/bids2nf/blob/main/tests/expected_outputs/qmri_mpm/sub-01_NA_NA_unified.json>`
 ::::
 
 ## Mixed Sets
@@ -508,7 +508,7 @@ suggested MPM acquisition protocols.
 
 ```
 :::
-{button}`Example channel data structure <https://github.com/agahkarakuzu/bids2nf/blob/main/tests/expected_outputs/qmri_mpm/sub-01_null_null_unified.json>`
+{button}`Example channel data structure <https://github.com/agahkarakuzu/bids2nf/blob/main/tests/expected_outputs/qmri_mpm/sub-01_NA_NA_unified.json>`
 ::::
 
 ---

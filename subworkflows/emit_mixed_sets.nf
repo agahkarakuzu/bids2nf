@@ -35,6 +35,7 @@ workflow emit_mixed_sets {
     take:
     parsed_csv
     config
+    loopOverEntities
 
     main:
     
@@ -59,7 +60,12 @@ workflow emit_mixed_sets {
                 def sequentialValue = row[sequentialDimension]
                 
                 if (sequentialValue) {
-                    tuple([row.subject, row.session, row.run, row.suffix, groupName, sequentialValue, row.extension], row.path)
+                    // Create dynamic grouping key based on loop_over entities
+                    def entityValues = loopOverEntities.collect { entity -> 
+                        def value = row.containsKey(entity) ? row[entity] : "NA"
+                        return (value == null || value == "") ? "NA" : value
+                    }
+                    tuple(entityValues + [row.suffix, groupName, sequentialValue, row.extension], row.path)
                 } else {
                     null
                 }
@@ -71,21 +77,37 @@ workflow emit_mixed_sets {
 
     // Group by sequential dimension within each named group
     sequential_groups = input_files
-        .map { subjectSessionRunSuffixGroupSeqExt, filePath ->
-            def (subject, session, run, suffix, groupName, sequentialValue, extension) = subjectSessionRunSuffixGroupSeqExt
-            tuple([subject, session, run, suffix, groupName, sequentialValue], [extension, filePath])
+        .map { groupingKeyWithExtras, filePath ->
+            def entityCount = loopOverEntities.size()
+            def entityValues = groupingKeyWithExtras[0..entityCount-1]
+            def suffix = groupingKeyWithExtras[entityCount]
+            def groupName = groupingKeyWithExtras[entityCount+1]
+            def sequentialValue = groupingKeyWithExtras[entityCount+2]
+            def extension = groupingKeyWithExtras[entityCount+3]
+            
+            tuple(entityValues + [suffix, groupName, sequentialValue], [extension, filePath])
         }
         .groupTuple()
-        .map { subjectSessionRunSuffixGroupSeq, extFiles ->
-            def (subject, session, run, suffix, groupName, sequentialValue) = subjectSessionRunSuffixGroupSeq
+        .map { groupingKeyWithGroupSeq, extFiles ->
+            def entityCount = loopOverEntities.size()
+            def entityValues = groupingKeyWithGroupSeq[0..entityCount-1]
+            def suffix = groupingKeyWithGroupSeq[entityCount]
+            def groupName = groupingKeyWithGroupSeq[entityCount+1]
+            def sequentialValue = groupingKeyWithGroupSeq[entityCount+2]
             
             def fileMap = createFileMap(extFiles)
             
             def suffixConfig = config[suffix]
-            if (validateRequiredFilesWithConfig(fileMap, subject, session, run, suffix, "${groupName}_${sequentialValue}", suffixConfig)) {
+            // Pass entity values to validation function  
+            def entityMap = [:]
+            loopOverEntities.eachWithIndex { entity, index ->
+                entityMap[entity] = entityValues[index]
+            }
+            
+            if (validateRequiredFilesWithConfig(fileMap, entityMap.subject ?: "NA", entityMap.session ?: "NA", entityMap.run ?: "NA", suffix, "${groupName}_${sequentialValue}", suffixConfig)) {
                 def niiFile = fileMap.containsKey('nii.gz') ? fileMap['nii.gz'] : fileMap['nii']
                 def jsonFile = fileMap['json']
-                tuple([subject, session, run, suffix, groupName], [sequentialValue, niiFile, jsonFile])
+                tuple(entityValues + [suffix, groupName], [sequentialValue, niiFile, jsonFile])
             } else {
                 null
             }
@@ -94,18 +116,23 @@ workflow emit_mixed_sets {
 
     // Group by named groups and create sequential arrays
     named_groups = sequential_groups
-        .map { subjectSessionRunSuffixGroup, seqNiiJson ->
-            def (subject, session, run, suffix, groupName) = subjectSessionRunSuffixGroup
+        .map { groupingKeyWithSuffixGroup, seqNiiJson ->
+            def entityCount = loopOverEntities.size()
+            def entityValues = groupingKeyWithSuffixGroup[0..entityCount-1]
+            def suffix = groupingKeyWithSuffixGroup[entityCount]
+            def groupName = groupingKeyWithSuffixGroup[entityCount+1]
             def (sequentialValue, niiFile, jsonFile) = seqNiiJson
             
-            def groupingKey = createGroupingKey(subject, session, run)
-            tuple(groupingKey, [suffix, groupName, sequentialValue, niiFile, jsonFile])
+            // Use only entity values as grouping key
+            tuple(entityValues, [suffix, groupName, sequentialValue, niiFile, jsonFile])
         }
         .groupTuple()
         .map { groupingKey, suffixGroupingFiles ->
-            def subject = groupingKey[0]
-            def session = groupingKey.size() > 1 ? groupingKey[1] : "NA"
-            def run = groupingKey.size() > 2 ? groupingKey[2] : "NA"
+            // Create entity map from grouping key
+            def entityMap = [:]
+            loopOverEntities.eachWithIndex { entity, index ->
+                entityMap[entity] = groupingKey[index] ?: "NA"
+            }
             
             // Organize by suffix and named groups
             def allGroupingMaps = [:]
@@ -160,7 +187,8 @@ workflow emit_mixed_sets {
                     groupingMap.containsKey(requiredGrouping)
                 }
                 if (!hasAllGroupings) {
-                    log.warn "Subject ${subject}, Session ${session}, Run ${run}, Suffix ${suffix}: Missing required named groups. Available: ${groupingMap.keySet()}, Required: ${requiredGroups}"
+                    def entityDesc = loopOverEntities.collect { entity -> "${entity}: ${entityMap[entity]}" }.join(", ")
+                    log.warn "Entities ${entityDesc}, Suffix ${suffix}: Missing required named groups. Available: ${groupingMap.keySet()}, Required: ${requiredGroups}"
                     return false
                 }
                 return true

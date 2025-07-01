@@ -15,6 +15,7 @@ workflow emit_plain_sets {
     take:
     parsed_csv
     config
+    loopOverEntities
 
     main:
     
@@ -28,28 +29,42 @@ workflow emit_plain_sets {
             config[row.suffix].containsKey('plain_set')
         }
         .map { row -> 
-            tuple([row.subject, row.session, row.run, row.suffix, row.extension], row.path)
+            def entityValues = loopOverEntities.collect { entity -> 
+                def value = row.containsKey(entity) ? row[entity] : "NA"
+                return (value == null || value == "") ? "NA" : value
+            }
+            tuple(entityValues + [row.suffix, row.extension], row.path)
         }
 
     input_pairs = input_files
-        .map { subjectSessionRunSuffixExt, filePath ->
-            def (subject, session, run, suffix, extension) = subjectSessionRunSuffixExt
-            tuple([subject, session, run, suffix], [extension, filePath])
+        .map { groupingKeyWithSuffixExt, filePath ->
+            def entityCount = loopOverEntities.size()
+            def entityValues = groupingKeyWithSuffixExt[0..entityCount-1]
+            def suffix = groupingKeyWithSuffixExt[entityCount]
+            def extension = groupingKeyWithSuffixExt[entityCount+1]
+            tuple(entityValues + [suffix], [extension, filePath])
         }
         .groupTuple()
-        .map { subjectSessionRunSuffix, extFiles ->
-            def (subject, session, run, suffix) = subjectSessionRunSuffix
+        .map { groupingKeyWithSuffix, extFiles ->
+            def entityCount = loopOverEntities.size()
+            def entityValues = groupingKeyWithSuffix[0..entityCount-1]
+            def suffix = groupingKeyWithSuffix[entityCount]
             def suffixConfig = config[suffix]
             
             def fileMap = createFileMap(extFiles)
             
-            if (validatePlainSetFiles(fileMap, subject, session, run, suffix, suffixConfig)) {
+            def entityMap = [:]
+            loopOverEntities.eachWithIndex { entity, index ->
+                entityMap[entity] = entityValues[index]
+            }
+            
+            if (validatePlainSetFiles(fileMap, entityMap.subject ?: "NA", entityMap.session ?: "NA", entityMap.run ?: "NA", suffix, suffixConfig)) {
                 // Get all files from the file map
                 def allFiles = [:]
                 fileMap.each { extension, filePath ->
                     allFiles[extension] = filePath
                 }
-                tuple([subject, session, run, suffix], allFiles)
+                tuple(entityValues + [suffix], allFiles)
             } else {
                 null
             }
@@ -57,17 +72,19 @@ workflow emit_plain_sets {
         .filter { it != null }
 
     finalGroups = input_pairs
-        .map { subjectSessionRunSuffix, fileMap ->
-            def (subject, session, run, suffix) = subjectSessionRunSuffix
+        .map { groupingKeyWithSuffix, fileMap ->
+            def entityCount = loopOverEntities.size()
+            def entityValues = groupingKeyWithSuffix[0..entityCount-1]
+            def suffix = groupingKeyWithSuffix[entityCount]
             
-            def groupingKey = createGroupingKey(subject, session, run)
-            tuple(groupingKey, [suffix, fileMap])
+            tuple(entityValues, [suffix, fileMap])
         }
         .groupTuple()
         .map { groupingKey, suffixFileMaps ->
-            def subject = groupingKey[0]
-            def session = groupingKey.size() > 1 ? groupingKey[1] : "NA"
-            def run = groupingKey.size() > 2 ? groupingKey[2] : "NA"
+            def entityMap = [:]
+            loopOverEntities.eachWithIndex { entity, index ->
+                entityMap[entity] = groupingKey[index] ?: "NA"
+            }
             
             def allPlainMaps = [:]
             def allFilePaths = []

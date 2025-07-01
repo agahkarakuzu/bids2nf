@@ -12,21 +12,34 @@ process unified_process_template {
   publishDir { "tests/new_outputs/${value.bidsBasename}" }, mode: 'copy'
   
   script:
-  def (subject, session, run) = key
   def enrichedData = value
   def data = enrichedData.data
   def filePaths = enrichedData.filePaths
   def bidsParentDir = enrichedData.bidsParentDir
+  
+  // Create dynamic entity values and filename based on actual entities in enrichedData
+  def entityValues = []
+  def entityFields = []
+  ['subject', 'session', 'run', 'task', 'acquisition'].each { entity ->
+    if (enrichedData.containsKey(entity)) {
+      def value = enrichedData[entity] ?: "null"
+      entityValues.add(value)
+      entityFields.add("\"${entity}\": \"${value}\"")
+    }
+  }
+  
+  def filename = entityValues.join('_') + '_unified.json'
+  def entityJson = entityFields.join(',\n  ')
 
-  println "Unified processing .... ${subject} ${session} ${run}"
+  println "Unified processing .... ${entityValues.join(' ')}"
   
   def jsonString = serializeMapToJson(data)
   
   """
   echo "=== Unified bids2nf Processing ==="
-  echo "Subject: ${subject}"
-  echo "Session: ${session}"
-  echo "Run: ${run}"
+  ${['subject', 'session', 'run', 'task', 'acquisition'].findAll { enrichedData.containsKey(it) }.collect { entity ->
+    "echo \"${entity.capitalize()}: ${enrichedData[entity]}\""
+  }.join('\n  ')}
   ${includeBidsParentDir ? "echo \"BIDS parent directory: ${bidsParentDir}\"" : ""}
   echo "Data types found: ${data.keySet()}"
   echo "Total file paths: ${filePaths.size()}"
@@ -95,11 +108,9 @@ process unified_process_template {
     return ""
   }.findAll { it != "" }.join('\n')}
   
-cat > ${subject}_${session}_${run}_unified.json << 'EOF'
+cat > ${filename} << 'EOF'
 {
-  "subject": "${subject}",
-  "session": "${session}",
-  "run": "${run}",
+  ${entityJson},
   "totalFiles": ${filePaths.size()},${includeBidsParentDir ? "\n  \"bidsParentDir\": \"${bidsParentDir}\"," : ""}
   "data": ${jsonString}
 }

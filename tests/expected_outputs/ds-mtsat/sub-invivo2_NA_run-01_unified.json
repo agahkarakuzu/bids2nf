@@ -1,7 +1,7 @@
 {
   "subject": "sub-invivo2",
-  "session": "run-01",
-  "run": "null",
+  "session": "NA",
+  "run": "run-01",
   "totalFiles": 6,
   "data": {
     "MTS": {

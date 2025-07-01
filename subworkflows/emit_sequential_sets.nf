@@ -8,6 +8,7 @@ workflow emit_sequential_sets {
     take:
     parsed_csv
     config
+    loopOverEntities
 
     main:
     
@@ -16,9 +17,9 @@ workflow emit_sequential_sets {
     
     // Validate multi-entity configurations
     config.each { suffix, suffixConfig ->
-        if (suffixConfig.containsKey('sequential_set')) {
+        if (suffixConfig instanceof Map && suffixConfig.containsKey('sequential_set')) {
             def seqConfig = suffixConfig.sequential_set
-            if (seqConfig.containsKey('by_entities')) {
+            if (seqConfig instanceof Map && seqConfig.containsKey('by_entities')) {
                 def entities = seqConfig.by_entities
                 if (!entities || entities.size() < 1) {
                     throw new IllegalArgumentException("Sequential_set for ${suffix} must specify at least 1 entity in 'by_entities' array")
@@ -49,7 +50,7 @@ workflow emit_sequential_sets {
             def orderType = suffixConfig.containsKey('order') ? suffixConfig.order : 'hierarchical'
             
             // Extract entity values for all specified entities
-            def entityValues = []
+            def sequentialEntityValues = []
             def allEntitiesPresent = true
             
             // Debug: Log the row content
@@ -60,35 +61,44 @@ workflow emit_sequential_sets {
                 def entityValue = row[entityKey]
               //  log.info "Extracting ${entityKey}: ${entityValue}"
                 if (entityValue) {
-                    entityValues << entityValue
+                    sequentialEntityValues << entityValue
                 } else {
                     allEntitiesPresent = false
                 }
             }
             
-            //log.info "Final entity values: ${entityValues}"
+            //log.info "Final entity values: ${sequentialEntityValues}"
             
             if (allEntitiesPresent) {
                 // Create composite key for multiple entities, or single key for single entity
                 def compositeEntityKey = entityKeys.join('_')
-                def compositeEntityValue = entityValues.join('_')
-                tuple([row.subject, row.session, row.run, row.suffix, compositeEntityKey], [entityKeys, entityValues, orderType, row.extension, row.path])
+                def compositeEntityValue = sequentialEntityValues.join('_')
+                def entityGroupValues = loopOverEntities.collect { entity -> 
+                    def value = row.containsKey(entity) ? row[entity] : "NA"
+                    return (value == null || value == "") ? "NA" : value
+                }
+                tuple(entityGroupValues + [row.suffix, compositeEntityKey], [entityKeys, sequentialEntityValues, orderType, row.extension, row.path])
             } else {
                 null
             }
         }
         .filter { it != null }
 
-    // Group by subject, session, run, suffix, entity
+    // Group by loop_over entities and suffix
     grouped_files = input_files
-        .map { subjectSessionRunSuffixEntity, entityData ->
-            def (subject, session, run, suffix, compositeEntityKey) = subjectSessionRunSuffixEntity
-            def (entityKeys, entityValues, orderType, extension, filePath) = entityData
-            tuple([subject, session, run, suffix], [entityKeys, entityValues, orderType, extension, filePath])
+        .map { groupingKeyWithSuffixEntity, entityData ->
+            def entityCount = loopOverEntities.size()
+            def entityValues = groupingKeyWithSuffixEntity[0..entityCount-1]
+            def suffix = groupingKeyWithSuffixEntity[entityCount]
+            def compositeEntityKey = groupingKeyWithSuffixEntity[entityCount+1]
+            def (entityKeys, sequentialEntityValues, orderType, extension, filePath) = entityData
+            tuple(entityValues + [suffix], [entityKeys, sequentialEntityValues, orderType, extension, filePath])
         }
         .groupTuple()
-        .map { subjectSessionRunSuffix, entityFiles ->
-            def (subject, session, run, suffix) = subjectSessionRunSuffix
+        .map { groupingKeyWithSuffix, entityFiles ->
+            def entityCount = loopOverEntities.size()
+            def entityValues = groupingKeyWithSuffix[0..entityCount-1]
+            def suffix = groupingKeyWithSuffix[entityCount]
             
             // Create file lists grouped by entity values (handles both single and multiple entities)
             def fileMap = [:]
@@ -96,14 +106,14 @@ workflow emit_sequential_sets {
             def entityKeysRef = null
             def orderTypeRef = null
             
-            entityFiles.each { entityKeys, entityValues, orderType, extension, filePath ->
+            entityFiles.each { entityKeys, sequentialEntityValues, orderType, extension, filePath ->
                 if (!entityKeysRef) entityKeysRef = entityKeys
                 if (!orderTypeRef) orderTypeRef = orderType
                 
                 // Create hierarchical key structure
                 def currentMap = fileMap
-                for (int i = 0; i < entityValues.size() - 1; i++) {
-                    def entityValue = entityValues[i]
+                for (int i = 0; i < sequentialEntityValues.size() - 1; i++) {
+                    def entityValue = sequentialEntityValues[i]
                     if (!currentMap.containsKey(entityValue)) {
                         currentMap[entityValue] = [:]
                     }
@@ -111,7 +121,7 @@ workflow emit_sequential_sets {
                 }
                 
                 // At the final level, store extension-to-path mapping
-                def finalEntityValue = entityValues[-1]
+                def finalEntityValue = sequentialEntityValues[-1]
                 if (!currentMap.containsKey(finalEntityValue)) {
                     currentMap[finalEntityValue] = [:]
                 }
@@ -213,12 +223,16 @@ workflow emit_sequential_sets {
             def validPairs = ['nii': niiFiles, 'json': jsonFiles]
             
             if (niiFiles.size() > 0) {
-                def groupingKey = [subject, session, run].findAll { it != null && it != "NA" }
                 def suffixMap = [:]
                 suffixMap[suffix] = validPairs
-                tuple(groupingKey, [suffixMap, allFilePaths])
+                tuple(entityValues, [suffixMap, allFilePaths])
             } else {
-                log.warn "Subject ${subject}, Session ${session}, Run ${run}, Suffix ${suffix}: No valid file pairs found"
+                def entityMap = [:]
+                loopOverEntities.eachWithIndex { entity, index ->
+                    entityMap[entity] = entityValues[index] ?: "NA"
+                }
+                def entityDesc = loopOverEntities.collect { entity -> "${entity}: ${entityMap[entity]}" }.join(", ")
+                log.warn "Entities ${entityDesc}, Suffix ${suffix}: No valid file pairs found"
                 null
             }
         }

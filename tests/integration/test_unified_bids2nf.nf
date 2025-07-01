@@ -1,6 +1,10 @@
 include { bids2nf } from '../../main.nf'
 include { unified_process_template } from '../../modules/templates/unified_process_template.nf'
 
+include { 
+    getLoopOverEntities
+} from '../../modules/utils/config_analyzer.nf'
+
 workflow {
   // Use the unified workflow that handles all configuration types
   unified_results = bids2nf(params.bids_dir)
