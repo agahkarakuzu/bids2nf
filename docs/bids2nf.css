@@ -1,5 +1,6 @@
 /* Define CSS custom properties for light mode */
 html.light {
+    --plain-set-color: rgba(200, 100, 0, 0.6);
     --named-set-color: rgba(0, 100, 0, 0.6);
     --sequential-set-color: rgba(0, 0, 150, 0.6);
     --mixed-set-color: rgba(150, 0, 150, 0.6);
@@ -7,6 +8,7 @@ html.light {
 
 /* Dark mode overrides */
 html.dark {
+    --plain-set-color: rgba(255, 180, 100, 0.8);
     --named-set-color: rgba(100, 255, 100, 0.8);
     --sequential-set-color: rgba(100, 150, 255, 0.8);
     --mixed-set-color: rgba(255, 100, 255, 0.8);
@@ -14,6 +16,7 @@ html.dark {
 
 /* Fallback for default/system preference */
 :root {
+    --plain-set-color: rgba(200, 100, 0, 0.6);
     --named-set-color: rgba(0, 100, 0, 0.6);
     --sequential-set-color: rgba(0, 0, 150, 0.6);
     --mixed-set-color: rgba(150, 0, 150, 0.6);
@@ -69,6 +72,20 @@ h3{
 .custom-heading-3::after {
     content: "mixed set";
     color: var(--mixed-set-color);
+    margin-right: 8px;
+    font-weight: 600;
+}
+
+.custom-heading-plain {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.1em;
+}
+
+.custom-heading-plain::after {
+    content: "plain set";
+    color: var(--plain-set-color);
     margin-right: 8px;
     font-weight: 600;
 }

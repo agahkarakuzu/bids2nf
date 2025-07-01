@@ -18,7 +18,7 @@ loop_over: [subject, session, run]
 #        Not intended for users.        
 
 dwi:
-  example_output: "tests/expected_outputs/dwi/sub-01_NA_NA_unified.json"
+  example_output: "tests/expected_outputs/ds-dwi/sub-01_NA_NA_unified.json"
   plain_set:
     description: "Diffusion weighted imaging (DWI) with gradient directions (bvec, b-vectors) and b-values (bval)"
     additional_extensions: ["bval", "bvec"]

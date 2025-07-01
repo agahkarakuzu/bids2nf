@@ -2,6 +2,41 @@
 
 This page documents the BIDS suffixes currently supported by bids2nf.
 
+## Plain Sets
+
+Plain sets define simple collections of files that do not require special grouping logic.
+
+::::{card}
+:header: <span class="custom-heading-plain"><h4>dwi</h4></span>
+:footer: **Additional extensions:** None
+
+
+Diffusion weighted imaging (DWI) with gradient directions (bvec, b-vectors) and b-values (bval)
+
+:::{seealso} Example usage within a process
+:class: dropdown
+```groovy
+  // Access bval file:
+  bids_channel['dwi']['bval']
+  // → ds-dwi/sub-01/dwi/sub-01_dwi.bval
+
+  // Access bvec file:
+  bids_channel['dwi']['bvec']
+  // → ds-dwi/sub-01/dwi/sub-01_dwi.bvec
+
+  // Access json file:
+  bids_channel['dwi']['json']
+  // → ds-dwi/sub-01/dwi/sub-01_dwi.json
+
+  // Access nii file:
+  bids_channel['dwi']['nii']
+  // → ds-dwi/sub-01/dwi/sub-01_dwi.nii
+
+```
+:::
+{button}`Example channel data structure <https://github.com/agahkarakuzu/bids2nf/blob/main/tests/expected_outputs/ds-dwi/sub-01_NA_NA_unified.json>`
+::::
+
 ## Named Sets
 
 Named sets define specific collections of files with predefined names and properties.

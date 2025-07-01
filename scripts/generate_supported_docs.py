@@ -37,18 +37,111 @@ def generate_supported_docs(yaml_file: Path, output_file: Path):
     content.append("This page documents the BIDS suffixes currently supported by bids2nf.")
     content.append("")
     
-    # Process named sets
+    # Process sets by type
+    plain_sets = []
     named_sets = []
     sequential_sets = []
     mixed_sets = []
     
     for key, value in config.items():
-        if 'named_set' in value:
+        if 'plain_set' in value:
+            plain_sets.append((key, value))
+        elif 'named_set' in value:
             named_sets.append((key, value))
         elif 'sequential_set' in value:
             sequential_sets.append((key, value))
         elif 'mixed_set' in value:
             mixed_sets.append((key, value))
+    
+    if plain_sets:
+        content.append("## Plain Sets")
+        content.append("")
+        content.append("Plain sets define simple collections of files that do not require special grouping logic.")
+        content.append("")
+        
+        for name, config_data in plain_sets:
+            # Get BIDS suffix information
+            suffix_info = bids_suffixes.get(name, {})
+            display_name = suffix_info.get('display_name', name)
+            description = suffix_info.get('description', '')
+            
+            plain_set = config_data['plain_set']
+            description_from_config = plain_set.get('description', '')
+            additional_extensions = config_data.get('additional_extensions', [])
+            
+            # Format additional extensions for footer
+            extensions_str = ', '.join([f"`{ext}`" for ext in additional_extensions]) if additional_extensions else "None"
+            
+            content.append("::::{card}")
+            content.append(f":header: <span class=\"custom-heading-plain\"><h4>{name}</h4></span>")
+            content.append(f":footer: **Additional extensions:** {extensions_str}")
+            content.append("")
+            
+            # Use description from config first, then BIDS if available
+            final_description = description_from_config or description
+            if final_description:
+                if display_name != name and not description_from_config:
+                    content.append(f"**{display_name}**")
+                content.append("")
+                content.append(final_description)
+                content.append("")
+            
+            content.append(":::{seealso} Example usage within a process")
+            content.append(":class: dropdown")
+            content.append("```groovy")
+            
+            # Try to load actual example data from JSON file
+            if 'example_output' in config_data:
+                example_file = Path(config_data['example_output'])
+                if example_file.exists():
+                    try:
+                        with open(example_file, 'r') as f:
+                            example_data = json.load(f)
+                        
+                        if 'data' in example_data and name in example_data['data']:
+                            suffix_data = example_data['data'][name]
+                            # Show actual structure from JSON for plain sets
+                            for ext, file_path in suffix_data.items():
+                                content.append(f"  // Access {ext} file:")
+                                content.append(f"  bids_channel['{name}']['{ext}']")
+                                content.append(f"  // → {file_path}")
+                                content.append("")
+                        else:
+                            # Fallback to generic example
+                            content.append(f"  // Access main file:")
+                            content.append(f"  bids_channel['{name}']['nii']")
+                            content.append(f"  bids_channel['{name}']['json']")
+                            for ext in additional_extensions:
+                                content.append(f"  bids_channel['{name}']['{ext}']")
+                    except (json.JSONDecodeError, FileNotFoundError):
+                        # Fallback to generic example
+                        content.append(f"  // Access main file:")
+                        content.append(f"  bids_channel['{name}']['nii']")
+                        content.append(f"  bids_channel['{name}']['json']")
+                        for ext in additional_extensions:
+                            content.append(f"  bids_channel['{name}']['{ext}']")
+                else:
+                    # Fallback to generic example
+                    content.append(f"  // Access main file:")
+                    content.append(f"  bids_channel['{name}']['nii']")
+                    content.append(f"  bids_channel['{name}']['json']")
+                    for ext in additional_extensions:
+                        content.append(f"  bids_channel['{name}']['{ext}']")
+            else:
+                # Fallback to generic example
+                content.append(f"  // Access main file:")
+                content.append(f"  bids_channel['{name}']['nii']")
+                content.append(f"  bids_channel['{name}']['json']")
+                for ext in additional_extensions:
+                    content.append(f"  bids_channel['{name}']['{ext}']")
+            
+            content.append("```")
+            content.append(":::")
+            if 'example_output' in config_data:
+                tmp_url = f"https://github.com/agahkarakuzu/bids2nf/blob/main/{config_data['example_output']}"
+                content.append(f"{{button}}`Example channel data structure <{tmp_url}>`")
+            content.append("::::")
+            content.append("")
     
     if named_sets:
         content.append("## Named Sets")
