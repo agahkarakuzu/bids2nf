@@ -2,7 +2,6 @@
   "subject": "sub-invivo2",
   "session": "run-01",
   "run": "null",
-  "bids2nfTypes": ["named"],
   "totalFiles": 6,
   "data": {
     "MTS": {

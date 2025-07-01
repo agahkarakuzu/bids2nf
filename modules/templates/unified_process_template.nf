@@ -4,6 +4,7 @@ process unified_process_template {
   
   input:
   tuple val(key), val(value)
+  val(includeBidsParentDir)
   
   output:
   path "*.json", emit: output_file
@@ -14,11 +15,10 @@ process unified_process_template {
   def (subject, session, run) = key
   def enrichedData = value
   def data = enrichedData.data
-  def bids2nfTypes = enrichedData.bids2nfTypes
   def filePaths = enrichedData.filePaths
+  def bidsParentDir = enrichedData.bidsParentDir
 
   println "Unified processing .... ${subject} ${session} ${run}"
-  println "Workflow types detected: ${bids2nfTypes.join(', ')}"
   
   def jsonString = serializeMapToJson(data)
   
@@ -27,7 +27,7 @@ process unified_process_template {
   echo "Subject: ${subject}"
   echo "Session: ${session}"
   echo "Run: ${run}"
-  echo "Workflow types: ${bids2nfTypes.join(', ')}"
+  ${includeBidsParentDir ? "echo \"BIDS parent directory: ${bidsParentDir}\"" : ""}
   echo "Data types found: ${data.keySet()}"
   echo "Total file paths: ${filePaths.size()}"
   echo ""
@@ -100,8 +100,7 @@ cat > ${subject}_${session}_${run}_unified.json << 'EOF'
   "subject": "${subject}",
   "session": "${session}",
   "run": "${run}",
-  "bids2nfTypes": ${bids2nfTypes.collect { "\"$it\"" }},
-  "totalFiles": ${filePaths.size()},
+  "totalFiles": ${filePaths.size()},${includeBidsParentDir ? "\n  \"bidsParentDir\": \"${bidsParentDir}\"," : ""}
   "data": ${jsonString}
 }
 EOF

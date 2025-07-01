@@ -15,5 +15,5 @@ workflow {
   }
   
   // Process all results with a unified template
-  unified_process_template(unified_results_with_basename)
+  unified_process_template(unified_results_with_basename, params.includeBidsParentDir)
 }

@@ -2,7 +2,6 @@
   "subject": "sub-01",
   "session": "null",
   "run": "null",
-  "bids2nfTypes": ["named", "sequential", "mixed"],
   "totalFiles": 100,
   "data": {
     "RB1COR": {

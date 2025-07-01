@@ -2,7 +2,6 @@
   "subject": "sub-01",
   "session": "null",
   "run": "null",
-  "bids2nfTypes": ["sequential"],
   "totalFiles": 64,
   "data": {
     "MESE": {

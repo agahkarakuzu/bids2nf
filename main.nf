@@ -42,6 +42,9 @@ workflow bids2nf {
     
     logProgress("bids2nf", "Input validation completed successfully")
     
+    // Calculate parent directory once
+    def bids_parent_dir = file(bids_dir).parent.toString()
+    
     // Parse BIDS directory once
     parsed_csv = tryWithContext("BIDS_PARSING") {
         libbids_sh_parse(bids_dir, params.libbids_sh)
@@ -105,7 +108,6 @@ workflow bids2nf {
             // Merge all data maps and file paths
             def mergedDataMap = [:]
             def allFilePaths = []
-            def allbids2nfTypes = []
             
             dataList.each { data ->
                 def (dataMap, filePaths) = data
@@ -117,31 +119,15 @@ workflow bids2nf {
                 
                 // Collect all file paths
                 allFilePaths.addAll(filePaths)
-                
-                // Determine workflow types for this data
-                dataMap.each { suffix, suffixData ->
-                    def sampleKey = suffixData.keySet().first()
-                    def sampleData = suffixData[sampleKey]
-                    
-                    if (sampleData instanceof Map && sampleData.containsKey('nii')) {
-                        if (sampleData['nii'] instanceof String) {
-                            allbids2nfTypes << 'named'
-                        } else if (sampleData['nii'] instanceof List) {
-                            allbids2nfTypes << 'mixed'
-                        }
-                    } else if (suffixData.containsKey('nii') && suffixData['nii'] instanceof List) {
-                        allbids2nfTypes << 'sequential'
-                    }
-                }
             }
             
             def enrichedData = [
                 data: mergedDataMap,
                 filePaths: allFilePaths.unique(),
-                bids2nfTypes: allbids2nfTypes.unique(),
                 subject: subject,
                 session: session ?: "NA", 
-                run: run ?: "NA"
+                run: run ?: "NA",
+                bidsParentDir: "${bids_parent_dir}"
             ]
             
             tuple(groupingKey, enrichedData)

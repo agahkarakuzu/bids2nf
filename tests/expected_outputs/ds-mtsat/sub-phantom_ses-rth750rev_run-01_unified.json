@@ -2,7 +2,6 @@
   "subject": "sub-phantom",
   "session": "ses-rth750rev",
   "run": "run-01",
-  "bids2nfTypes": ["named"],
   "totalFiles": 6,
   "data": {
     "MTS": {
