@@ -5,7 +5,7 @@
 # Specifies which entities will be used as looping/crawling entities
 # by Nextflow. The beauty of declerative programming.
 # This key is ignored by subworkflows when determining suffixes
-loop_over: [subject, session, run]
+loop_over: [subject, session, run, task]
 
 # PLAIN SETS
 # Inputs that do not require a grouping logic.
@@ -18,10 +18,55 @@ loop_over: [subject, session, run]
 #        Not intended for users.        
 
 dwi:
-  example_output: "tests/expected_outputs/ds-dwi/sub-01_NA_NA_unified.json"
+  example_output: "tests/expected_outputs/ds-dwi/sub-01_NA_NA_NA_unified.json"
   plain_set:
-    description: "Diffusion weighted imaging (DWI) with gradient directions (bvec, b-vectors) and b-values (bval)"
     additional_extensions: ["bval", "bvec"]
+
+T1w:
+  example_output: "tests/expected_outputs/ds-dwi/sub-01_NA_NA_NA_unified.json"
+  plain_set: {}
+
+asl:
+  example_output: "tests/expected_outputs/asl003/sub-01_NA_NA_unified.json"
+  plain_set: {}
+
+aslcontext:
+  example_output: "tests/expected_outputs/asl003/sub-01_NA_NA_unified.json"
+  plain_set:
+    additional_extensions: ["tsv"]
+
+m0scan:
+  example_output: "tests/expected_outputs/asl003/sub-01_NA_NA_unified.json"
+  plain_set: {}
+
+mrsref:
+  example_output: "tests/expected_outputs/ds-mrs_fmrs/sub-01_NA_NA_task-baseline_unified.json"
+  note: |
+    Input (MRS-MRF related) files (under the `mrs` directory) for this example dataset are:
+      - `sub-01_task-baseline_mrsref.nii.gz`
+      - `sub-01_task-pain_mrsref.nii.gz`
+
+    On the other hand, the `T1w` file is under the `anat` directory: `sub-01_T1w.nii.gz`.
+
+    By default, **bids2nf** is configured to loop over [`subject`, `session`, `run`, `task`] entities (see [`loop_over`](#global-configuration)). Given that the
+    `T1w` file does not have a `task` entity shared with either of these MRS-MRF files, Nextflow
+    will emit it as a separate channel by default. 
+    
+    However, there may be a need to have all these files in
+    the same channel. To do so, you can use the `include_cross_modal` option to include the `T1w` file in one 
+    of the suffixes (`mrsref`, in this case) to merge `T1w` channel (or some other suffix) onto it, as implemented in this example.
+    > Alternatively you can customize `loop_over` to exclude the `task` entity and define `named sets`, assuming that the task values are known beforehand.
+  plain_set:
+    include_cross_modal: ["T1w"]
+
+svs:
+  example_output: "tests/expected_outputs/ds-mrs_fmrs/sub-01_NA_NA_task-pain_unified.json"
+  plain_set: {}
+
+events:
+  example_output: "tests/expected_outputs/ds-mrs_fmrs/sub-01_NA_NA_task-pain_unified.json"
+  plain_set:
+    additional_extensions: ["tsv"]
 
 # NAMED (GROUPING) SETS
 # File collections that call for a grouping logic that depends on single or multiple entities.

@@ -2,6 +2,7 @@
   "subject": "sub-phantom",
   "session": "ses-rth750rev",
   "run": "run-01",
+  "task": "NA",
   "totalFiles": 6,
   "data": {
     "MTS": {

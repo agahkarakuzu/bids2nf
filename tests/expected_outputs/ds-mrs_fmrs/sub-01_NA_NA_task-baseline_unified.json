@@ -1,0 +1,21 @@
+{
+  "subject": "sub-01",
+  "session": "NA",
+  "run": "NA",
+  "task": "task-baseline",
+  "totalFiles": 4,
+  "data": {
+    "mrsref": {
+        "json": "ds-mrs_fmrs/sub-01/mrs/sub-01_task-baseline_mrsref.json",
+        "nii.gz": "ds-mrs_fmrs/sub-01/mrs/sub-01_task-baseline_mrsref.nii.gz"
+    },
+    "svs": {
+        "json": "ds-mrs_fmrs/sub-01/mrs/sub-01_task-baseline_svs.json",
+        "nii.gz": "ds-mrs_fmrs/sub-01/mrs/sub-01_task-baseline_svs.nii.gz"
+    },
+    "T1w": {
+        "json": "ds-mrs_fmrs/sub-01/anat/sub-01_T1w.json",
+        "nii.gz": "ds-mrs_fmrs/sub-01/anat/sub-01_T1w.nii.gz"
+    }
+}
+}

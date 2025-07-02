@@ -36,6 +36,7 @@ jobs:
       run: |
         nextflow run tests/integration/test_unified_bids2nf.nf --bids_dir $PWD/tests/data/custom/ds-mtsat -profile amd64_test
         nextflow run tests/integration/test_unified_bids2nf.nf --bids_dir $PWD/tests/data/custom/ds-dwi -profile amd64_test
+        nextflow run tests/integration/test_unified_bids2nf.nf --bids_dir $PWD/tests/data/custom/ds-mrs_fmrs --bids_validation false -profile amd64_test
         ./tests/run_bids_tests.sh --profile amd64_test
     
     - name: Assert outputs

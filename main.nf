@@ -70,6 +70,7 @@ workflow bids2nf {
         getLoopOverEntities(bids2nf_config)
     }
     
+    
     def summary = getConfigurationSummary(bids2nf_config)
     
     logProgress("bids2nf", "Configuration analysis complete:")
@@ -157,13 +158,138 @@ workflow bids2nf {
             tuple(groupingKey, enrichedData)
         }
     
+    // Apply demand-driven cross-modal broadcasting
+    final_results = unified_results
+        .toList()
+        .map { dataList ->
+            // Group data by non-task entities for cross-modal broadcasting
+            def groupedData = [:]
+            def crossModalData = [:]
+            
+            dataList.each { groupingKey, enrichedData ->
+                // Extract entity values
+                def entityValues = [:]
+                loopOverEntities.eachWithIndex { entity, index ->
+                    entityValues[entity] = groupingKey[index] ?: "NA"
+                }
+                
+                // Create grouping key without task entity
+                def nonTaskEntities = loopOverEntities.findAll { it != 'task' }
+                def nonTaskKey = nonTaskEntities.collect { entity ->
+                    entityValues[entity] ?: "NA"
+                }
+                
+                def nonTaskKeyStr = nonTaskKey.join('_')
+                
+                // Collect available cross-modal data (data with task="NA")
+                if (entityValues.task == "NA") {
+                    if (!crossModalData.containsKey(nonTaskKeyStr)) {
+                        crossModalData[nonTaskKeyStr] = [:]
+                    }
+                    
+                    // Store all suffixes from task="NA" channels as potential cross-modal data
+                    enrichedData.data.each { suffix, suffixData ->
+                        crossModalData[nonTaskKeyStr][suffix] = suffixData
+                    }
+                }
+                
+                // Group all data for later processing
+                if (!groupedData.containsKey(nonTaskKeyStr)) {
+                    groupedData[nonTaskKeyStr] = []
+                }
+                groupedData[nonTaskKeyStr] << [groupingKey, enrichedData, entityValues]
+            }
+            
+            // Apply demand-driven broadcasting
+            def broadcastedResults = []
+            
+            groupedData.each { nonTaskKeyStr, groupEntries ->
+                def availableCrossModalData = crossModalData[nonTaskKeyStr] ?: [:]
+                
+                groupEntries.each { groupingKey, enrichedData, entityValues ->
+                    def shouldKeepChannel = true
+                    def enhancedData = enrichedData.clone()
+                    enhancedData.data = enhancedData.data.clone()
+                    
+                    // For task-specific channels, check if they request cross-modal data
+                    if (entityValues.task != "NA") {
+                        enrichedData.data.each { suffix, suffixData ->
+                            // Check if this suffix has include_cross_modal configuration
+                            def suffixConfig = config[suffix]
+                            if (suffixConfig) {
+                                def setCfg = suffixConfig.plain_set ?: suffixConfig.named_set ?: 
+                                           suffixConfig.sequential_set ?: suffixConfig.mixed_set
+                                
+                                if (setCfg && setCfg.include_cross_modal) {
+                                    // Add requested cross-modal data to this channel
+                                    setCfg.include_cross_modal.each { requestedSuffix ->
+                                        if (availableCrossModalData.containsKey(requestedSuffix)) {
+                                            enhancedData.data[requestedSuffix] = availableCrossModalData[requestedSuffix]
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    
+                    // For task="NA" channels, check if their data was requested by other suffixes
+                    if (entityValues.task == "NA") {
+                        def dataWasRequested = false
+                        
+                        // Check if any suffix in this channel was requested by task-specific suffixes
+                        enrichedData.data.each { suffix, suffixData ->
+                            // Look through all suffix configs to see if any request this suffix
+                            config.each { otherSuffix, otherSuffixConfig ->
+                                if (otherSuffix != suffix && otherSuffixConfig instanceof Map) {
+                                    def otherSetCfg = otherSuffixConfig.plain_set ?: otherSuffixConfig.named_set ?: 
+                                                     otherSuffixConfig.sequential_set ?: otherSuffixConfig.mixed_set
+                                    
+                                    if (otherSetCfg && otherSetCfg.include_cross_modal && 
+                                        otherSetCfg.include_cross_modal.contains(suffix)) {
+                                        dataWasRequested = true
+                                    }
+                                }
+                            }
+                        }
+                        
+                        // Only keep task="NA" channels if their data wasn't successfully included elsewhere
+                        // OR if they contain non-requested data
+                        def hasNonRequestedData = enrichedData.data.any { suffix, suffixData ->
+                            def wasRequested = false
+                            config.each { otherSuffix, otherSuffixConfig ->
+                                if (otherSuffix != suffix && otherSuffixConfig instanceof Map) {
+                                    def otherSetCfg = otherSuffixConfig.plain_set ?: otherSuffixConfig.named_set ?: 
+                                                     otherSuffixConfig.sequential_set ?: otherSuffixConfig.mixed_set
+                                    
+                                    if (otherSetCfg && otherSetCfg.include_cross_modal && 
+                                        otherSetCfg.include_cross_modal.contains(suffix)) {
+                                        wasRequested = true
+                                    }
+                                }
+                            }
+                            return !wasRequested
+                        }
+                        
+                        shouldKeepChannel = hasNonRequestedData
+                    }
+                    
+                    if (shouldKeepChannel) {
+                        broadcastedResults << tuple(groupingKey, enhancedData)
+                    }
+                }
+            }
+            
+            return broadcastedResults
+        }
+        .flatMap()
+    
     // Log final statistics
-    unified_results
+    final_results
         .count()
         .subscribe { count ->
             logProgress("bids2nf", "Unified workflow complete: ${count} data groups processed")
         }
 
     emit:
-    unified_results
+    final_results
 }

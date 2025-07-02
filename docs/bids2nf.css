@@ -89,3 +89,38 @@ h3{
     margin-right: 8px;
     font-weight: 600;
 }
+
+/* Beautiful inline code highlighting - only for inline code, not code blocks */
+code:not(pre code):not(.highlight code):not(.code-block code) {
+    background: linear-gradient(135deg, rgba(139, 69, 19, 0.1), rgba(160, 82, 45, 0.08));
+    color: #8b4513;
+    padding: 0.2em 0.4em;
+    border-radius: 4px;
+    font-family: 'SF Mono', 'Monaco', 'Inconsolata', 'Roboto Mono', 'Consolas', 'Courier New', monospace;
+    font-size: 0.9em;
+    font-weight: 500;
+    border: 1px solid rgba(139, 69, 19, 0.15);
+    box-shadow: 0 1px 2px rgba(139, 69, 19, 0.1);
+    transition: all 0.2s ease;
+}
+
+code:not(pre code):not(.highlight code):not(.code-block code):hover {
+    background: linear-gradient(135deg, rgba(139, 69, 19, 0.15), rgba(160, 82, 45, 0.12));
+    border-color: rgba(139, 69, 19, 0.25);
+    box-shadow: 0 2px 4px rgba(139, 69, 19, 0.15);
+    transform: translateY(-1px);
+}
+
+/* Dark mode support for inline code */
+html.dark code:not(pre code):not(.highlight code):not(.code-block code) {
+    background: linear-gradient(135deg, rgba(255, 165, 0, 0.12), rgba(255, 140, 0, 0.08));
+    color: #ffa500;
+    border-color: rgba(255, 165, 0, 0.2);
+    box-shadow: 0 1px 2px rgba(255, 165, 0, 0.1);
+}
+
+html.dark code:not(pre code):not(.highlight code):not(.code-block code):hover {
+    background: linear-gradient(135deg, rgba(255, 165, 0, 0.18), rgba(255, 140, 0, 0.14));
+    border-color: rgba(255, 165, 0, 0.3);
+    box-shadow: 0 2px 4px rgba(255, 165, 0, 0.2);
+}

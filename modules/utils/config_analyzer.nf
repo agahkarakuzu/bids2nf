@@ -83,6 +83,7 @@ def getLoopOverEntities(bids2nf_config) {
     return config.containsKey('loop_over') ? config.loop_over : ['subject', 'session', 'run']
 }
 
+
 /**
  * Get detailed configuration analysis with counts and types
  */

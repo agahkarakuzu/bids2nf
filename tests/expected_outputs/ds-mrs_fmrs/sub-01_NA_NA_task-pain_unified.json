@@ -1,0 +1,24 @@
+{
+  "subject": "sub-01",
+  "session": "NA",
+  "run": "NA",
+  "task": "task-pain",
+  "totalFiles": 5,
+  "data": {
+    "events": {
+        "tsv": "ds-mrs_fmrs/sub-01/mrs/sub-01_task-pain_events.tsv"
+    },
+    "mrsref": {
+        "json": "ds-mrs_fmrs/sub-01/mrs/sub-01_task-pain_mrsref.json",
+        "nii.gz": "ds-mrs_fmrs/sub-01/mrs/sub-01_task-pain_mrsref.nii.gz"
+    },
+    "svs": {
+        "json": "ds-mrs_fmrs/sub-01/mrs/sub-01_task-pain_svs.json",
+        "nii.gz": "ds-mrs_fmrs/sub-01/mrs/sub-01_task-pain_svs.nii.gz"
+    },
+    "T1w": {
+        "json": "ds-mrs_fmrs/sub-01/anat/sub-01_T1w.json",
+        "nii.gz": "ds-mrs_fmrs/sub-01/anat/sub-01_T1w.nii.gz"
+    }
+}
+}
