@@ -68,19 +68,24 @@ events:
   plain_set:
     additional_extensions: ["tsv"]
 
+# =============================== Special case 
+# WIP virtual suffixes, quite tricky....
+# The more strict the rules for the same suffix, 
+# the earlier it should appear in the config list. 
+MP2RAGE_multiecho:
+  suffix_maps_to: "MP2RAGE"
+  sequential_set:
+    by_entities: [inversion, echo]
+    parts: ["mag", "phase"]
+
 # Can handle single-echo MP2RAGE both with and without the `parts` option.
 MP2RAGE:
   example_output: "tests/new_outputs/qmri_mp2rage/sub-1_NA_NA_NA_unified.json"
   sequential_set:
     by_entity: inversion
     parts: ["mag", "phase"]
+# ===============================
 
-# WIP virtual suffixes, quite tricky....
-# MP2RAGE_multiecho:
-#   suffix_maps_to: "MP2RAGE"
-#   sequential_set:
-#     by_entities: [inversion, echo]
-#     parts: ["mag", "phase"]
 
 # NAMED (GROUPING) SETS
 # File collections that call for a grouping logic that depends on single or multiple entities.
