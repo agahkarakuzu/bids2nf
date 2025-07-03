@@ -68,6 +68,12 @@ events:
   plain_set:
     additional_extensions: ["tsv"]
 
+MP2RAGE:
+  example_output: "tests/new_outputs/qmri_mp2rage/sub-1_NA_NA_NA_unified.json"
+  sequential_set:
+    by_entity: inversion
+    parts: ["mag", "phase"]
+
 # NAMED (GROUPING) SETS
 # File collections that call for a grouping logic that depends on single or multiple entities.
 # There's typically need to create custom grouping keys (such as MTw, PDw, T1w in MTS)

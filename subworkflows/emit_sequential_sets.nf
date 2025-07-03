@@ -3,6 +3,9 @@ include {
     logProgress;
     tryWithContext
 } from '../modules/utils/error_handling.nf'
+include {
+    handlePartsLogic
+} from '../modules/grouping/plain_set_utils.nf'
 
 workflow emit_sequential_sets {
     take:
@@ -125,7 +128,10 @@ workflow emit_sequential_sets {
                 if (!currentMap.containsKey(finalEntityValue)) {
                     currentMap[finalEntityValue] = [:]
                 }
-                currentMap[finalEntityValue][extension] = filePath
+                if (!currentMap[finalEntityValue].containsKey(extension)) {
+                    currentMap[finalEntityValue][extension] = []
+                }
+                currentMap[finalEntityValue][extension] << filePath
                 allFilePaths << filePath
             }
             
@@ -149,12 +155,47 @@ workflow emit_sequential_sets {
                     
                     sortedFinalKeys.each { finalKey ->
                         def extMap = currentMap[finalKey]
-                        def niiFile = extMap.containsKey('nii.gz') ? extMap['nii.gz'] : extMap['nii']
-                        def jsonFile = extMap['json']
                         
-                        if (niiFile && jsonFile) {
-                            niiGroup << niiFile
-                            jsonGroup << jsonFile
+                        // Apply parts logic if configured
+                        def suffixConfig = config[suffix]
+                        def hasPartsConfig = suffixConfig.containsKey('sequential_set') && 
+                                           suffixConfig.sequential_set.containsKey('parts')
+                        
+                        if (hasPartsConfig) {
+                            // Handle parts logic for sequential sets
+                            def partsConfig = suffixConfig.sequential_set.parts
+                            def localJsonFiles = extMap.get('json', [])
+                            def localNiiFiles = extMap.get('nii', []) + extMap.get('nii.gz', [])
+                            
+                            if (localJsonFiles.size() > 0) {
+                                def jsonFile = localJsonFiles[0]  // Take the first JSON file
+                                
+                                // Find corresponding part files
+                                def partFiles = []
+                                partsConfig.each { partValue ->
+                                    def matchingFile = localNiiFiles.find { niiPath ->
+                                        new File(niiPath).name.contains("_part-${partValue}")
+                                    }
+                                    if (matchingFile) {
+                                        partFiles << matchingFile
+                                    }
+                                }
+                                
+                                // If we have all required parts, add them as an array
+                                if (partFiles.size() == partsConfig.size()) {
+                                    niiGroup << partFiles  // Add the array of part files
+                                    jsonGroup << jsonFile
+                                }
+                            }
+                        } else {
+                            // Regular processing for sequential sets without parts
+                            def localNiiFiles = extMap.get('nii', []) + extMap.get('nii.gz', [])
+                            def localJsonFiles = extMap.get('json', [])
+                            
+                            if (localNiiFiles.size() > 0 && localJsonFiles.size() > 0) {
+                                niiGroup << localNiiFiles[0]  // Take first nii file
+                                jsonGroup << localJsonFiles[0]  // Take first json file
+                            }
                         }
                     }
                     
@@ -193,12 +234,47 @@ workflow emit_sequential_sets {
                         }
                         sortedFinalKeys.each { finalKey ->
                             def extMap = currentMap[finalKey]
-                            def niiFile = extMap.containsKey('nii.gz') ? extMap['nii.gz'] : extMap['nii']
-                            def jsonFile = extMap['json']
                             
-                            if (niiFile && jsonFile) {
-                                niiFiles << niiFile
-                                jsonFiles << jsonFile
+                            // Apply parts logic if configured
+                            def suffixConfig = config[suffix]
+                            def hasPartsConfig = suffixConfig.containsKey('sequential_set') && 
+                                               suffixConfig.sequential_set.containsKey('parts')
+                            
+                            if (hasPartsConfig) {
+                                // Handle parts logic for sequential sets
+                                def partsConfig = suffixConfig.sequential_set.parts
+                                def localJsonFileList = extMap.get('json', [])
+                                def localNiiFileList = extMap.get('nii', []) + extMap.get('nii.gz', [])
+                                
+                                if (localJsonFileList.size() > 0) {
+                                    def jsonFile = localJsonFileList[0]  // Take the first JSON file
+                                    
+                                    // Find corresponding part files
+                                    def partFiles = []
+                                    partsConfig.each { partValue ->
+                                        def matchingFile = localNiiFileList.find { niiPath ->
+                                            new File(niiPath).name.contains("_part-${partValue}")
+                                        }
+                                        if (matchingFile) {
+                                            partFiles << matchingFile
+                                        }
+                                    }
+                                    
+                                    // If we have all required parts, add them as an array
+                                    if (partFiles.size() == partsConfig.size()) {
+                                        niiFiles << partFiles  // Add the array of part files
+                                        jsonFiles << jsonFile
+                                    }
+                                }
+                            } else {
+                                // Regular processing for sequential sets without parts
+                                def localNiiFileList = extMap.get('nii', []) + extMap.get('nii.gz', [])
+                                def localJsonFileList = extMap.get('json', [])
+                                
+                                if (localNiiFileList.size() > 0 && localJsonFileList.size() > 0) {
+                                    niiFiles << localNiiFileList[0]  // Take first nii file
+                                    jsonFiles << localJsonFileList[0]  // Take first json file
+                                }
                             }
                         }
                     } else {

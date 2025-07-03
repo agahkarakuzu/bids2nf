@@ -3,7 +3,8 @@ include {
     createGroupingKey 
 } from '../modules/grouping/entity_grouping_utils.nf'
 include {
-    validatePlainSetFiles
+    validatePlainSetFiles;
+    handlePartsLogic
 } from '../modules/grouping/plain_set_utils.nf'
 include {
     handleError;
@@ -59,9 +60,12 @@ workflow emit_plain_sets {
             }
             
             if (validatePlainSetFiles(fileMap, entityMap.subject ?: "NA", entityMap.session ?: "NA", entityMap.run ?: "NA", suffix, suffixConfig)) {
-                // Get all files from the file map
+                // Apply parts logic to get the processed file map
+                def processedFileMap = handlePartsLogic(fileMap, suffixConfig)
+                
+                // Get all files from the processed file map
                 def allFiles = [:]
-                fileMap.each { extension, filePath ->
+                processedFileMap.each { extension, filePath ->
                     allFiles[extension] = filePath
                 }
                 tuple(entityValues + [suffix], allFiles)
