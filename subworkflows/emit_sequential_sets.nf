@@ -3,9 +3,43 @@ include {
     logProgress;
     tryWithContext
 } from '../modules/utils/error_handling.nf'
-include {
-    handlePartsLogic
-} from '../modules/grouping/plain_set_utils.nf'
+
+def getTargetSuffix(configKey, configValue) {
+    // Return the actual BIDS suffix this config targets
+    return (configValue instanceof Map && configValue.containsKey('suffix_maps_to')) ? configValue.suffix_maps_to : configKey
+}
+
+def canProcessFileWithConfig(row, configValue) {
+    // Check if this file can be processed by this configuration
+    if (configValue instanceof Map && configValue.containsKey('sequential_set')) {
+        def seqConfig = configValue.sequential_set
+        def entityKeys = seqConfig.containsKey('by_entities') ? 
+            seqConfig.by_entities : [seqConfig.by_entity]
+        
+        // Check if this file has all required entities
+        return entityKeys.every { entityKey ->
+            def entityValue = row[entityKey]
+            return entityValue && entityValue != "NA"
+        }
+    }
+    return true
+}
+
+def findMatchingVirtualConfig(row, config) {
+    // Find all configs that target this suffix
+    def candidateConfigs = config.findAll { configKey, configValue ->
+        def targetSuffix = getTargetSuffix(configKey, configValue)
+        return targetSuffix == row.suffix && configValue instanceof Map && configValue.containsKey('sequential_set')
+    }
+    
+    // Test each candidate to see which one can actually process this file
+    for (entry in candidateConfigs) {
+        if (canProcessFileWithConfig(row, entry.value)) {
+            return [configKey: entry.key, configValue: entry.value]
+        }
+    }
+    return null
+}
 
 workflow emit_sequential_sets {
     take:
@@ -39,11 +73,19 @@ workflow emit_sequential_sets {
     input_files = parsed_csv
         .splitCsv(header: true)
         .filter { row -> 
-            config.containsKey(row.suffix) && 
-            config[row.suffix].containsKey('sequential_set')
+            // Check if there's any config (direct or virtual) that can handle this suffix
+            def matchingConfig = findMatchingVirtualConfig(row, config)
+            return matchingConfig != null
         }
         .map { row -> 
-            def suffixConfig = config[row.suffix].sequential_set
+            // Find the matching virtual configuration for this row
+            def matchingConfig = findMatchingVirtualConfig(row, config)
+            if (!matchingConfig) {
+                return null
+            }
+            
+            def virtualSuffixKey = matchingConfig.configKey
+            def suffixConfig = matchingConfig.configValue.sequential_set
             
             // Handle both single entity (by_entity) and multiple entities (by_entities)
             def entityKeys = suffixConfig.containsKey('by_entities') ? 
@@ -52,25 +94,22 @@ workflow emit_sequential_sets {
             // Get ordering preference (hierarchical vs flat)
             def orderType = suffixConfig.containsKey('order') ? suffixConfig.order : 'hierarchical'
             
+            // Check if parts configuration exists
+            def hasPartsConfig = suffixConfig.containsKey('parts')
+            def partsConfig = hasPartsConfig ? suffixConfig.parts : null
+            
             // Extract entity values for all specified entities
             def sequentialEntityValues = []
             def allEntitiesPresent = true
             
-            // Debug: Log the row content
-            //log.info "Row data: ${row}"
-            //log.info "Entity keys to extract: ${entityKeys}"
-            
             entityKeys.each { entityKey ->
                 def entityValue = row[entityKey]
-              //  log.info "Extracting ${entityKey}: ${entityValue}"
-                if (entityValue) {
+                if (entityValue && entityValue != "NA") {
                     sequentialEntityValues << entityValue
                 } else {
                     allEntitiesPresent = false
                 }
             }
-            
-            //log.info "Final entity values: ${sequentialEntityValues}"
             
             if (allEntitiesPresent) {
                 // Create composite key for multiple entities, or single key for single entity
@@ -80,7 +119,12 @@ workflow emit_sequential_sets {
                     def value = row.containsKey(entity) ? row[entity] : "NA"
                     return (value == null || value == "") ? "NA" : value
                 }
-                tuple(entityGroupValues + [row.suffix, compositeEntityKey], [entityKeys, sequentialEntityValues, orderType, row.extension, row.path])
+                
+                // Include part value in the row data for parts processing
+                def partValue = hasPartsConfig ? (row.part ?: "NA") : "NA"
+                
+                // Use virtual suffix key instead of actual suffix
+                tuple(entityGroupValues + [virtualSuffixKey, compositeEntityKey], [entityKeys, sequentialEntityValues, orderType, row.extension, row.path, partValue, partsConfig])
             } else {
                 null
             }
@@ -94,8 +138,8 @@ workflow emit_sequential_sets {
             def entityValues = groupingKeyWithSuffixEntity[0..entityCount-1]
             def suffix = groupingKeyWithSuffixEntity[entityCount]
             def compositeEntityKey = groupingKeyWithSuffixEntity[entityCount+1]
-            def (entityKeys, sequentialEntityValues, orderType, extension, filePath) = entityData
-            tuple(entityValues + [suffix], [entityKeys, sequentialEntityValues, orderType, extension, filePath])
+            def (entityKeys, sequentialEntityValues, orderType, extension, filePath, partValue, partsConfig) = entityData
+            tuple(entityValues + [suffix], [entityKeys, sequentialEntityValues, orderType, extension, filePath, partValue, partsConfig])
         }
         .groupTuple()
         .map { groupingKeyWithSuffix, entityFiles ->
@@ -109,9 +153,17 @@ workflow emit_sequential_sets {
             def entityKeysRef = null
             def orderTypeRef = null
             
-            entityFiles.each { entityKeys, sequentialEntityValues, orderType, extension, filePath ->
+            // Check if this is a parts-enabled sequential set
+            def hasPartsConfig = false
+            def partsConfigRef = null
+            
+            entityFiles.each { entityKeys, sequentialEntityValues, orderType, extension, filePath, partValue, partsConfig ->
                 if (!entityKeysRef) entityKeysRef = entityKeys
                 if (!orderTypeRef) orderTypeRef = orderType
+                if (partsConfig && !hasPartsConfig) {
+                    hasPartsConfig = true
+                    partsConfigRef = partsConfig
+                }
                 
                 // Create hierarchical key structure
                 def currentMap = fileMap
@@ -123,15 +175,23 @@ workflow emit_sequential_sets {
                     currentMap = currentMap[entityValue]
                 }
                 
-                // At the final level, store extension-to-path mapping
+                // At the final level, store files grouped by entity and part (if applicable)
                 def finalEntityValue = sequentialEntityValues[-1]
                 if (!currentMap.containsKey(finalEntityValue)) {
                     currentMap[finalEntityValue] = [:]
                 }
-                if (!currentMap[finalEntityValue].containsKey(extension)) {
-                    currentMap[finalEntityValue][extension] = []
+                
+                if (hasPartsConfig && partValue && partValue != "NA") {
+                    // For parts: group by extension and part
+                    def key = "${extension}_${partValue}"
+                    currentMap[finalEntityValue][key] = filePath
+                } else {
+                    // Regular processing: group by extension only
+                    if (!currentMap[finalEntityValue].containsKey(extension)) {
+                        currentMap[finalEntityValue][extension] = []
+                    }
+                    currentMap[finalEntityValue][extension] << filePath
                 }
-                currentMap[finalEntityValue][extension] << filePath
                 allFilePaths << filePath
             }
             
@@ -143,7 +203,7 @@ workflow emit_sequential_sets {
             def createNestedArrays
             createNestedArrays = { currentMap, depth ->
                 if (depth == entityKeysRef.size() - 1) {
-                    // At final entity level, collect extension files as arrays
+                    // At final entity level, collect files
                     def sortedFinalKeys = currentMap.keySet().sort { a, b ->
                         def aNum = (a =~ /(\d+)$/)[0] ? Integer.parseInt((a =~ /(\d+)$/)[0][1]) : 0
                         def bNum = (b =~ /(\d+)$/)[0] ? Integer.parseInt((b =~ /(\d+)$/)[0][1]) : 0
@@ -156,45 +216,47 @@ workflow emit_sequential_sets {
                     sortedFinalKeys.each { finalKey ->
                         def extMap = currentMap[finalKey]
                         
-                        // Apply parts logic if configured
-                        def suffixConfig = config[suffix]
-                        def hasPartsConfig = suffixConfig.containsKey('sequential_set') && 
-                                           suffixConfig.sequential_set.containsKey('parts')
+                        // Always check for JSON file first
+                        def jsonFile = null
+                        def jsonList = extMap.get('json', [])
+                        if (jsonList && jsonList.size() > 0) {
+                            jsonFile = jsonList instanceof List ? jsonList[0] : jsonList
+                        } else {
+                            // Look for json files with part extensions
+                            def jsonKey = extMap.keySet().find { it.startsWith('json_') }
+                            if (jsonKey) jsonFile = extMap[jsonKey]
+                        }
                         
-                        if (hasPartsConfig) {
-                            // Handle parts logic for sequential sets
-                            def partsConfig = suffixConfig.sequential_set.parts
-                            def localJsonFiles = extMap.get('json', [])
-                            def localNiiFiles = extMap.get('nii', []) + extMap.get('nii.gz', [])
-                            
-                            if (localJsonFiles.size() > 0) {
-                                def jsonFile = localJsonFiles[0]  // Take the first JSON file
-                                
-                                // Find corresponding part files
-                                def partFiles = []
-                                partsConfig.each { partValue ->
-                                    def matchingFile = localNiiFiles.find { niiPath ->
-                                        new File(niiPath).name.contains("_part-${partValue}")
-                                    }
-                                    if (matchingFile) {
-                                        partFiles << matchingFile
+                        if (jsonFile) {
+                            if (hasPartsConfig && partsConfigRef) {
+                                // Try parts logic first
+                                def partFilesMap = [:]
+                                partsConfigRef.each { partValue ->
+                                    def niiKey = extMap.keySet().find { it == "nii_part-${partValue}" || it == "nii.gz_part-${partValue}" }
+                                    if (niiKey) {
+                                        partFilesMap[partValue] = extMap[niiKey]
                                     }
                                 }
                                 
-                                // If we have all required parts, add them as an array
-                                if (partFiles.size() == partsConfig.size()) {
-                                    niiGroup << partFiles  // Add the array of part files
+                                // If we have all required parts, use parts structure
+                                if (partFilesMap.size() == partsConfigRef.size()) {
+                                    niiGroup << partFilesMap  // Add the map of part files: {mag: file, phase: file}
+                                    jsonGroup << jsonFile
+                                } else {
+                                    // Fall back to regular processing if not all parts are present
+                                    def niiFileList = extMap.get('nii', []) + extMap.get('nii.gz', [])
+                                    if (niiFileList.size() > 0) {
+                                        niiGroup << niiFileList[0]  // Take first nii file
+                                        jsonGroup << jsonFile
+                                    }
+                                }
+                            } else {
+                                // Regular processing for sequential sets without parts config
+                                def niiFileList = extMap.get('nii', []) + extMap.get('nii.gz', [])
+                                if (niiFileList.size() > 0) {
+                                    niiGroup << niiFileList[0]  // Take first nii file
                                     jsonGroup << jsonFile
                                 }
-                            }
-                        } else {
-                            // Regular processing for sequential sets without parts
-                            def localNiiFiles = extMap.get('nii', []) + extMap.get('nii.gz', [])
-                            def localJsonFiles = extMap.get('json', [])
-                            
-                            if (localNiiFiles.size() > 0 && localJsonFiles.size() > 0) {
-                                niiGroup << localNiiFiles[0]  // Take first nii file
-                                jsonGroup << localJsonFiles[0]  // Take first json file
                             }
                         }
                     }
@@ -235,45 +297,47 @@ workflow emit_sequential_sets {
                         sortedFinalKeys.each { finalKey ->
                             def extMap = currentMap[finalKey]
                             
-                            // Apply parts logic if configured
-                            def suffixConfig = config[suffix]
-                            def hasPartsConfig = suffixConfig.containsKey('sequential_set') && 
-                                               suffixConfig.sequential_set.containsKey('parts')
+                            // Always check for JSON file first
+                            def jsonFile = null
+                            def jsonList = extMap.get('json', [])
+                            if (jsonList && jsonList.size() > 0) {
+                                jsonFile = jsonList instanceof List ? jsonList[0] : jsonList
+                            } else {
+                                // Look for json files with part extensions
+                                def jsonKey = extMap.keySet().find { it.startsWith('json_') }
+                                if (jsonKey) jsonFile = extMap[jsonKey]
+                            }
                             
-                            if (hasPartsConfig) {
-                                // Handle parts logic for sequential sets
-                                def partsConfig = suffixConfig.sequential_set.parts
-                                def localJsonFileList = extMap.get('json', [])
-                                def localNiiFileList = extMap.get('nii', []) + extMap.get('nii.gz', [])
-                                
-                                if (localJsonFileList.size() > 0) {
-                                    def jsonFile = localJsonFileList[0]  // Take the first JSON file
-                                    
-                                    // Find corresponding part files
-                                    def partFiles = []
-                                    partsConfig.each { partValue ->
-                                        def matchingFile = localNiiFileList.find { niiPath ->
-                                            new File(niiPath).name.contains("_part-${partValue}")
-                                        }
-                                        if (matchingFile) {
-                                            partFiles << matchingFile
+                            if (jsonFile) {
+                                if (hasPartsConfig && partsConfigRef) {
+                                    // Try parts logic first
+                                    def partFilesMap = [:]
+                                    partsConfigRef.each { partValue ->
+                                        def niiKey = extMap.keySet().find { it == "nii_part-${partValue}" || it == "nii.gz_part-${partValue}" }
+                                        if (niiKey) {
+                                            partFilesMap[partValue] = extMap[niiKey]
                                         }
                                     }
                                     
-                                    // If we have all required parts, add them as an array
-                                    if (partFiles.size() == partsConfig.size()) {
-                                        niiFiles << partFiles  // Add the array of part files
+                                    // If we have all required parts, use parts structure
+                                    if (partFilesMap.size() == partsConfigRef.size()) {
+                                        niiFiles << partFilesMap  // Add the map of part files: {mag: file, phase: file}
+                                        jsonFiles << jsonFile
+                                    } else {
+                                        // Fall back to regular processing if not all parts are present
+                                        def niiFileList = extMap.get('nii', []) + extMap.get('nii.gz', [])
+                                        if (niiFileList.size() > 0) {
+                                            niiFiles << niiFileList[0]  // Take first nii file
+                                            jsonFiles << jsonFile
+                                        }
+                                    }
+                                } else {
+                                    // Regular processing for sequential sets without parts config
+                                    def niiFileList = extMap.get('nii', []) + extMap.get('nii.gz', [])
+                                    if (niiFileList.size() > 0) {
+                                        niiFiles << niiFileList[0]  // Take first nii file
                                         jsonFiles << jsonFile
                                     }
-                                }
-                            } else {
-                                // Regular processing for sequential sets without parts
-                                def localNiiFileList = extMap.get('nii', []) + extMap.get('nii.gz', [])
-                                def localJsonFileList = extMap.get('json', [])
-                                
-                                if (localNiiFileList.size() > 0 && localJsonFileList.size() > 0) {
-                                    niiFiles << localNiiFileList[0]  // Take first nii file
-                                    jsonFiles << localJsonFileList[0]  // Take first json file
                                 }
                             }
                         }

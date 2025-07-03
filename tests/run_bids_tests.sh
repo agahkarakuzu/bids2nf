@@ -18,7 +18,6 @@ DEFAULT_DIRS=(
     "qmri_megre"
     "qmri_mese"
     "qmri_mp2rage"
-    "qmri_mp2rageme"
     "qmri_mtsat"
     "qmri_qsm"
     "qmri_sa2rage"

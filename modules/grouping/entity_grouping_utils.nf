@@ -1,3 +1,29 @@
+def normalizeEntityValue(value) {
+    // Normalize entity values to handle different zero-padding
+    // e.g., "flip-02" and "flip-2" should both match
+    if (value && value.contains('-')) {
+        def parts = value.split('-')
+        if (parts.length == 2) {
+            def prefix = parts[0]
+            def suffix = parts[1]
+            // If suffix is numeric, remove leading zeros for comparison
+            if (suffix.isNumber()) {
+                def numericSuffix = Integer.parseInt(suffix)
+                return "${prefix}-${numericSuffix}"
+            }
+        }
+    }
+    return value
+}
+
+def entityValuesMatch(rowValue, configValue) {
+    // Compare entity values with normalization
+    if (!rowValue || !configValue) {
+        return rowValue == configValue
+    }
+    return normalizeEntityValue(rowValue) == normalizeEntityValue(configValue)
+}
+
 def findMatchingGrouping(row, suffixConfig) {
     if (!suffixConfig.containsKey('named_set')) {
         return null
@@ -8,7 +34,7 @@ def findMatchingGrouping(row, suffixConfig) {
         def groupingConfig = entry.value
         
         def matches = groupingConfig.every { entity, value ->
-            entity == 'description' || row[entity] == value
+            entity == 'description' || entityValuesMatch(row[entity], value)
         }
         
         if (matches) {

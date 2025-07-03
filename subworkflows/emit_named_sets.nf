@@ -11,6 +11,20 @@ include {
     tryWithContext
 } from '../modules/utils/error_handling.nf'
 
+def getTargetSuffix(configKey, configValue) {
+    return (configValue instanceof Map && configValue.containsKey('suffix_maps_to')) ? configValue.suffix_maps_to : configKey
+}
+
+def findMatchingVirtualConfig(row, config) {
+    def candidateConfigs = config.findAll { configKey, configValue ->
+        def targetSuffix = getTargetSuffix(configKey, configValue)
+        return targetSuffix == row.suffix && configValue instanceof Map && configValue.containsKey('named_set')
+    }
+    
+    // For named sets, any candidate can process the file (no strict entity requirements)
+    return candidateConfigs.size() > 0 ? [configKey: candidateConfigs.entrySet().first().key, configValue: candidateConfigs.entrySet().first().value] : null
+}
+
 workflow emit_named_sets {
     take:
     parsed_csv
@@ -25,11 +39,13 @@ workflow emit_named_sets {
     input_files = parsed_csv
         .splitCsv(header: true)
         .filter { row -> 
-            config.containsKey(row.suffix) && 
-            config[row.suffix].containsKey('named_set')
+            def matchingConfig = findMatchingVirtualConfig(row, config)
+            return matchingConfig != null
         }
         .map { row -> 
-            def suffixConfig = config[row.suffix]
+            def matchingConfig = findMatchingVirtualConfig(row, config)
+            def virtualSuffixKey = matchingConfig.configKey
+            def suffixConfig = matchingConfig.configValue
             def groupName = findMatchingGrouping(row, suffixConfig)
             
             if (groupName) {
@@ -37,7 +53,7 @@ workflow emit_named_sets {
                     def value = row.containsKey(entity) ? row[entity] : "NA"
                     return (value == null || value == "") ? "NA" : value
                 }
-                tuple(entityValues + [row.suffix, groupName, row.extension], row.path)
+                tuple(entityValues + [virtualSuffixKey, groupName, row.extension], row.path)
             } else {
                 null
             }
