@@ -6,14 +6,14 @@
   "totalFiles": 6,
   "data": {
     "T1w": {
-        "json": "ds-dwi/sub-01/anat/sub-01_T1w.json",
-        "nii.gz": "ds-dwi/sub-01/anat/sub-01_T1w.nii.gz"
+        "nii": "ds-dwi/sub-01/anat/sub-01_T1w.nii.gz",
+        "json": "ds-dwi/sub-01/anat/sub-01_T1w.json"
     },
     "dwi": {
-        "bval": "ds-dwi/sub-01/dwi/sub-01_dwi.bval",
-        "bvec": "ds-dwi/sub-01/dwi/sub-01_dwi.bvec",
+        "nii": "ds-dwi/sub-01/dwi/sub-01_dwi.nii",
         "json": "ds-dwi/sub-01/dwi/sub-01_dwi.json",
-        "nii": "ds-dwi/sub-01/dwi/sub-01_dwi.nii"
+        "bval": "ds-dwi/sub-01/dwi/sub-01_dwi.bval",
+        "bvec": "ds-dwi/sub-01/dwi/sub-01_dwi.bvec"
     }
 }
 }

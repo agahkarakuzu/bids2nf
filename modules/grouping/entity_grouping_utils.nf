@@ -104,3 +104,96 @@ def createGroupingKey(subject, session, run) {
     return key
 }
 
+def normalizeNiiExtension(extension) {
+    // Normalize NIfTI extensions to use 'nii' consistently
+    return (extension == 'nii.gz') ? 'nii' : extension
+}
+
+def extractAdditionalFiles(fileMap, suffixConfig) {
+    // Extract additional extension files based on configuration
+    def additionalFiles = [:]
+    
+    // Check for additional_extensions at top level (for named sets)
+    if (suffixConfig.containsKey('additional_extensions')) {
+        suffixConfig.additional_extensions.each { ext ->
+            if (fileMap.containsKey(ext)) {
+                additionalFiles[ext] = fileMap[ext]
+            }
+        }
+    }
+    
+    // Check for additional_extensions in plain_set block (for plain sets)
+    if (suffixConfig.containsKey('plain_set') && suffixConfig.plain_set.containsKey('additional_extensions')) {
+        suffixConfig.plain_set.additional_extensions.each { ext ->
+            if (fileMap.containsKey(ext)) {
+                additionalFiles[ext] = fileMap[ext]
+            }
+        }
+    }
+    
+    // Check for additional_extensions in mixed_set block (for mixed sets)
+    if (suffixConfig.containsKey('mixed_set') && suffixConfig.mixed_set.containsKey('additional_extensions')) {
+        suffixConfig.mixed_set.additional_extensions.each { ext ->
+            if (fileMap.containsKey(ext)) {
+                additionalFiles[ext] = fileMap[ext]
+            }
+        }
+    }
+    
+    // Check for additional_extensions in sequential_set block (for sequential sets)
+    if (suffixConfig.containsKey('sequential_set') && suffixConfig.sequential_set.containsKey('additional_extensions')) {
+        suffixConfig.sequential_set.additional_extensions.each { ext ->
+            if (fileMap.containsKey(ext)) {
+                additionalFiles[ext] = fileMap[ext]
+            }
+        }
+    }
+    
+    return additionalFiles
+}
+
+def buildChannelData(fileMap, suffixConfig) {
+    // Build standardized channel data with normalized keys
+    def channelData = [:]
+    
+    // Handle NIfTI files with normalized key
+    def niiFile = fileMap.containsKey('nii.gz') ? fileMap['nii.gz'] : fileMap['nii']
+    if (niiFile) {
+        channelData['nii'] = niiFile
+    }
+    
+    // Handle JSON files
+    if (fileMap.containsKey('json')) {
+        channelData['json'] = fileMap['json']
+    }
+    
+    // Handle additional extensions
+    def additionalFiles = extractAdditionalFiles(fileMap, suffixConfig)
+    additionalFiles.each { ext, file ->
+        channelData[ext] = file
+    }
+    
+    return channelData
+}
+
+
+def buildSequentialChannelData(niiFiles, jsonFiles, suffixConfig) {
+    // Build standardized channel data for sequential files (arrays)
+    def channelData = [:]
+    
+    // Always use 'nii' key for consistency
+    if (niiFiles && niiFiles.size() > 0) {
+        channelData['nii'] = niiFiles
+    }
+    
+    // Handle JSON files
+    if (jsonFiles && jsonFiles.size() > 0) {
+        channelData['json'] = jsonFiles
+    }
+    
+    // Note: additional_extensions for sequential sets would need special handling
+    // This could be extended in the future if needed
+    
+    return channelData
+}
+

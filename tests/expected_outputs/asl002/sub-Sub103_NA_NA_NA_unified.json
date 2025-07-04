@@ -1,0 +1,24 @@
+{
+  "subject": "sub-Sub103",
+  "session": "NA",
+  "run": "NA",
+  "task": "NA",
+  "totalFiles": 7,
+  "data": {
+    "T1w": {
+        "nii": "asl002/sub-Sub103/anat/sub-Sub103_T1w.nii.gz",
+        "json": "asl002/sub-Sub103/anat/sub-Sub103_T1w.json"
+    },
+    "asl": {
+        "nii": "asl002/sub-Sub103/perf/sub-Sub103_asl.nii.gz",
+        "json": "asl002/sub-Sub103/perf/sub-Sub103_asl.json"
+    },
+    "aslcontext": {
+        "tsv": "asl002/sub-Sub103/perf/sub-Sub103_aslcontext.tsv"
+    },
+    "m0scan": {
+        "nii": "asl002/sub-Sub103/perf/sub-Sub103_m0scan.nii.gz",
+        "json": "asl002/sub-Sub103/perf/sub-Sub103_m0scan.json"
+    }
+}
+}

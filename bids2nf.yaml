@@ -17,10 +17,24 @@ loop_over: [subject, session, run, task]
 #        ℹ️ Example output file for the channel for documentation generation purposes.
 #        Not intended for users.        
 
+
 dwi:
   example_output: "tests/expected_outputs/ds-dwi/sub-01_NA_NA_NA_unified.json"
   plain_set:
     additional_extensions: ["bval", "bvec"]
+
+# dwi_special_case:
+#   example_output: "tests/expected_outputs/ds-dwi/sub-01_NA_NA_NA_unified.json"
+#   named_set:
+#     ap:
+#       direction: "dir-AP"
+#     pa:
+#       direction: "dir-PA"
+#   required: ["ap", "pa"]
+#   additional_extensions: ["bval", "bvec"]
+
+epi:
+  plain_set: {}
 
 T1w:
   example_output: "tests/expected_outputs/ds-dwi/sub-01_NA_NA_NA_unified.json"

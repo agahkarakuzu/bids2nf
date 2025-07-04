@@ -3,7 +3,8 @@ include {
     createFileMap; 
     validateRequiredFiles;
     validateRequiredFilesWithConfig; 
-    createGroupingKey 
+    createGroupingKey;
+    buildChannelData
 } from '../modules/grouping/entity_grouping_utils.nf'
 include {
     handleError;
@@ -86,9 +87,8 @@ workflow emit_named_sets {
             }
             
             if (validateRequiredFilesWithConfig(fileMap, entityMap.subject ?: "NA", entityMap.session ?: "NA", entityMap.run ?: "NA", suffix, groupName, suffixConfig)) {
-                def niiFile = fileMap.containsKey('nii.gz') ? fileMap['nii.gz'] : fileMap['nii']
-                def jsonFile = fileMap['json']
-                tuple(entityValues + [suffix, groupName], [niiFile, jsonFile])
+                def channelData = buildChannelData(fileMap, suffixConfig)
+                tuple(entityValues + [suffix, groupName], channelData)
             } else {
                 null
             }
@@ -96,14 +96,13 @@ workflow emit_named_sets {
         .filter { it != null }
 
     finalGroups = input_pairs
-        .map { groupingKeyWithSuffixGroup, niiJsonPair ->
+        .map { groupingKeyWithSuffixGroup, channelData ->
             def entityCount = loopOverEntities.size()
             def entityValues = groupingKeyWithSuffixGroup[0..entityCount-1]
             def suffix = groupingKeyWithSuffixGroup[entityCount]
             def groupName = groupingKeyWithSuffixGroup[entityCount+1]
-            def (niiFile, jsonFile) = niiJsonPair
             
-            tuple(entityValues, [suffix, groupName, niiFile, jsonFile])
+            tuple(entityValues, [suffix, groupName, channelData])
         }
         .groupTuple()
         .map { groupingKey, suffixGroupingFiles ->
@@ -115,16 +114,13 @@ workflow emit_named_sets {
             def allGroupingMaps = [:]
             def allFilePaths = []
             
-            suffixGroupingFiles.each { suffix, groupName, niiFile, jsonFile ->
+            suffixGroupingFiles.each { suffix, groupName, channelData ->
                 if (!allGroupingMaps.containsKey(suffix)) {
                     allGroupingMaps[suffix] = [:]
                 }
-                allGroupingMaps[suffix][groupName] = [
-                    'nii': niiFile,
-                    'json': jsonFile
-                ]
-                allFilePaths << niiFile
-                allFilePaths << jsonFile
+                
+                allGroupingMaps[suffix][groupName] = channelData
+                allFilePaths.addAll(channelData.values())
             }
 
             def allComplete = allGroupingMaps.every { suffix, groupingMap ->

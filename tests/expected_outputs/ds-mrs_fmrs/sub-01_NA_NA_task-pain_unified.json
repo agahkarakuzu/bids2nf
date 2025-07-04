@@ -9,16 +9,16 @@
         "tsv": "ds-mrs_fmrs/sub-01/mrs/sub-01_task-pain_events.tsv"
     },
     "mrsref": {
-        "json": "ds-mrs_fmrs/sub-01/mrs/sub-01_task-pain_mrsref.json",
-        "nii.gz": "ds-mrs_fmrs/sub-01/mrs/sub-01_task-pain_mrsref.nii.gz"
+        "nii": "ds-mrs_fmrs/sub-01/mrs/sub-01_task-pain_mrsref.nii.gz",
+        "json": "ds-mrs_fmrs/sub-01/mrs/sub-01_task-pain_mrsref.json"
     },
     "svs": {
-        "json": "ds-mrs_fmrs/sub-01/mrs/sub-01_task-pain_svs.json",
-        "nii.gz": "ds-mrs_fmrs/sub-01/mrs/sub-01_task-pain_svs.nii.gz"
+        "nii": "ds-mrs_fmrs/sub-01/mrs/sub-01_task-pain_svs.nii.gz",
+        "json": "ds-mrs_fmrs/sub-01/mrs/sub-01_task-pain_svs.json"
     },
     "T1w": {
-        "json": "ds-mrs_fmrs/sub-01/anat/sub-01_T1w.json",
-        "nii.gz": "ds-mrs_fmrs/sub-01/anat/sub-01_T1w.nii.gz"
+        "nii": "ds-mrs_fmrs/sub-01/anat/sub-01_T1w.nii.gz",
+        "json": "ds-mrs_fmrs/sub-01/anat/sub-01_T1w.json"
     }
 }
 }

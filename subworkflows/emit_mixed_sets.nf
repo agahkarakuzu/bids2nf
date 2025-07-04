@@ -3,7 +3,9 @@ include {
     createFileMap; 
     validateRequiredFiles;
     validateRequiredFilesWithConfig; 
-    createGroupingKey 
+    createGroupingKey;
+    buildChannelData;
+    buildSequentialChannelData
 } from '../modules/grouping/entity_grouping_utils.nf'
 include {
     handleError;
@@ -286,10 +288,8 @@ workflow emit_mixed_sets {
                     def niiData = sortedFiles.collect { it[1] }
                     def jsonFiles = sortedFiles.collect { it[2] }
                     
-                    allGroupingMaps[virtualSuffixKey][groupName] = [
-                        'nii': niiData,
-                        'json': jsonFiles
-                    ]
+                    def suffixConfig = config[virtualSuffixKey]
+                    allGroupingMaps[virtualSuffixKey][groupName] = buildSequentialChannelData(niiData, jsonFiles, suffixConfig)
                 }
             }
 

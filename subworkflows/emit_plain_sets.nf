@@ -1,6 +1,7 @@
 include { 
     createFileMap; 
-    createGroupingKey 
+    createGroupingKey;
+    buildChannelData
 } from '../modules/grouping/entity_grouping_utils.nf'
 include {
     validatePlainSetFiles
@@ -140,6 +141,7 @@ workflow emit_plain_sets {
                             key == 'nii' || key == 'nii.gz' 
                         }
                         if (regularNiiFiles.size() > 0) {
+                            // Always use 'nii' key for consistency
                             allFiles['nii'] = regularNiiFiles.values().first()
                             tuple(entityValues + [virtualSuffixKey], allFiles)
                         } else {
@@ -157,11 +159,7 @@ workflow emit_plain_sets {
                 }
                 
                 if (validatePlainSetFiles(fileMap, entityMap.subject ?: "NA", entityMap.session ?: "NA", entityMap.run ?: "NA", virtualSuffixKey, suffixConfig)) {
-                    // Get all files from the file map
-                    def allFiles = [:]
-                    fileMap.each { extension, filePath ->
-                        allFiles[extension] = filePath
-                    }
+                    def allFiles = buildChannelData(fileMap, suffixConfig)
                     tuple(entityValues + [virtualSuffixKey], allFiles)
                 } else {
                     null

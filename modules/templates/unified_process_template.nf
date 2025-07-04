@@ -62,7 +62,7 @@ process unified_process_template {
   echo "Last file: ${lastFile}"
   echo ""
       """
-    } else {
+    } else if (suffixData.keySet().size() > 0) {
       // Named or Mixed set structure: check first group
       def sampleKey = suffixData.keySet().first()
       def sampleData = suffixData[sampleKey]
@@ -104,6 +104,13 @@ process unified_process_template {
           """
         }
       }
+    } else {
+      // Handle empty suffixData case
+      return """
+  echo "--- ${suffix} ---"
+  echo "Warning: No data found for suffix ${suffix}"
+  echo ""
+      """
     }
     return ""
   }.findAll { it != "" }.join('\n')}

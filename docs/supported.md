@@ -35,6 +35,14 @@ graph LR
 :::{seealso} Example usage within a process
 :class: dropdown
 ```groovy
+  // Access nii file:
+  bids_channel['dwi']['nii']
+  // → ds-dwi/sub-01/dwi/sub-01_dwi.nii
+
+  // Access json file:
+  bids_channel['dwi']['json']
+  // → ds-dwi/sub-01/dwi/sub-01_dwi.json
+
   // Access bval file:
   bids_channel['dwi']['bval']
   // → ds-dwi/sub-01/dwi/sub-01_dwi.bval
@@ -43,17 +51,45 @@ graph LR
   bids_channel['dwi']['bvec']
   // → ds-dwi/sub-01/dwi/sub-01_dwi.bvec
 
-  // Access json file:
-  bids_channel['dwi']['json']
-  // → ds-dwi/sub-01/dwi/sub-01_dwi.json
-
-  // Access nii file:
-  bids_channel['dwi']['nii']
-  // → ds-dwi/sub-01/dwi/sub-01_dwi.nii
-
 ```
 :::
 {button}`Example channel data structure <https://github.com/agahkarakuzu/bids2nf/blob/main/tests/expected_outputs/ds-dwi/sub-01_NA_NA_NA_unified.json>`
+::::
+
+::::{card}
+:header: <span class="custom-heading-plain"><h4>epi</h4></span>
+:footer: **Additional extensions:** None
+
+**EPI**
+
+The phase-encoding polarity (PEpolar) technique combines two or more Spin Echo
+EPI scans with different phase encoding directions to estimate the underlying
+inhomogeneity/deformation map.
+
+
+:::{mermaid}
+graph LR
+    A[epi] --> B[.nii/.nii.gz]
+    A -.-> C[.json]
+    classDef mainNode fill:#e1f5fe
+    classDef fileNode fill:#f3e5f5
+    classDef optionalNode fill:#f3e5f5,stroke-dasharray: 5 5
+    classDef crossModalNode fill:#fff3e0,stroke:#ff9800,stroke-width:2px
+    class A mainNode
+    class B fileNode
+    class C optionalNode
+:::
+
+[⌬ Hover to see the diagram legend](#mermaidlegend)
+
+:::{seealso} Example usage within a process
+:class: dropdown
+```groovy
+  // Access main files:
+  bids_channel['epi']['nii']
+  bids_channel['epi']['json']
+```
+:::
 ::::
 
 ::::{card}
@@ -92,13 +128,13 @@ graph LR
 :::{seealso} Example usage within a process
 :class: dropdown
 ```groovy
+  // Access nii file:
+  bids_channel['T1w']['nii']
+  // → ds-dwi/sub-01/anat/sub-01_T1w.nii.gz
+
   // Access json file:
   bids_channel['T1w']['json']
   // → ds-dwi/sub-01/anat/sub-01_T1w.json
-
-  // Access nii.gz file:
-  bids_channel['T1w']['nii.gz']
-  // → ds-dwi/sub-01/anat/sub-01_T1w.nii.gz
 
 ```
 :::
@@ -139,7 +175,6 @@ graph LR
   bids_channel['asl']['json']
 ```
 :::
-{button}`Example channel data structure <https://github.com/agahkarakuzu/bids2nf/blob/main/tests/expected_outputs/asl003/sub-01_NA_NA_unified.json>`
 ::::
 
 ::::{card}
@@ -179,7 +214,6 @@ graph LR
   bids_channel['aslcontext']['tsv']
 ```
 :::
-{button}`Example channel data structure <https://github.com/agahkarakuzu/bids2nf/blob/main/tests/expected_outputs/asl003/sub-01_NA_NA_unified.json>`
 ::::
 
 ::::{card}
@@ -215,7 +249,6 @@ graph LR
   bids_channel['m0scan']['json']
 ```
 :::
-{button}`Example channel data structure <https://github.com/agahkarakuzu/bids2nf/blob/main/tests/expected_outputs/asl003/sub-01_NA_NA_unified.json>`
 ::::
 
 ::::{card}
@@ -250,13 +283,13 @@ graph LR
 :::{seealso} Example usage within a process
 :class: dropdown
 ```groovy
+  // Access nii file:
+  bids_channel['mrsref']['nii']
+  // → ds-mrs_fmrs/sub-01/mrs/sub-01_task-baseline_mrsref.nii.gz
+
   // Access json file:
   bids_channel['mrsref']['json']
   // → ds-mrs_fmrs/sub-01/mrs/sub-01_task-baseline_mrsref.json
-
-  // Access nii.gz file:
-  bids_channel['mrsref']['nii.gz']
-  // → ds-mrs_fmrs/sub-01/mrs/sub-01_task-baseline_mrsref.nii.gz
 
 ```
 :::
@@ -308,13 +341,13 @@ graph LR
 :::{seealso} Example usage within a process
 :class: dropdown
 ```groovy
+  // Access nii file:
+  bids_channel['svs']['nii']
+  // → ds-mrs_fmrs/sub-01/mrs/sub-01_task-pain_svs.nii.gz
+
   // Access json file:
   bids_channel['svs']['json']
   // → ds-mrs_fmrs/sub-01/mrs/sub-01_task-pain_svs.json
-
-  // Access nii.gz file:
-  bids_channel['svs']['nii.gz']
-  // → ds-mrs_fmrs/sub-01/mrs/sub-01_task-pain_svs.nii.gz
 
 ```
 :::
@@ -416,13 +449,11 @@ graph TD
   bids_channel['MTS']['PDw']['json']
 ```
 :::
-{button}`Example channel data structure <https://github.com/agahkarakuzu/bids2nf/blob/main/tests/expected_outputs/ds-mtsat/sub-phantom_ses-rth750rev_run-01_unified.json>`
 ::::
 
 ::::{card}
 :header: <span class="custom-heading"><h4>TB1TFL</h4></span>
 :footer: **Required keys:** `anat`, `famp`
-
 
 The result of a Siemens `tfl_b1_map` product sequence.
 This sequence produces two images.
@@ -465,13 +496,11 @@ graph TD
   bids_channel['TB1TFL']['famp']['json']
 ```
 :::
-{button}`Example channel data structure <https://github.com/agahkarakuzu/bids2nf/blob/main/tests/expected_outputs/qmri_tb1tfl/sub-01_NA_NA_unified.json>`
 ::::
 
 ::::{card}
 :header: <span class="custom-heading"><h4>TB1AFI</h4></span>
 :footer: **Required keys:** `tr1`, `tr2`
-
 
 This method ([Yarnykh 2007](https://doi.org/10.1002/mrm.21120))
 calculates a B1<sup>+</sup> map from two images acquired at interleaved (two)
@@ -513,13 +542,11 @@ graph TD
   bids_channel['TB1AFI']['tr2']['json']
 ```
 :::
-{button}`Example channel data structure <https://github.com/agahkarakuzu/bids2nf/blob/main/tests/expected_outputs/qmri_vfa/sub-01_NA_NA_unified.json>`
 ::::
 
 ::::{card}
 :header: <span class="custom-heading"><h4>RB1COR</h4></span>
 :footer: **Required keys:** `bodyMTw`, `bodyT1w`, `bodyPDw`, `headMTw`, `headT1w`, `headPDw`
-
 
 Low resolution images acquired by the body coil
 (in the gantry of the scanner) and the head coil using identical acquisition
@@ -586,12 +613,117 @@ graph TD
   bids_channel['RB1COR']['headPDw']['json']
 ```
 :::
-{button}`Example channel data structure <https://github.com/agahkarakuzu/bids2nf/blob/main/tests/expected_outputs/qmri_mpm/sub-01_NA_NA_unified.json>`
 ::::
 
 ## Sequential Sets
 
 Sequential sets define collections of files organized by BIDS entities.
+
+::::{card}
+:header: <span class="custom-heading-2"><h4>MP2RAGE_multiecho</h4></span>
+:footer: **Entities: `inversion`, `echo` (sequential order)**
+
+:::{mermaid}
+graph TD
+    A[MP2RAGE_multiecho] --> B{Sequential Collection}
+    B --> C[inversion dimension]
+    C --> D[inversion=1]
+    C --> E[inversion=2]
+    D --> F[echo=1]
+    D --> G[echo=2]
+    E --> H[echo=1]
+    E --> I[echo=2]
+    F --> J[.nii/.nii.gz]
+    F --> K[.json]
+    G --> L[.nii/.nii.gz]
+    G --> M[.json]
+    classDef mainNode fill:#e1f5fe
+    classDef collectionNode fill:#fff3e0
+    classDef entityNode fill:#e8f5e8
+    classDef indexNode fill:#fce4ec
+    classDef fileNode fill:#f3e5f5
+    class A mainNode
+    class B collectionNode
+    class C entityNode
+    class D,E,F,G,H,I indexNode
+    class J,K,L,M fileNode
+:::
+
+[⌬ Hover to see the diagram legend](#mermaidlegend)
+
+:::{seealso} Example usage within a process
+:class: dropdown
+```groovy
+  // Multiple entities organized by: inversion, echo
+  // First dimension: inversion, Second dimension: echo
+  // Get size of first dimension (inversion)
+  bids_channel['MP2RAGE_multiecho']['nii'].size()
+  // Get size of second dimension (echo) for first inversion
+  bids_channel['MP2RAGE_multiecho']['nii'][0].size()
+  // Access first item
+  bids_channel['MP2RAGE_multiecho']['nii'][0][0]
+  bids_channel['MP2RAGE_multiecho']['json'][0][0]
+```
+:::
+::::
+
+::::{card}
+:header: <span class="custom-heading-2"><h4>MP2RAGE</h4></span>
+:footer: **Entity: `inversion`**
+
+**Magnetization Prepared Two Gradient Echoes**
+
+The MP2RAGE method is a special protocol that collects several images at
+different flip angles and inversion times to create a parametric T1map by
+combining the magnitude and phase images
+([Marques et al. 2010](https://doi.org/10.1016/j.neuroimage.2009.10.002)).
+
+
+:::{mermaid}
+graph TD
+    A[MP2RAGE] --> B{Sequential Collection}
+    B --> C[Organized by inversion]
+    C --> D[Index 0]
+    C --> E[Index 1]
+    C --> F[Index ...]
+    D --> G[.nii/.nii.gz]
+    D --> H[.json]
+    E --> I[.nii/.nii.gz]
+    E --> J[.json]
+    classDef mainNode fill:#e1f5fe
+    classDef collectionNode fill:#fff3e0
+    classDef entityNode fill:#e8f5e8
+    classDef indexNode fill:#fce4ec
+    classDef fileNode fill:#f3e5f5
+    class A mainNode
+    class B collectionNode
+    class C entityNode
+    class D,E,F indexNode
+    class G,H,I,J fileNode
+:::
+
+[⌬ Hover to see the diagram legend](#mermaidlegend)
+
+:::{seealso} Example usage within a process
+:class: dropdown
+```groovy
+  // Get number of items in sequential set
+  bids_channel['MP2RAGE']['nii'].size()  // → 2
+  // Access first item
+  bids_channel['MP2RAGE']['nii'][0]
+  // → {'mag': 'qmri_mp2rage/sub-1/anat/sub-1_inv-1_part-mag_MP2RAGE.nii', 'phase': 'qmri_mp2rage/sub-1/anat/sub-1_inv-1_part-phase_MP2RAGE.nii'}
+  bids_channel['MP2RAGE']['json'][0]
+  // → qmri_mp2rage/sub-1/anat/sub-1_inv-1_MP2RAGE.json
+
+  // Access second item
+  bids_channel['MP2RAGE']['nii'][1]
+  // → {'mag': 'qmri_mp2rage/sub-1/anat/sub-1_inv-2_part-mag_MP2RAGE.nii', 'phase': 'qmri_mp2rage/sub-1/anat/sub-1_inv-2_part-phase_MP2RAGE.nii'}
+  bids_channel['MP2RAGE']['json'][1]
+  // → qmri_mp2rage/sub-1/anat/sub-1_inv-2_MP2RAGE.json
+
+```
+:::
+::::
 
 ::::{card}
 :header: <span class="custom-heading-2"><h4>VFA</h4></span>
@@ -641,7 +773,6 @@ graph TD
   bids_channel['VFA']['json'][0]
 ```
 :::
-{button}`Example channel data structure <https://github.com/agahkarakuzu/bids2nf/blob/main/tests/expected_outputs/qmri_vfa/sub-01_NA_NA_unified.json>`
 ::::
 
 ::::{card}
@@ -690,13 +821,11 @@ graph TD
   bids_channel['IRT1']['json'][0]
 ```
 :::
-{button}`Example channel data structure <https://github.com/agahkarakuzu/bids2nf/blob/main/tests/expected_outputs/qmri_irt1/sub-01_NA_NA_unified.json>`
 ::::
 
 ::::{card}
 :header: <span class="custom-heading-2"><h4>TB1DAM</h4></span>
 :footer: **Entity: `flip`**
-
 
 The double-angle B1<sup>+</sup> method
 ([Insko and Bolinger 1993](https://doi.org/10.1006/jmra.1993.1133)) is based
@@ -741,7 +870,6 @@ graph TD
   bids_channel['TB1DAM']['json'][0]
 ```
 :::
-{button}`Example channel data structure <https://github.com/agahkarakuzu/bids2nf/blob/main/tests/expected_outputs/qmri_mtsat/sub-01_NA_NA_unified.json>`
 ::::
 
 ::::{card}
@@ -790,7 +918,6 @@ graph TD
   bids_channel['MEGRE']['json'][0]
 ```
 :::
-{button}`Example channel data structure <https://github.com/agahkarakuzu/bids2nf/blob/main/tests/expected_outputs/qmri_megre/sub-01_NA_NA_unified.json>`
 ::::
 
 ::::{card}
@@ -840,13 +967,11 @@ graph TD
   bids_channel['MESE']['json'][0]
 ```
 :::
-{button}`Example channel data structure <https://github.com/agahkarakuzu/bids2nf/blob/main/tests/expected_outputs/qmri_mese/sub-01_NA_NA_unified.json>`
 ::::
 
 ::::{card}
 :header: <span class="custom-heading-2"><h4>TB1SRGE</h4></span>
 :footer: **Entities: `flip`, `inversion` (hierarchical order)**
-
 
 Saturation-prepared with 2 rapid gradient echoes (SA2RAGE) uses a ratio of
 two saturation recovery images with different time delays,
@@ -899,13 +1024,11 @@ graph TD
   bids_channel['TB1SRGE']['json'][0][0]
 ```
 :::
-{button}`Example channel data structure <https://github.com/agahkarakuzu/bids2nf/blob/main/tests/expected_outputs/qmri_sa2rage/sub-01_NA_NA_unified.json>`
 ::::
 
 ::::{card}
 :header: <span class="custom-heading-2"><h4>TB1EPI</h4></span>
 :footer: **Entities: `echo`, `flip` (hierarchical order)**
-
 
 This B1<sup>+</sup> mapping method
 ([Jiru and Klose 2006](https://doi.org/10.1002/mrm.21083)) is based on two
@@ -956,7 +1079,6 @@ graph TD
   bids_channel['TB1EPI']['json'][0][0]
 ```
 :::
-{button}`Example channel data structure <https://github.com/agahkarakuzu/bids2nf/blob/main/tests/expected_outputs/qmri_mpm/sub-01_NA_NA_unified.json>`
 ::::
 
 ## Mixed Sets
@@ -1045,7 +1167,6 @@ graph TD
 
 ```
 :::
-{button}`Example channel data structure <https://github.com/agahkarakuzu/bids2nf/blob/main/tests/expected_outputs/qmri_mpm/sub-01_NA_NA_unified.json>`
 ::::
 
 ::::{admonition} Mermaid Diagram Legend
