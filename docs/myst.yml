@@ -1,7 +1,8 @@
 version: 1
 project:
   id: f1aa9951-4afc-4857-b913-8017492f3d97
-  title: 'bids2nf: BIDS to Nextflow channels'
+  title: 'bids2nf'
+  subtitle: 'BIDS to Nextflow channels'
   github: https://github.com/agahkarakuzu/bids2nf
   description: A tool to emit nextflow channels from BIDS datasets.
   abbreviations:
@@ -25,8 +26,8 @@ site:
   - title: nf-neuro
     url: https://scilus.github.io/nf-neuro
   options:
-    logo: ../logo.png
-    logo_text: bids2nf documentation
+    logo: ../assets/logo.svg
+    logo_text: Use BIDS in Nextflow
     style: ./bids2nf.css
-    favicon: ../favicon.ico
+    favicon: ../assets/favicon.ico
     

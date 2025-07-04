@@ -3,7 +3,7 @@ title: About
 ---
 
 ::::{aside}
-:::{image} ../logo.png
+:::{image} ../assets/logo.svg
 :width: 200
 :align: center
 :::
@@ -17,11 +17,6 @@ title: About
 :width: 150
 :align: center
 :::
-
-:::{image} ../nfneuro.svg
-:width: 150
-:align: center
-:::
 ::::
 
 **bids2nf** is a lightweight utility that parses BIDS (Brain Imaging Data Structure) datasets and emits structured Nextflow [channels](https://www.nextflow.io/docs/latest/channel.html). These channels provide a standardized interface for building scalable, modular, and reproducible neuroimaging workflows with [Nextflow](https://nextflow.io).
@@ -29,23 +24,41 @@ title: About
 ::::{grid} 1 1 2 3
 
 :::{card}
-:header: 🪶 Lightweight
-Minimal dependencies with [shell-based BIDS parsing](https://github.com/CoBrALab/libBIDS.sh) for fast, efficient processing.
+:header: 📺 Tune In
+
+Point to your BIDS directory and get clean, organized dataflow channels instantly. Focus on stitching together your workflow, not wrestling with regex patterns and file pairings.
 :::
 
 :::{card}
-:header: 🔀 Nextflow native
-Built with [Nextflow](https://nextflow.io) DSL2 modularity in mind, enabling neuroimaging researchers to leverage scalable, reproducible workflows.
+:header: ⚡ Zero Bloat, All Flow
+Ultra-lightweight with shell-based parsing and minimal dependencies. Built for speed, portability, and easy integration into any neuroimaging task. 
 :::
 
 :::{card}
-:header: 🧩 Customizable
-Though [BIDS-first](https://bids-specification.readthedocs.io/en/stable/), bids2nf is highly configurable and can be adapted to work with custom dataset structures beyond strict BIDS compliance.
+:header: 🔧 Flexible by Design
+Strict BIDS? Custom hacks? Either way, bids2nf adapts. Configure channels to match your data, your logic, your workflow.
 :::
 ::::
 
-:::{seealso} Reference
+:::{card} 🧠 Nextflow: A Declarative Powerhouse
+Think single-subject analysis. Nextflow scales it automatically across subjects, sessions, and runs (and whatever else you need). No loops, no batch scripts, no infrastructure headaches. Your analysis code stays clean while Nextflow handles parallelization, container mediation, and compute resource maping.
+:::
+
+::::{seealso} Reference article
 Implementation of `bids2nf` adheres to the design principles of modular and portable neuroimaging pipelines as described in [](https://doi.org/10.1007/s10334-025-01245-3)
 
-Built with [nf-neuro](https://scilus.github.io/nf-neuro) in mind.
+::::
+
+
+::::{card}
+:link: https://scilus.github.io/nf-neuro/
+:footer: This package is part of the nf-neuro initiative, a community effort to develop reproducible and scalable neuroimaging workflows.
+:align: center
+
+:::{image} ../nfneuro.svg
+:width: 150
+:align: center
 :::
+::::
+
+
