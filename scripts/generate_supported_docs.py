@@ -62,6 +62,7 @@ def generate_named_set_mermaid(name: str, config_data: Dict[str, Any]) -> List[s
     """Generate mermaid diagram for named sets."""
     named_set = config_data['named_set']
     required = config_data.get('required', [])
+    additional_extensions = config_data.get('additional_extensions', [])
     
     lines = ["graph TD"]
     lines.append(f"    A[{name}] --> B{{Named Groups}}")
@@ -78,7 +79,14 @@ def generate_named_set_mermaid(name: str, config_data: Dict[str, Any]) -> List[s
         lines.append(f"    {group_node} --> {nii_node}[.nii/.nii.gz]")
         lines.append(f"    {group_node} --> {json_node}[.json]")
         
-        node_letter += 3
+        # Add additional extensions for each group
+        ext_node_offset = 3
+        for ext in additional_extensions:
+            ext_node = chr(node_letter + ext_node_offset)
+            lines.append(f"    {group_node} -.-> {ext_node}[.{ext}]")  # Dotted for optional
+            ext_node_offset += 1
+        
+        node_letter += 3 + len(additional_extensions)
     
     # Style the nodes
     lines.append("    classDef mainNode fill:#e1f5fe")
@@ -90,15 +98,16 @@ def generate_named_set_mermaid(name: str, config_data: Dict[str, Any]) -> List[s
     lines.append("    class B groupNode")
     
     # Mark required groups
-    group_nodes = [chr(ord('C') + i * 3) for i in range(len(named_set))]
     required_nodes = []
     all_group_nodes = []
+    node_offset = 0
     
     for i, group_name in enumerate(named_set.keys()):
-        group_node = chr(ord('C') + i * 3)
+        group_node = chr(ord('C') + node_offset)
         all_group_nodes.append(group_node)
         if group_name in required:
             required_nodes.append(group_node)
+        node_offset += 3 + len(additional_extensions)
     
     if required_nodes:
         lines.append(f"    class {','.join(required_nodes)} requiredNode")
@@ -109,12 +118,24 @@ def generate_named_set_mermaid(name: str, config_data: Dict[str, Any]) -> List[s
     
     # File nodes
     file_nodes = []
+    optional_nodes = []
+    node_offset = 0
     for i in range(len(named_set)):
-        nii_node = chr(ord('C') + i * 3 + 1)
-        json_node = chr(ord('C') + i * 3 + 2)
+        base_node = ord('C') + node_offset
+        nii_node = chr(base_node + 1)
+        json_node = chr(base_node + 2)
         file_nodes.extend([nii_node, json_node])
+        
+        # Add additional extension nodes as optional
+        for j, ext in enumerate(additional_extensions):
+            ext_node = chr(base_node + 3 + j)
+            optional_nodes.append(ext_node)
+        
+        node_offset += 3 + len(additional_extensions)
     
     lines.append(f"    class {','.join(file_nodes)} fileNode")
+    if optional_nodes:
+        lines.append(f"    class {','.join(optional_nodes)} optionalNode")
     
     return lines
 
@@ -213,6 +234,7 @@ def generate_mixed_set_mermaid(name: str, config_data: Dict[str, Any]) -> List[s
     named_dimension = mixed_set.get('named_dimension', 'acquisition')
     sequential_dimension = mixed_set.get('sequential_dimension', 'echo')
     required = config_data.get('required', [])
+    additional_extensions = config_data.get('additional_extensions', [])
     
     lines = ["graph TD"]
     lines.append(f"    A[{name}] --> B{{Mixed Collection}}")
@@ -233,7 +255,14 @@ def generate_mixed_set_mermaid(name: str, config_data: Dict[str, Any]) -> List[s
         lines.append(f"    {chr(node_letter + 2)} --> {chr(node_letter + 4)}[.nii/.nii.gz]")
         lines.append(f"    {chr(node_letter + 2)} --> {chr(node_letter + 5)}[.json]")
         
-        node_letter += 6
+        # Add additional extensions for each index
+        ext_node_offset = 6
+        for ext in additional_extensions:
+            ext_node = chr(node_letter + ext_node_offset)
+            lines.append(f"    {chr(node_letter + 2)} -.-> {ext_node}[.{ext}]")  # Dotted for optional
+            ext_node_offset += 1
+        
+        node_letter += 6 + len(additional_extensions)
     
     # Style
     lines.append("    classDef mainNode fill:#e1f5fe")
@@ -250,15 +279,16 @@ def generate_mixed_set_mermaid(name: str, config_data: Dict[str, Any]) -> List[s
     lines.append("    class C,D dimensionNode")
     
     # Mark required groups
-    group_nodes = [chr(ord('E') + i * 6) for i in range(len(named_groups))]
     required_nodes = []
     all_group_nodes = []
+    node_offset = 0
     
     for i, group_name in enumerate(named_groups.keys()):
-        group_node = chr(ord('E') + i * 6)
+        group_node = chr(ord('E') + node_offset)
         all_group_nodes.append(group_node)
         if group_name in required:
             required_nodes.append(group_node)
+        node_offset += 6 + len(additional_extensions)
     
     if required_nodes:
         lines.append(f"    class {','.join(required_nodes)} requiredNode")
@@ -292,7 +322,17 @@ def get_bids_info(name: str, bids_suffixes: Dict[str, Any]) -> Tuple[str, str]:
 
 def format_footer_text(config_data: Dict[str, Any], set_type: str) -> str:
     """Format footer text based on set type and configuration."""
-    if set_type == 'plain':
+    if set_type == 'special':
+        suffix_maps_to = config_data.get('suffix_maps_to', '')
+        additional_extensions = config_data.get('additional_extensions', [])
+        
+        footer_parts = [f"**Maps to:** `{suffix_maps_to}`"]
+        if additional_extensions:
+            extensions_str = ', '.join([f"`{ext}`" for ext in additional_extensions])
+            footer_parts.append(f"**Additional extensions:** {extensions_str}")
+        return " | ".join(footer_parts)
+    
+    elif set_type == 'plain':
         plain_set = config_data['plain_set']
         additional_extensions = plain_set.get('additional_extensions', [])
         include_cross_modal = plain_set.get('include_cross_modal', [])
@@ -338,6 +378,7 @@ def format_footer_text(config_data: Dict[str, Any], set_type: str) -> str:
 def get_heading_class(set_type: str) -> str:
     """Get the appropriate heading class for the set type."""
     heading_classes = {
+        'special': 'custom-heading-special',
         'plain': 'custom-heading-plain',
         'named': 'custom-heading',
         'sequential': 'custom-heading-2',
@@ -564,7 +605,18 @@ def generate_example_code(name: str, config_data: Dict[str, Any], set_type: str)
     """Generate example code based on set type."""
     suffix_data = load_example_data(config_data, name)
     
-    if set_type == 'plain':
+    if set_type == 'special':
+        # For special cases, determine the underlying set type and use appropriate example
+        if 'named_set' in config_data:
+            return generate_named_set_example(name, config_data, suffix_data)
+        elif 'sequential_set' in config_data:
+            return generate_sequential_set_example(name, config_data, suffix_data)
+        elif 'mixed_set' in config_data:
+            return generate_mixed_set_example(name, config_data, suffix_data)
+        else:
+            # Fallback to plain set for special cases without other set types
+            return generate_plain_set_example(name, config_data, suffix_data)
+    elif set_type == 'plain':
         return generate_plain_set_example(name, config_data, suffix_data)
     elif set_type == 'named':
         return generate_named_set_example(name, config_data, suffix_data)
@@ -578,7 +630,18 @@ def generate_example_code(name: str, config_data: Dict[str, Any], set_type: str)
 
 def generate_mermaid_diagram(name: str, config_data: Dict[str, Any], set_type: str) -> List[str]:
     """Generate mermaid diagram based on set type."""
-    if set_type == 'plain':
+    if set_type == 'special':
+        # For special cases, determine the underlying set type and use appropriate diagram
+        if 'named_set' in config_data:
+            return generate_named_set_mermaid(name, config_data)
+        elif 'sequential_set' in config_data:
+            return generate_sequential_set_mermaid(name, config_data)
+        elif 'mixed_set' in config_data:
+            return generate_mixed_set_mermaid(name, config_data)
+        else:
+            # Fallback to plain set for special cases without other set types
+            return generate_plain_set_mermaid(name, config_data)
+    elif set_type == 'plain':
         return generate_plain_set_mermaid(name, config_data)
     elif set_type == 'named':
         return generate_named_set_mermaid(name, config_data)
@@ -621,6 +684,8 @@ def generate_suffix_card(name: str, config_data: Dict[str, Any], set_type: str, 
     if set_type == 'plain':
         plain_set = config_data['plain_set']
         description_from_config = plain_set.get('description', '')
+    elif set_type == 'special':
+        description_from_config = f"Additional grouping logic for [{config_data['suffix_maps_to']}](#{config_data['suffix_maps_to']})"
     else:
         description_from_config = ''
     
@@ -656,7 +721,52 @@ def generate_suffix_card(name: str, config_data: Dict[str, Any], set_type: str, 
     content.append("")
     
     # Add set-specific content
-    if set_type == 'named':
+    if set_type == 'special':
+        # Show the underlying set type content for special cases
+        if 'named_set' in config_data:
+            named_set = config_data['named_set']
+            content.append("| Key | Description | Entity-based mapping |")
+            content.append("|------|-------------|------------|")
+            
+            for file_key, file_config in named_set.items():
+                file_description = file_config.get('description', 'No description')
+                
+                # Extract properties (excluding description)
+                properties = []
+                for prop_key, prop_value in file_config.items():
+                    if prop_key != 'description':
+                        properties.append(f"{prop_key}: {prop_value}")
+                
+                properties_str = ', '.join(properties) if properties else 'None'
+                content.append(f"| {file_key} | {file_description} | {properties_str} |")
+            
+            content.append("")
+        elif 'mixed_set' in config_data:
+            mixed_set = config_data['mixed_set']
+            named_groups = mixed_set.get('named_groups', {})
+            required = config_data.get('required', [])
+            
+            content.append("| Named Group | Description | Entity-based mapping |")
+            content.append("|-------------|-------------|------------|")
+            
+            for group_key, group_config in named_groups.items():
+                group_description = group_config.get('description', 'No description')
+                
+                # Extract properties (excluding description)
+                properties = []
+                for prop_key, prop_value in group_config.items():
+                    if prop_key != 'description':
+                        properties.append(f"{prop_key}: {prop_value}")
+                
+                properties_str = ', '.join(properties) if properties else 'None'
+                content.append(f"| {group_key} | {group_description} | {properties_str} |")
+            
+            content.append("")
+            required_str = ', '.join([f"`{req}`" for req in required]) if required else "None"
+            content.append(f"**Required groups:** {required_str}")
+            content.append("")
+    
+    elif set_type == 'named':
         named_set = config_data['named_set']
         content.append("| Key | Description | Entity-based mapping |")
         content.append("|------|-------------|------------|")
@@ -734,9 +844,9 @@ def generate_supported_docs(yaml_file: Path, output_file: Path) -> None:
     bids_suffixes = fetch_bids_suffixes()
     
     content = []
-    content.append("# Supported BIDS suffixes")
+    content.append("# Supported BIDS Suffixes")
     content.append("")
-    content.append("This page documents the BIDS suffixes currently supported by bids2nf.")
+    content.append("This page documents the BIDS suffixes currently **supported by the default configuration** of bids2nf (`bids2nf.yaml`). You can [extend the configuration](configuration.md) to support your own data structures.")
     content.append("")
     
     # Process sets by type
@@ -744,11 +854,14 @@ def generate_supported_docs(yaml_file: Path, output_file: Path) -> None:
         'plain': [],
         'named': [],
         'sequential': [],
-        'mixed': []
+        'mixed': [],
+        'special': []
     }
     
     for key, value in config.items():
-        if 'plain_set' in value:
+        if 'suffix_maps_to' in value:
+            set_types['special'].append((key, value))
+        elif 'plain_set' in value:
             set_types['plain'].append((key, value))
         elif 'named_set' in value:
             set_types['named'].append((key, value))
@@ -762,7 +875,8 @@ def generate_supported_docs(yaml_file: Path, output_file: Path) -> None:
         'plain': ("Plain Sets", "Plain sets define simple collections of files that do not require special grouping logic."),
         'named': ("Named Sets", "Named sets define specific collections of files with predefined names and properties."),
         'sequential': ("Sequential Sets", "Sequential sets define collections of files organized by BIDS entities."),
-        'mixed': ("Mixed Sets", "Mixed sets combine named groups with sequential organization within each group.")
+        'mixed': ("Mixed Sets", "Mixed sets combine named groups with sequential organization within each group."),
+        'special': ("Special Sets", "Special sets are special cases that do not fit into the other categories.")
     }
     
     # Generate content for each set type

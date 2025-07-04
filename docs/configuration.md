@@ -1,17 +1,88 @@
 # Configuration Guide
 
-## bids2nf.yaml Overview
+## Overview
 
-The `bids2nf.yaml` file controls how your BIDS dataset is parsed and grouped. It defines patterns that determine which files belong together and how they should be processed.
+The `bids2nf.yaml` file is the heart of bids2nf configuration, defining how your BIDS dataset is parsed, grouped, and processed. This file determines which files belong together and how they should be organized for downstream analysis.
 
-## Named Sets vs Sequential Sets
+## Global Configuration
 
-### Named Sets
+### `loop_over`
+
+The `loop_over` setting specifies which BIDS entities will be used as looping/crawling entities by Nextflow. These entities define the primary grouping level for your data.
+
+```yaml
+loop_over: [subject, session, run, task]
+```
+
+**What this means:**
+- Files are grouped by these entities first
+- Each unique combination of these entities creates a separate processing group
+- For example, `sub-01_ses-01_run-01_task-rest` would be one group, `sub-02_ses-02` would be another with no `run` or `task` definitions available (`run-NA_task-NA`)
+- This key is ignored by subworkflows when determining suffixes
+
+
+**Common patterns:**
+- `[subject, session]` - Group by subject and session only
+- `[subject, session, run]` - Include run-level grouping
+- `[subject, session, run, task]` - Full entity grouping (default)
+- `[subject, another-entity]` see full list of entities [here](https://github.com/bids-standard/bids-specification/blob/master/src/schema/rules/entities.yaml).
+
+## Set Types
+
+bids2nf supports five different set types for organizing your data:
+
+### 1. Plain Sets
+
+**Plain sets** are the simplest configuration for inputs that don't require complex grouping logic. Files are collected as-is without special organization.
+
+```yaml
+plain_set:
+  additional_extensions: ["extension1", "extension2"]  # Optional
+  include_cross_modal: ["suffix1", "suffix2"]         # Optional
+```
+
+**Example:**
+```yaml
+dwi:
+  plain_set:
+    additional_extensions: ["bval", "bvec"]
+
+T1w:
+  plain_set: {}
+
+aslcontext:
+  plain_set:
+    additional_extensions: ["tsv"]
+```
+
+**Key features:**
+- **`additional_extensions`**: Include additional file extensions (e.g., `.bval`, `.bvec` for DWI)
+- **`include_cross_modal`**: Include files from other suffixes that might not share all loop entities (otherwise not emitted in the same channel by nextflow)
+
+
+**Use cases:**
+- Simple nii/json pairs such as T1w 
+- Files that don't require special pairing or sequencing
+- Single-file-per-group scenarios
+
+### 2. Named Sets
 
 **Named sets** define specific combinations of entities that must exist together. Each element in the set has a descriptive name and specific entity values.
 
-**Use case**: When you need specific combinations of acquisition parameters, like MTS (Magnetization Transfer Saturation) sequences.
+```yaml
+named_set:
+  custom_grouping_key_1:
+    description: "Description of this grouping"
+    entity1: "value1"
+    entity2: "value2"
+  custom_grouping_key_2:
+    description: "Description of this grouping"
+    entity1: "value3"
+    entity2: "value4"
+required: ["custom_grouping_key_1", "custom_grouping_key_2"]  # Optional
+```
 
+**Example:**
 ```yaml
 MTS:
   named_set:
@@ -30,88 +101,161 @@ MTS:
   required: ["T1w", "MTw", "PDw"]
 ```
 
-**What this means:**
-- For MTS processing, you need exactly 3 images per group
-- Each image has specific acquisition parameters (flip angle and MT state)
-- All three must be present or the group is invalid
-- The output channel will contain named references to each image type
+**Key features:**
+- **Custom grouping keys**: Define meaningful names for each file type
+- **Entity constraints**: Each grouping key specifies required entity values
+- **Required validation**: Ensure all necessary files are present
+- **Descriptive naming**: Each group can have a human-readable description
 
-### Sequential Sets  
+**Use cases:**
+- Entity-linked file collections typically defined by `echo`, `inversion`, `flip`, `part`, and `mtransfer` entities. 
+- Collecting together the files marked by the `direction` entity for distortion correction.
+- Any protocol requiring specific parameter combinations
 
-**Sequential sets** group files that vary by a single entity, maintaining the sequence order.
+See more about [entity-linked file collections](https://bids-specification.readthedocs.io/en/stable/appendices/file-collections.html).
 
-**Use case**: When you need all variations of a parameter, like Variable Flip Angle (VFA) sequences with different flip angles.
+### 3. Sequential Sets
 
+**Sequential sets** group files that vary by one or more entities, maintaining a consecutive order. Files are organized as flat or nested lists based on entity values.
+
+#### Single Entity Sequential Sets
+```yaml
+sequential_set:
+  by_entity: entity_name
+```
+
+**Example:**
 ```yaml
 VFA:
   sequential_set:
     by_entity: flip
+
+MEGRE:
+  sequential_set:
+    by_entity: echo
 ```
 
-**What this means:**
-- Group all files that have different flip angles but are otherwise identical
-- Preserve the order of flip angles
-- The output channel will contain an array of files ordered by the entity values
-
-### Multi-Entity Sequential Sets
-
-You can also create sequential sets based on multiple entities:
-
+#### Multi-Entity Sequential Sets
 ```yaml
-VFA:
+sequential_set:
+  by_entities: [entity1, entity2]
+  order: hierarchical  # or flat
+```
+
+**Example:**
+```yaml
+TB1SRGE:
   sequential_set:
-    by_entities: [flip, echo]
+    by_entities: [flip, inversion]
+    order: hierarchical
+
+TB1EPI:
+  sequential_set:
+    by_entities: [echo, flip]
     order: hierarchical
 ```
 
-This groups files by both flip angle and echo time, organizing them hierarchically.
+**Key features:**
+- **Single entity**: `by_entity` creates a flat list ordered by entity values
+- **Multiple entities**: `by_entities` creates nested structures
+- **Order control**: `hierarchical` vs `flat` organization
+- **Preserved sequence**: Entity order is maintained in the output
 
-### Mixed Sets
+**Use cases:**
+- Variable Flip Angle (VFA) sequences
+- Multi-echo acquisitions (MEGRE, MESE)
+- Inversion recovery sequences (IRT1)
+- Complex multi-parameter sequences
 
-**Mixed sets** combine both named and sequential grouping for complex data structures. They first group files by named categories, then within each category, organize files sequentially by another entity.
+### 4. Mixed Sets
 
-**Use case**: Multi-Parameter Mapping (MPM) data where you have multiple acquisition types (MTw, PDw, T1w), each with multiple echoes.
+**Mixed sets** combine named and sequential grouping for complex data structures. They first group files by named categories, then within each category, organize files sequentially.
 
+```yaml
+mixed_set:
+  named_dimension: "entity_name"
+  sequential_dimension: "entity_name"
+  named_groups:
+    group_name_1:
+      description: "Description"
+      entity1: "value1"
+      entity2: "value2"
+    group_name_2:
+      description: "Description"
+      entity1: "value3"
+      entity2: "value4"
+  required: ["group_name_1", "group_name_2"]  # Optional
+```
+
+**Example:**
 ```yaml
 MPM:
   mixed_set:
-    named_dimension: "acq"
+    named_dimension: "acquisition"
     sequential_dimension: "echo"
     named_groups:
       MTw:
         description: "Magnetization transfer weighted images"
-        acq: "MTw"
-        flip: "flip-01"
-        mt: "mt-on"
+        acquisition: "acq-MTw"
+        flip: "flip-1"
+        mtransfer: "mt-on"
       PDw:
-        description: "Proton density weighted images"  
-        acq: "PDw"
-        flip: "flip-01"
-        mt: "mt-off"
+        description: "Proton density weighted images"
+        acquisition: "acq-PDw"
+        flip: "flip-1"
+        mtransfer: "mt-off"
       T1w:
         description: "T1-weighted images"
-        acq: "T1w"
-        flip: "flip-02"
-        mt: "mt-off"
+        acquisition: "acq-T1w"
+        flip: "flip-2"
+        mtransfer: "mt-off"
     required: ["MTw", "PDw", "T1w"]
 ```
 
-**What this means:**
-- First, group files by acquisition type (MTw, PDw, T1w) using named grouping
-- Within each acquisition type, group files sequentially by echo number
-- Each acquisition type must have specific entity constraints (flip, mt, etc.)
-- The output channel will contain named groups, each with arrays of sequential files
-- Final structure: `{MPM: {MTw: {nii: [echo1, echo2, ...], json: [...]}, PDw: {...}, T1w: {...}}}`
+**Key features:**
+- **Two-level organization**: Named groups containing sequential files
+- **Flexible dimensions**: Choose which entities define grouping vs sequencing
+- **Complex validation**: Ensure both named groups and sequential completeness
+- **Hierarchical output**: `{group_name: {nii: [file1, file2, ...], json: [...]}}`
+
+**Use cases:**
+- Multi-Parameter Mapping (MPM) with multiple echoes per contrast
+- Complex quantitative imaging protocols
+- Any scenario requiring both categorical and sequential organization
+
+### 5. Special Cases
+
+#### Virtual Suffixes
+Some configurations map one suffix to another using `suffix_maps_to`:
+
+```yaml
+MP2RAGE_multiecho:
+  suffix_maps_to: "MP2RAGE"
+  sequential_set:
+    by_entities: [inversion, echo]
+    parts: ["mag", "phase"]
+```
+
+#### Parts-based Organization
+For data with magnitude and phase components:
+
+```yaml
+MP2RAGE:
+  sequential_set:
+    by_entity: inversion
+    parts: ["mag", "phase"]
+```
 
 ## Configuration Structure
 
 ### Basic Pattern
-
-Each pattern in `bids2nf.yaml` follows this structure:
+Each configuration entry follows this structure:
 
 ```yaml
-PATTERN_NAME:
-  # One of: named_set, sequential_set, or mixed_set
+SUFFIX_NAME:
+  # Required: ONE of these set types
+  plain_set: { ... }
+  # OR
   named_set: { ... }
   # OR
   sequential_set: { ... }
@@ -120,78 +264,110 @@ PATTERN_NAME:
   
   # Optional: additional constraints
   required: [ ... ]
+  additional_extensions: [ ... ]
+  example_output: "path/to/example.json"
+  
+  # Special cases
+  suffix_maps_to: "other_suffix"
+  note: "Documentation note"
 ```
 
-### Pattern Names
+### Configuration Options
 
-Pattern names (like `MTS`, `VFA`) become:
-- Workflow identifiers in your Nextflow pipeline
-- Output channel names
-- Process template references
+#### Common Options (all set types)
+- **`additional_extensions`**: Include additional file extensions
+- **`example_output`**: Path to example output for documentation
+- **`note`**: Human-readable documentation
 
-## How Patterns Relate to Workflows
+#### Named and Mixed Sets
+- **`required`**: List of required grouping keys
+- **`description`**: Human-readable description for each group
 
-bids2nf includes workflows that handle each pattern type:
+#### Sequential Sets
+- **`by_entity`**: Single entity for flat sequential organization
+- **`by_entities`**: Multiple entities for nested organization
+- **`order`**: `hierarchical` or `flat` organization
+- **`parts`**: For magnitude/phase data organization
 
-- **`emit_named_sets.nf`**: Processes named set patterns
-- **`emit_sequential_sets.nf`**: Processes sequential set patterns  
-- **`emit_mixed_sets.nf`**: Processes mixed set patterns
-- **`bids2nf.nf`**: **Unified workflow** that automatically detects and processes all pattern types
+#### Mixed Sets
+- **`named_dimension`**: Entity used for named grouping
+- **`sequential_dimension`**: Entity used for sequential organization
+- **`named_groups`**: Named group definitions (same as named_set)
+
+## Workflow Integration
+
+bids2nf provides specialized workflows for each pattern type:
+
+- **`emit_plain_sets.nf`**: Handles plain set patterns
+- **`emit_named_sets.nf`**: Handles named set patterns
+- **`emit_sequential_sets.nf`**: Handles sequential set patterns
+- **`emit_mixed_sets.nf`**: Handles mixed set patterns
+- **`bids2nf.nf`**: **Unified workflow** (recommended)
 
 ### Unified Workflow (Recommended)
-
-The **unified workflow** (`bids2nf.nf`) is the recommended entry point. It:
-
-1. **Automatically analyzes** your configuration file
-2. **Detects** which pattern types are present (named, sequential, mixed)
-3. **Routes** to the appropriate specialized workflows
-4. **Combines** all results into a single output channel
 
 ```nextflow
 include { bids2nf } from './workflows/bids2nf.nf'
 
 workflow {
-    // Single call handles all pattern types in your config
     unified_results = bids2nf(params.bids_dir)
-    
-    // Process all results regardless of their pattern type
     my_analysis_process(unified_results)
 }
 ```
 
-**Benefits:**
-- **Single entry point** - no need to know which patterns your config contains
-- **Mixed configurations** - handle datasets with multiple pattern types
-- **Future-proof** - automatically supports new pattern types
-- **Unified output** - all results in the same channel format
+The unified workflow automatically:
+1. Analyzes your configuration
+2. Detects pattern types
+3. Routes to appropriate workflows
+4. Combines results
 
-### Individual Workflows
+## Best Practices
 
-You can still use individual workflows for specific use cases:
+### Choosing Set Types
 
-```nextflow
-// For configurations with only named sets
-named_only = emit_named_sets(params.bids_dir, params.bids2nf_config)
+1. **Use plain_set for:**
+   - Single files per group
+   - Standard neuroimaging data
+   - Simple data collection
 
-// For configurations with only sequential sets  
-sequential_only = emit_sequential_sets(params.bids_dir, params.bids2nf_config)
+2. **Use named_set for:**
+   - Fixed combinations of acquisitions
+   - Multi-contrast protocols
+   - Quality control requiring specific files
 
-// For configurations with only mixed sets
-mixed_only = emit_mixed_sets(params.bids_dir, params.bids2nf_config)
-```
+3. **Use sequential_set for:**
+   - Variable parameters (flip angles, echo times)
+   - Ordered acquisitions
+   - Parameter mapping sequences
 
-Your `bids2nf.yaml` configuration determines which workflow is used for each pattern.
+4. **Use mixed_set for:**
+   - Complex multi-parameter protocols
+   - Combinations of the above patterns
+   - Multi-echo multi-contrast data
 
-## Entity Hierarchy
+### Entity Hierarchy
 
-Remember that core entities (`sub`, `ses`, `run`) define the grouping level, while pattern-specific entities (`flip`, `echo`, `mtransfer`) define the variations within each group.
+- **Core entities** (`subject`, `session`, `run`, `task`): Define grouping level
+- **Pattern entities** (`flip`, `echo`, `mtransfer`): Define variations within groups
 
-For example, with MTS:
-```
-sub-01/
-├── sub-01_flip-01_mt-off_T1w.nii.gz  (PDw)
-├── sub-01_flip-01_mt-on_T1w.nii.gz   (MTw)  
-└── sub-01_flip-02_mt-off_T1w.nii.gz  (T1w)
-```
+### Validation
 
-All three files belong to the same group (subject 01) but have different roles in the named set.
+- Use `required` fields to ensure data completeness
+- Test configurations with example datasets
+- Validate output structures match expectations
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Missing files**: Check `required` field and entity matching
+2. **Incorrect grouping**: Verify `loop_over` entities
+3. **Wrong file types**: Check `additional_extensions`
+4. **Complex hierarchies**: Consider mixed sets instead of nested sequential sets
+
+### Debugging Tips
+
+- Use `example_output` files to understand expected structure
+- Test with small datasets first
+- Check entity consistency across files
+- Validate BIDS compliance of input data

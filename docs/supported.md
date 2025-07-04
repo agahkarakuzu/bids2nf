@@ -1,6 +1,6 @@
-# Supported BIDS suffixes
+# Supported BIDS Suffixes
 
-This page documents the BIDS suffixes currently supported by bids2nf.
+This page documents the BIDS suffixes currently **supported by the default configuration** of bids2nf (`bids2nf.yaml`). You can [extend the configuration](configuration.md) to support your own data structures.
 
 ## Plain Sets
 
@@ -620,54 +620,6 @@ graph TD
 Sequential sets define collections of files organized by BIDS entities.
 
 ::::{card}
-:header: <span class="custom-heading-2"><h4>MP2RAGE_multiecho</h4></span>
-:footer: **Entities: `inversion`, `echo` (sequential order)**
-
-:::{mermaid}
-graph TD
-    A[MP2RAGE_multiecho] --> B{Sequential Collection}
-    B --> C[inversion dimension]
-    C --> D[inversion=1]
-    C --> E[inversion=2]
-    D --> F[echo=1]
-    D --> G[echo=2]
-    E --> H[echo=1]
-    E --> I[echo=2]
-    F --> J[.nii/.nii.gz]
-    F --> K[.json]
-    G --> L[.nii/.nii.gz]
-    G --> M[.json]
-    classDef mainNode fill:#e1f5fe
-    classDef collectionNode fill:#fff3e0
-    classDef entityNode fill:#e8f5e8
-    classDef indexNode fill:#fce4ec
-    classDef fileNode fill:#f3e5f5
-    class A mainNode
-    class B collectionNode
-    class C entityNode
-    class D,E,F,G,H,I indexNode
-    class J,K,L,M fileNode
-:::
-
-[⌬ Hover to see the diagram legend](#mermaidlegend)
-
-:::{seealso} Example usage within a process
-:class: dropdown
-```groovy
-  // Multiple entities organized by: inversion, echo
-  // First dimension: inversion, Second dimension: echo
-  // Get size of first dimension (inversion)
-  bids_channel['MP2RAGE_multiecho']['nii'].size()
-  // Get size of second dimension (echo) for first inversion
-  bids_channel['MP2RAGE_multiecho']['nii'][0].size()
-  // Access first item
-  bids_channel['MP2RAGE_multiecho']['nii'][0][0]
-  bids_channel['MP2RAGE_multiecho']['json'][0][0]
-```
-:::
-::::
-
-::::{card}
 :header: <span class="custom-heading-2"><h4>MP2RAGE</h4></span>
 :footer: **Entity: `inversion`**
 
@@ -1165,6 +1117,112 @@ graph TD
   bids_channel['MPM']['T1w']['nii'][0]
   bids_channel['MPM']['T1w']['json'][0]
 
+```
+:::
+::::
+
+## Special Sets
+
+Special sets are special cases that do not fit into the other categories.
+
+::::{card}
+:header: <span class="custom-heading-special"><h4>dwi_fr</h4></span>
+:footer: **Maps to:** `dwi` | **Additional extensions:** `bval`, `bvec`
+
+Additional grouping logic for [dwi](#dwi)
+
+:::{mermaid}
+graph TD
+    A[dwi_fr] --> B{Named Groups}
+    B --> C[ap]
+    C --> D[.nii/.nii.gz]
+    C --> E[.json]
+    C -.-> F[.bval]
+    C -.-> G[.bvec]
+    B --> H[pa]
+    H --> I[.nii/.nii.gz]
+    H --> J[.json]
+    H -.-> K[.bval]
+    H -.-> L[.bvec]
+    classDef mainNode fill:#e1f5fe
+    classDef groupNode fill:#fff3e0
+    classDef fileNode fill:#f3e5f5
+    classDef requiredNode fill:#ffebee,stroke:#d32f2f,stroke-width:2px
+    class A mainNode
+    class B groupNode
+    class C,H requiredNode
+    class D,E,I,J fileNode
+    class F,G,K,L optionalNode
+:::
+
+[⌬ Hover to see the diagram legend](#mermaidlegend)
+
+| Key | Description | Entity-based mapping |
+|------|-------------|------------|
+| ap | No description | direction: dir-AP |
+| pa | No description | direction: dir-PA |
+
+:::{seealso} Example usage within a process
+:class: dropdown
+```groovy
+  bids_channel['dwi_fr']['ap']['nii']
+  bids_channel['dwi_fr']['ap']['json']
+  bids_channel['dwi_fr']['pa']['nii']
+  bids_channel['dwi_fr']['pa']['json']
+```
+:::
+
+:::{note}
+A special (full-reverse) case for DWI data.
+:::
+::::
+
+::::{card}
+:header: <span class="custom-heading-special"><h4>MP2RAGE_multiecho</h4></span>
+:footer: **Maps to:** `MP2RAGE`
+
+Additional grouping logic for [MP2RAGE](#MP2RAGE)
+
+:::{mermaid}
+graph TD
+    A[MP2RAGE_multiecho] --> B{Sequential Collection}
+    B --> C[inversion dimension]
+    C --> D[inversion=1]
+    C --> E[inversion=2]
+    D --> F[echo=1]
+    D --> G[echo=2]
+    E --> H[echo=1]
+    E --> I[echo=2]
+    F --> J[.nii/.nii.gz]
+    F --> K[.json]
+    G --> L[.nii/.nii.gz]
+    G --> M[.json]
+    classDef mainNode fill:#e1f5fe
+    classDef collectionNode fill:#fff3e0
+    classDef entityNode fill:#e8f5e8
+    classDef indexNode fill:#fce4ec
+    classDef fileNode fill:#f3e5f5
+    class A mainNode
+    class B collectionNode
+    class C entityNode
+    class D,E,F,G,H,I indexNode
+    class J,K,L,M fileNode
+:::
+
+[⌬ Hover to see the diagram legend](#mermaidlegend)
+
+:::{seealso} Example usage within a process
+:class: dropdown
+```groovy
+  // Multiple entities organized by: inversion, echo
+  // First dimension: inversion, Second dimension: echo
+  // Get size of first dimension (inversion)
+  bids_channel['MP2RAGE_multiecho']['nii'].size()
+  // Get size of second dimension (echo) for first inversion
+  bids_channel['MP2RAGE_multiecho']['nii'][0].size()
+  // Access first item
+  bids_channel['MP2RAGE_multiecho']['nii'][0][0]
+  bids_channel['MP2RAGE_multiecho']['json'][0][0]
 ```
 :::
 ::::

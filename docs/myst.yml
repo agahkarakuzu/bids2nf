@@ -14,9 +14,8 @@ project:
     - file: installation.md
     - file: quickstart.md
     - file: supported.md
-    - file: basics.md
     - file: configuration.md
-    - file: examples.md
+    - file: workflow.md
     - file: contributors.md
 site:
   template: book-theme

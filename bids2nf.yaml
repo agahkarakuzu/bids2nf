@@ -18,20 +18,21 @@ loop_over: [subject, session, run, task]
 #        Not intended for users.        
 
 
+dwi_fr:
+  note: "A special (full-reverse) case for DWI data."
+  suffix_maps_to: "dwi"
+  named_set:
+    ap:
+      direction: "dir-AP"
+    pa:
+      direction: "dir-PA"
+  required: ["ap", "pa"]
+  additional_extensions: ["bval", "bvec"]
+
 dwi:
   example_output: "tests/expected_outputs/ds-dwi/sub-01_NA_NA_NA_unified.json"
   plain_set:
     additional_extensions: ["bval", "bvec"]
-
-# dwi_special_case:
-#   example_output: "tests/expected_outputs/ds-dwi/sub-01_NA_NA_NA_unified.json"
-#   named_set:
-#     ap:
-#       direction: "dir-AP"
-#     pa:
-#       direction: "dir-PA"
-#   required: ["ap", "pa"]
-#   additional_extensions: ["bval", "bvec"]
 
 epi:
   plain_set: {}

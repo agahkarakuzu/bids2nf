@@ -1,380 +1,106 @@
 # Quick Start
 
-This guide walks you through creating your first Nextflow pipeline using bids2nf to process BIDS datasets. bids2nf automatically organizes your BIDS data into structured Nextflow channels, making it easy to build robust neuroimaging pipelines.
+:::{danger}
+This documentation page has not been tested thoroughly yet.
+:::
 
-## Step 1: Prepare Your BIDS Dataset
+Get started with bids2nf in 3 simple steps. This guide shows you how to quickly explore your BIDS dataset and generate JSON outputs to understand the data structure.
 
-Ensure your data follows the [BIDS specification](https://bids.neuroimaging.io/). Here are two common neuroimaging scenarios:
+## Step 1: Get bids2nf
 
-### Magnetization Transfer Saturation (MTS) Dataset
-```
-mts_dataset/
-├── dataset_description.json
-├── participants.tsv
-└── sub-01/
-    └── anat/
-        ├── sub-01_flip-01_mt-off_MTS.nii.gz
-        ├── sub-01_flip-01_mt-off_MTS.json
-        ├── sub-01_flip-01_mt-on_MTS.nii.gz
-        ├── sub-01_flip-01_mt-on_MTS.json
-        ├── sub-01_flip-02_mt-off_MTS.nii.gz
-        └── sub-01_flip-02_mt-off_MTS.json
+Follow the [installation](installation.md) instructions.
+
+## Step 2: Test with Your BIDS Dataset
+
+Use the built-in test workflow to explore your BIDS data. Choose the appropriate profile for your system:
+
+### For Apple Silicon Macs:
+```bash
+nextflow run tests/integration/test_unified_bids2nf.nf --bids_dir /path/to/your/bids/dataset -profile arm64_test
 ```
 
-### Multi-Echo Gradient Echo (MEGRE) Dataset
-```
-megre_dataset/
-├── dataset_description.json
-├── participants.tsv
-└── sub-01/
-    └── anat/
-        ├── sub-01_echo-1_MEGRE.nii.gz
-        ├── sub-01_echo-1_MEGRE.json
-        ├── sub-01_echo-2_MEGRE.nii.gz
-        ├── sub-01_echo-2_MEGRE.json
-        ├── sub-01_echo-3_MEGRE.nii.gz
-        └── sub-01_echo-3_MEGRE.json
+### For Intel/AMD systems:
+```bash
+nextflow run tests/integration/test_unified_bids2nf.nf --bids_dir /path/to/your/bids/dataset -profile amd64_test
 ```
 
-## Step 2: Use the Built-in Configuration
-
-bids2nf comes with pre-configured support for most common BIDS patterns including MTS, MEGRE, VFA, MPM, and many others. Simply use the provided `bids2nf.yaml` file - no configuration needed!
-
-The default configuration already includes:
-- **MTS**: Magnetization Transfer Saturation (T1w, MTw, PDw contrasts)
-- **MEGRE**: Multi-Echo Gradient Echo (organized by echo time)
-- **VFA**: Variable Flip Angle (organized by flip angle)
-- **MPM**: Multi-Parameter Mapping (combined contrasts and echoes)
-- And many more...
-
-If your data follows standard BIDS conventions, you can skip configuration entirely. If you need custom configurations, see the [supported configurations](supported.md) documentation.
-
-## Step 3: Create Your Nextflow Pipeline
-
-In your project directory (separate from the bids2nf repository), create a pipeline file called `my_example_bids_pipeline.nf`:
-
-```
-your_project/
-├── my_example_bids_pipeline.nf
-├── data/
-│   └── your_bids_dataset/
-└── results/
+### Skip BIDS validation (faster):
+```bash
+nextflow run tests/integration/test_unified_bids2nf.nf --bids_dir /path/to/your/bids/dataset -profile arm64_test --bids_validation false
 ```
 
-```groovy
-// my_example_bids_pipeline.nf
-include { bids2nf } from '/path/to/bids2nf/main.nf'
+### Use custom configuration:
+```bash
+nextflow run tests/integration/test_unified_bids2nf.nf --bids_dir /path/to/your/bids/dataset --bids2nf_config /path/to/your/config.yaml -profile arm64_test
+```
 
-// Define parameters
-params.bids_dir = null
-params.output_dir = 'results'
+This will:
+- Parse your BIDS dataset using the configuration (default: `bids2nf.yaml`)
+- Validate your BIDS dataset using Docker containers (unless `--bids_validation false`)
+- Generate JSON files showing the organized data structure
+- Save outputs to `tests/new_outputs/[dataset_name]/`
 
-// Validate required parameters
-if (!params.bids_dir) {
-    error "Please provide --bids_dir parameter"
-}
+## Step 3: Examine the Results
 
-workflow {
-    // Create organized channels from your BIDS dataset
-    bids_channel = bids2nf(params.bids_dir)
-    
-    // Process the data
-    analyze_data(bids_channel)
-}
+The test generates JSON files for each subject/session/run combination, showing:
+- Available data types (MTS, MEGRE, VFA, etc.)
+- File paths for each data type
+- Metadata structure
 
-// Your analysis process
-process analyze_data {
-    tag "${subject}_${session}_${run}"
-    publishDir "${params.output_dir}/${subject}", mode: 'copy'
-    
-    input:
-    tuple val(grouping_key), val(data)
-    
-    output:
-    path "*.nii.gz", optional: true
-    path "*.json", optional: true
-    
-    script:
-    def (subject, session, run) = grouping_key
-    def bids_data = data.data
-    
-    """
-    echo "Processing ${subject} (session: ${session}, run: ${run})"
-    echo "Available data: ${bids_data.keySet().join(', ')}"
-    
-    # Process based on what data is available
-    ${generate_processing_script(bids_data)}
-    """
-}
-
-def generate_processing_script(bids_data) {
-    if (bids_data.containsKey('MTS')) {
-        return mts_processing_script(bids_data['MTS'])
-    } else if (bids_data.containsKey('MEGRE')) {
-        return megre_processing_script(bids_data['MEGRE'])
-    } else {
-        return "echo 'No recognized data pattern found'"
+Example output (`sub-01_ses-01_run-01_unified.json`):
+```json
+{
+  "subject": "sub-01",
+  "session": "ses-01", 
+  "run": "run-01",
+  "totalFiles": 6,
+  "data": {
+    "MTS": {
+      "T1w": {
+        "nii": "/path/to/sub-01_ses-01_run-01_T1w.nii.gz",
+        "json": "/path/to/sub-01_ses-01_run-01_T1w.json"
+      },
+      "MTw": {
+        "nii": "/path/to/sub-01_ses-01_run-01_MTw.nii.gz", 
+        "json": "/path/to/sub-01_ses-01_run-01_MTw.json"
+      },
+      "PDw": {
+        "nii": "/path/to/sub-01_ses-01_run-01_PDw.nii.gz",
+        "json": "/path/to/sub-01_ses-01_run-01_PDw.json"
+      }
     }
-}
-
-def mts_processing_script(mts_data) {
-    return """
-    # MTS quantitative analysis
-    t1w_file="${mts_data['T1w']['nii']}"
-    mtw_file="${mts_data['MTw']['nii']}"
-    pdw_file="${mts_data['PDw']['nii']}"
-    
-    echo "Running MTS analysis..."
-    echo "T1w: \$t1w_file"
-    echo "MTw: \$mtw_file"
-    echo "PDw: \$pdw_file"
-    
-    # Calculate MT ratio and other quantitative maps
-    python3 << 'EOF'
-import nibabel as nib
-import numpy as np
-import json
-
-# Load images
-t1w = nib.load("${mts_data['T1w']['nii']}")
-mtw = nib.load("${mts_data['MTw']['nii']}")
-pdw = nib.load("${mts_data['PDw']['nii']}")
-
-# Calculate MT ratio
-mt_ratio = (pdw.get_fdata() - mtw.get_fdata()) / pdw.get_fdata()
-mt_ratio = np.nan_to_num(mt_ratio, 0)
-
-# Save MT ratio map
-mt_ratio_img = nib.Nifti1Image(mt_ratio, t1w.affine, t1w.header)
-nib.save(mt_ratio_img, 'mt_ratio.nii.gz')
-
-# Create summary statistics
-stats = {
-    'mean_mt_ratio': float(np.mean(mt_ratio[mt_ratio > 0])),
-    'std_mt_ratio': float(np.std(mt_ratio[mt_ratio > 0])),
-    'processing_complete': True
-}
-
-with open('mts_results.json', 'w') as f:
-    json.dump(stats, f, indent=2)
-
-print("MTS processing completed")
-EOF
-    """
-}
-
-def megre_processing_script(megre_data) {
-    def echo_files = megre_data['nii']
-    def num_echoes = echo_files.size()
-    
-    return """
-    # Multi-echo gradient echo analysis
-    echo "Processing ${num_echoes} echo images for T2* mapping"
-    
-    # List all echo files
-    ${echo_files.withIndex().collect { file, idx -> 
-        "echo_${idx+1}=\"${file}\""
-    }.join('\n    ')}
-    
-    python3 << 'EOF'
-import nibabel as nib
-import numpy as np
-import json
-from scipy.optimize import curve_fit
-
-def t2star_decay(te, s0, t2star):
-    return s0 * np.exp(-te / t2star)
-
-# Load echo images and times
-echo_files = [${echo_files.collect { "\"${it}\"" }.join(', ')}]
-echo_times = []
-
-# Extract echo times from JSON files
-${echo_files.withIndex().collect { file, idx ->
-    def json_file = file.replace('.nii.gz', '.json').replace('.nii', '.json')
-    """
-with open("${json_file}", 'r') as f:
-    metadata = json.load(f)
-    echo_times.append(metadata.get('EchoTime', ${(idx+1)*0.005}))  # Default if missing
-    """
-}.join('\n')}
-
-echo_times = np.array(echo_times)
-print(f"Echo times: {echo_times}")
-
-# Load image data
-echo_data = []
-for i, echo_file in enumerate(echo_files):
-    img = nib.load(echo_file)
-    echo_data.append(img.get_fdata())
-    if i == 0:
-        affine, header = img.affine, img.header
-
-echo_data = np.array(echo_data)
-print(f"Data shape: {echo_data.shape}")
-
-# Fit T2* decay
-t2star_map = np.zeros(echo_data.shape[1:])
-r2star_map = np.zeros(echo_data.shape[1:])
-
-# Fit voxel-wise (simplified for demo)
-valid_mask = np.mean(echo_data, axis=0) > np.percentile(echo_data, 50)
-
-for i in range(echo_data.shape[1]):
-    for j in range(echo_data.shape[2]):
-        for k in range(echo_data.shape[3]):
-            if valid_mask[i, j, k]:
-                try:
-                    signal = echo_data[:, i, j, k]
-                    if np.all(signal > 0):
-                        popt, _ = curve_fit(t2star_decay, echo_times, signal, 
-                                          bounds=([0, 0.001], [np.inf, 0.2]))
-                        t2star_map[i, j, k] = popt[1] * 1000  # Convert to ms
-                        r2star_map[i, j, k] = 1.0 / popt[1]  # R2* = 1/T2*
-                except:
-                    pass
-
-# Save maps
-t2star_img = nib.Nifti1Image(t2star_map, affine, header)
-nib.save(t2star_img, 't2star_map.nii.gz')
-
-r2star_img = nib.Nifti1Image(r2star_map, affine, header)
-nib.save(r2star_img, 'r2star_map.nii.gz')
-
-# Summary statistics
-stats = {
-    'num_echoes': ${num_echoes},
-    'echo_times_ms': (echo_times * 1000).tolist(),
-    'mean_t2star_ms': float(np.mean(t2star_map[t2star_map > 0])),
-    'mean_r2star_hz': float(np.mean(r2star_map[r2star_map > 0])),
-    'processing_complete': True
-}
-
-with open('megre_results.json', 'w') as f:
-    json.dump(stats, f, indent=2)
-
-print("MEGRE T2* mapping completed")
-EOF
-    """
+  }
 }
 ```
 
-## Step 4: Understanding Data Access
+## Common BIDS Patterns
 
-bids2nf automatically organizes your data based on your configuration. Here's how to access it:
+bids2nf automatically detects common neuroimaging patterns:
 
-### MTS Data Access
-```groovy
-// Access specific contrasts directly
-def t1w_file = bids_data['MTS']['T1w']['nii']
-def mtw_file = bids_data['MTS']['MTw']['nii'] 
-def pdw_file = bids_data['MTS']['PDw']['nii']
+- **MTS**: Magnetization Transfer Saturation (T1w, MTw, PDw)
+- **MEGRE**: Multi-Echo Gradient Echo (organized by echo)
+- **VFA**: Variable Flip Angle (organized by flip angle)
+- **MPM**: Multi-Parameter Mapping 
+- **And many more...**
 
-// Access corresponding JSON metadata
-def t1w_json = bids_data['MTS']['T1w']['json']
-```
+## Available Profiles
 
-### MEGRE Data Access
-```groovy
-// Access the array of echo images
-def echo_images = bids_data['MEGRE']['nii']  // List of all echo files
-def echo_jsons = bids_data['MEGRE']['json']  // Corresponding JSON files
+- **arm64_test**: For Apple Silicon (M1/M2) Macs with test settings
+- **amd64_test**: For Intel/AMD systems with test settings  
+- **arm64_user**: For Apple Silicon with user-friendly settings
+- **amd64_user**: For Intel/AMD systems with user-friendly settings
 
-// Access specific echoes
-def first_echo = echo_images[0]
-def last_echo = echo_images[-1]
-```
+## Configuration Options
 
-## Step 5: Run Your Pipeline
-
-Execute your pipeline:
-
-```bash
-# For MTS dataset
-nextflow run my_example_bids_pipeline.nf --bids_dir /path/to/mts_dataset
-
-# For MEGRE dataset  
-nextflow run my_example_bids_pipeline.nf --bids_dir /path/to/megre_dataset
-```
-
-With additional options:
-```bash
-nextflow run my_example_bids_pipeline.nf \
-    --bids_dir /path/to/your/dataset \
-    --output_dir quantitative_maps \
-    -resume
-```
-
-## Real-World Examples
-
-### FSL-based Analysis
-```groovy
-process fsl_analysis {
-    input:
-    tuple val(grouping_key), val(data)
-    
-    script:
-    def bids_data = data.data
-    """
-    # For any type of data
-    if [[ "${bids_data.containsKey('MTS')}" == "true" ]]; then
-        # Brain extraction on PDw image
-        bet ${bids_data['MTS']['PDw']['nii']} brain_pdw.nii.gz -f 0.3 -m
-        
-        # Register MTw to PDw space
-        flirt -in ${bids_data['MTS']['MTw']['nii']} \\
-              -ref ${bids_data['MTS']['PDw']['nii']} \\
-              -out mtw_registered.nii.gz \\
-              -omat mtw_to_pdw.mat
-    
-    elif [[ "${bids_data.containsKey('MEGRE')}" == "true" ]]; then
-        # Extract first echo for brain mask
-        first_echo="${bids_data['MEGRE']['nii'][0]}"
-        bet \$first_echo brain_mask.nii.gz -f 0.3 -m
-    fi
-    """
-}
-```
-
-### ANTs-based Processing
-```groovy
-process ants_processing {
-    input:
-    tuple val(grouping_key), val(data)
-    
-    script:
-    def bids_data = data.data
-    """
-    if [[ "${bids_data.containsKey('MTS')}" == "true" ]]; then
-        # Advanced normalization between contrasts
-        antsRegistration --dimensionality 3 \\
-                        --float 0 \\
-                        --interpolation Linear \\
-                        --winsorize-image-intensities [0.005,0.995] \\
-                        --use-histogram-matching 0 \\
-                        --initial-moving-transform [${bids_data['MTS']['PDw']['nii']},${bids_data['MTS']['T1w']['nii']},1] \\
-                        --transform Rigid[0.1] \\
-                        --metric MI[${bids_data['MTS']['PDw']['nii']},${bids_data['MTS']['T1w']['nii']},1,32,Regular,0.25] \\
-                        --convergence [1000x500x250x100,1e-6,10] \\
-                        --output [t1w_to_pdw_,t1w_registered.nii.gz]
-    fi
-    """
-}
-```
-
-## What You Get
-
-bids2nf provides your processes with:
-- **Organized file paths**: Automatic grouping by subject/session/run
-- **Flexible access**: Simple dictionary-style access to your data
-- **Metadata preservation**: JSON sidecar files automatically paired
-- **Type safety**: Consistent data structures regardless of dataset complexity
+- `--bids_dir`: Path to your BIDS dataset (required)
+- `--bids2nf_config`: Path to custom configuration file (default: `bids2nf.yaml`)
+- `--bids_validation`: Enable/disable BIDS validation (default: true)
+- `--includeBidsParentDir`: Include parent directory in output paths (default: false)
 
 ## Next Steps
 
-1. **Explore configurations**: Check the [supported BIDS suffixes](supported.md) for more examples
-2. **Add quality control**: Implement checks for data completeness and quality
-3. **Scale up**: Process multiple subjects in parallel with Nextflow's built-in parallelization
-4. **Integrate tools**: Combine with your favorite neuroimaging software (FSL, ANTs, FreeSurfer, etc.)
+1. **Explore your results**: Check the JSON files in `tests/new_outputs/`
+2. **Build your pipeline**: Use the [workflow guide](workflow.md) to create a full processing pipeline
+3. **Customize configuration**: See [supported configurations](supported.md) for advanced options
 
-For more configuration examples and supported BIDS patterns, see the [supported configurations documentation](supported.md).
+Ready to build a complete pipeline? Check out the [workflow documentation](workflow.md)!
