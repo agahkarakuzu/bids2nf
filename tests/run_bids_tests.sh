@@ -21,8 +21,8 @@ DEFAULT_DIRS=(
     "qmri_mtsat"
     "qmri_qsm"
     "qmri_sa2rage"
-    "qmri_tb1tfl",
-    "asl001",
+    "qmri_tb1tfl"
+    "asl001"
     "asl002"
 )
 

@@ -28,3 +28,5 @@ site:
     logo: ../logo.png
     logo_text: bids2nf documentation
     style: ./bids2nf.css
+    favicon: ../favicon.ico
+    
