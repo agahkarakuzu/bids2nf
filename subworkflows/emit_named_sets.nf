@@ -9,6 +9,7 @@ include {
 include {
     handleError;
     logProgress;
+    logDebug;
     tryWithContext
 } from '../modules/utils/error_handling.nf'
 
@@ -35,7 +36,7 @@ workflow emit_named_sets {
     main:
     
     // Input validation and parsing now done by calling workflow
-    logProgress("emit_named_sets", "Creating named set channels ...")
+    logDebug("emit_named_sets", "Creating named set channels ...")
 
     input_files = parsed_csv
         .splitCsv(header: true)

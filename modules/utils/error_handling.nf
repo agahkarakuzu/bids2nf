@@ -6,7 +6,7 @@ def handleError(String context, Exception e) {
     exit 1
 }
 
-def handleError(String context, String message) {
+def handleErrorWithMessage(String context, String message) {
     log.error "[${context}] ${message}"
     exit 1
 }

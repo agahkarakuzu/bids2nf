@@ -1,10 +1,8 @@
-import org.yaml.snakeyaml.Yaml
-
 /**
  * Analyze configuration file to determine which workflow types are present
  */
 def analyzeConfiguration(bids2nf_config) {
-    def config = new Yaml().load(new FileReader(bids2nf_config))
+    def config = new org.yaml.snakeyaml.Yaml().load(new FileReader(bids2nf_config))
     
     def analysis = [
         hasNamedSets: false,
@@ -20,7 +18,7 @@ def analyzeConfiguration(bids2nf_config) {
     config.each { suffix, suffixConfig ->
         // Skip global configuration keys that are not set definitions
         if (suffix == 'loop_over') {
-            return
+            return true
         }
         
         if (suffixConfig.containsKey('named_set')) {
@@ -79,7 +77,7 @@ def hasPlainSets(bids2nf_config) {
  * Get loop_over entities from configuration
  */
 def getLoopOverEntities(bids2nf_config) {
-    def config = new Yaml().load(new FileReader(bids2nf_config))
+    def config = new org.yaml.snakeyaml.Yaml().load(new FileReader(bids2nf_config))
     return config.containsKey('loop_over') ? config.loop_over : ['subject', 'session', 'run']
 }
 

@@ -1,26 +1,18 @@
-import org.yaml.snakeyaml.Yaml
 include { libbids_sh_parse } from './modules/parsers/lib_bids_sh_parser.nf'
 include { emit_named_sets } from './subworkflows/emit_named_sets.nf'
 include { emit_sequential_sets } from './subworkflows/emit_sequential_sets.nf'
 include { emit_mixed_sets } from './subworkflows/emit_mixed_sets.nf'
 include { emit_plain_sets } from './subworkflows/emit_plain_sets.nf'
+include { BIDS_VALIDATOR } from './modules/parsers/bids_validator.nf'
 include {
     analyzeConfiguration;
-    hasNamedSets;
-    hasSequentialSets;
-    hasMixedSets;
-    hasPlainSets;
     getConfigurationSummary;
     getLoopOverEntities
 } from './modules/utils/config_analyzer.nf'
 include { 
-    validateAllInputs;
-    validateBidsDirectory;
-    validateBids2nfConfig;
-    validateLibBidsScript
+    preFlightChecks;
 } from './modules/parsers/bids_validator.nf'
 include {
-    handleError;
     logProgress;
     tryWithContext
 } from './modules/utils/error_handling.nf'
@@ -31,35 +23,24 @@ workflow bids2nf {
 
     main:
     
-    // Use the built-in configuration
     bids2nf_config = "${params.bids2nf_config}"
     
-    // Perform shared validation and parsing once
-    logProgress("bids2nf", "Starting unified bids2nf workflow...")
-    logProgress("bids2nf", "Performing input validation and BIDS parsing...")
-    
-    // Validate all inputs before processing (done once)
-    tryWithContext("INPUT_VALIDATION") {
-        validateAllInputs(bids_dir, bids2nf_config, params.libbids_sh)
+    preFlightChecks(bids_dir, bids2nf_config, params.libbids_sh)
+
+
+    if (params.bids_validation) {
+        BIDS_VALIDATOR(file(bids_dir), [99, 36])
+    } else {
+        logProgress("bids2nf", "---------------------------\n" + "[bids2nf] ⚠︎⚠︎⚠︎ BIDS validation disabled by configuration ⚠︎⚠︎⚠︎\n" + "[bids2nf] ---------------------------\n")
     }
     
-    logProgress("bids2nf", "Input validation completed successfully")
-    
-    // Calculate parent directory once
     def bids_parent_dir = file(bids_dir).parent.toString()
     
-    // Parse BIDS directory once
-    parsed_csv = tryWithContext("BIDS_PARSING") {
-        libbids_sh_parse(bids_dir, params.libbids_sh)
-    }
+    parsed_csv = libbids_sh_parse(bids_dir, params.libbids_sh)
     
-    // Load and validate configuration once
     def config = tryWithContext("CONFIG_LOADING") {
-        new Yaml().load(new FileReader(bids2nf_config))
+        new org.yaml.snakeyaml.Yaml().load(new FileReader(bids2nf_config))
     }
-    
-    // Analyze configuration to determine workflow types needed
-    logProgress("bids2nf", "Analyzing configuration to determine workflow types...")
     
     def configAnalysis = tryWithContext("CONFIG_ANALYSIS") {
         analyzeConfiguration(bids2nf_config)
@@ -73,45 +54,45 @@ workflow bids2nf {
     
     def summary = getConfigurationSummary(bids2nf_config)
     
-    logProgress("bids2nf", "Configuration analysis complete:")
-    logProgress("bids2nf", "  - Loop over entities: ${loopOverEntities.join(', ')}")
-    logProgress("bids2nf", "  - Named sets: ${summary.namedSets.count} patterns (${summary.namedSets.suffixes.join(', ')})")
-    logProgress("bids2nf", "  - Sequential sets: ${summary.sequentialSets.count} patterns (${summary.sequentialSets.suffixes.join(', ')})")
-    logProgress("bids2nf", "  - Mixed sets: ${summary.mixedSets.count} patterns (${summary.mixedSets.suffixes.join(', ')})")
-    logProgress("bids2nf", "  - Plain sets: ${summary.plainSets.count} patterns (${summary.plainSets.suffixes.join(', ')})")
-    logProgress("bids2nf", "  - Total patterns: ${summary.totalPatterns}")
+    logProgress("bids2nf", "┌─ ✓ Configuration analysis complete:")
+    logProgress("bids2nf", "├─ ↬ Loop over entities: ${loopOverEntities.join(', ')}")
+    logProgress("bids2nf", "├─ ⑆ Named sets: ${summary.namedSets.count} patterns (${summary.namedSets.suffixes.join(', ')})")
+    logProgress("bids2nf", "├─ ⑇ Sequential sets: ${summary.sequentialSets.count} patterns (${summary.sequentialSets.suffixes.join(', ')})")
+    logProgress("bids2nf", "├─ ⑈ Mixed sets: ${summary.mixedSets.count} patterns (${summary.mixedSets.suffixes.join(', ')})")
+    logProgress("bids2nf", "├─ ⑉ Plain sets: ${summary.plainSets.count} patterns (${summary.plainSets.suffixes.join(', ')})")
+    logProgress("bids2nf", "├─ = TOTAL patterns: ${summary.totalPatterns}")
     
     // Route to appropriate workflows based on configuration analysis, passing pre-processed data
-    named_results = configAnalysis.hasNamedSets ? 
-        tryWithContext("NAMED_SETS") {
-            logProgress("bids2nf", "Processing named sets...")
-            emit_named_sets(parsed_csv, config, loopOverEntities)
-        } : 
-        Channel.empty()
+    if (configAnalysis.hasNamedSets) {
+        logProgress("bids2nf", "├─ ⑆ Processing named sets >>>")
+        named_results = emit_named_sets(parsed_csv, config, loopOverEntities)
+    } else {
+        named_results = Channel.empty()
+    }
     
-    sequential_results = configAnalysis.hasSequentialSets ? 
-        tryWithContext("SEQUENTIAL_SETS") {
-            logProgress("bids2nf", "Processing sequential sets...")
-            emit_sequential_sets(parsed_csv, config, loopOverEntities)
-        } : 
-        Channel.empty()
+    if (configAnalysis.hasSequentialSets) {
+        logProgress("bids2nf", "├─ ⑇ Processing sequential sets ...")
+        sequential_results = emit_sequential_sets(parsed_csv, config, loopOverEntities)
+    } else {
+        sequential_results = Channel.empty()
+    }
     
-    mixed_results = configAnalysis.hasMixedSets ? 
-        tryWithContext("MIXED_SETS") {
-            logProgress("bids2nf", "Processing mixed sets...")
-            emit_mixed_sets(parsed_csv, config, loopOverEntities)
-        } : 
-        Channel.empty()
+    if (configAnalysis.hasMixedSets) {
+        logProgress("bids2nf", "├─ ⑈ Processing mixed sets ...")
+        mixed_results = emit_mixed_sets(parsed_csv, config, loopOverEntities)
+    } else {
+        mixed_results = Channel.empty()
+    }
     
-    plain_results = configAnalysis.hasPlainSets ? 
-        tryWithContext("PLAIN_SETS") {
-            logProgress("bids2nf", "Processing plain sets...")
-            emit_plain_sets(parsed_csv, config, loopOverEntities)
-        } : 
-        Channel.empty()
+    if (configAnalysis.hasPlainSets) {
+        logProgress("bids2nf", "├─ ⑉ Processing plain sets ...")
+        plain_results = emit_plain_sets(parsed_csv, config, loopOverEntities)
+    } else {
+        plain_results = Channel.empty()
+    }
     
     // Combine all results into a unified channel and merge by grouping key
-    logProgress("bids2nf", "Combining results from all workflow types...")
+    logProgress("bids2nf", "├─ ⎌ Combining results from all workflow types ...")
     
     combined_results = named_results
         .mix(sequential_results)
@@ -188,8 +169,8 @@ workflow bids2nf {
                     }
                     
                     // Store all suffixes from task="NA" channels as potential cross-modal data
-                    enrichedData.data.each { suffix, suffixData ->
-                        crossModalData[nonTaskKeyStr][suffix] = suffixData
+                    enrichedData.data.each { suffix, _suffixData ->
+                        crossModalData[nonTaskKeyStr][suffix] = _suffixData
                     }
                 }
                 
@@ -213,7 +194,7 @@ workflow bids2nf {
                     
                     // For task-specific channels, check if they request cross-modal data
                     if (entityValues.task != "NA") {
-                        enrichedData.data.each { suffix, suffixData ->
+                        enrichedData.data.each { suffix, _suffixData ->
                             // Check if this suffix has include_cross_modal configuration
                             def suffixConfig = config[suffix]
                             if (suffixConfig) {
@@ -237,7 +218,7 @@ workflow bids2nf {
                         def dataWasRequested = false
                         
                         // Check if any suffix in this channel was requested by task-specific suffixes
-                        enrichedData.data.each { suffix, suffixData ->
+                        enrichedData.data.each { suffix, _suffixData ->
                             // Look through all suffix configs to see if any request this suffix
                             config.each { otherSuffix, otherSuffixConfig ->
                                 if (otherSuffix != suffix && otherSuffixConfig instanceof Map) {
@@ -254,7 +235,7 @@ workflow bids2nf {
                         
                         // Only keep task="NA" channels if their data wasn't successfully included elsewhere
                         // OR if they contain non-requested data
-                        def hasNonRequestedData = enrichedData.data.any { suffix, suffixData ->
+                        def hasNonRequestedData = enrichedData.data.any { suffix, _suffixData ->
                             def wasRequested = false
                             config.each { otherSuffix, otherSuffixConfig ->
                                 if (otherSuffix != suffix && otherSuffixConfig instanceof Map) {
@@ -283,11 +264,18 @@ workflow bids2nf {
         }
         .flatMap()
     
-    // Log final statistics
+    // Log final statistics and validate results
     final_results
         .count()
         .subscribe { count ->
-            logProgress("bids2nf", "Unified workflow complete: ${count} data groups processed")
+            if (count == 0) {
+                throw new Exception("├─ ⛔️ ERROR\n" + "[bids2nf] └─ No data groups were processed! This could indicate:\n" +
+                    "  - No files match the configured patterns in bids2nf.yaml\n" +
+                    "  - Incorrect BIDS directory structure\n" +
+                    "  - Configuration issues with entity matching\n" +
+                    "  - Missing required files for complete groupings")
+            }
+            logProgress("bids2nf", "├─ ✅ SUCCESS\n" + "[bids2nf] └─ Bids2nf workflow complete: ${count} data groups processed]")
         }
 
     emit:

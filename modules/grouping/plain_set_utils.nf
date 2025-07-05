@@ -34,7 +34,7 @@ def validatePlainSetFiles(fileMap, subject, session, run, suffix, suffixConfig) 
     if (hasNii) foundFiles.add('nii')
     if (hasJson) foundFiles.add('json')
     if (hasAdditional) foundFiles.addAll(additionalExtensions.findAll { ext -> fileMap.containsKey(ext) })
-    log.info "Subject ${subject}, Session ${session}, Run ${run}, Suffix ${suffix}: Found valid files: ${foundFiles}"
+    log.debug "Subject ${subject}, Session ${session}, Run ${run}, Suffix ${suffix}: Found valid files: ${foundFiles}"
     
     return true
 }

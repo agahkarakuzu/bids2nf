@@ -22,7 +22,7 @@ def findMatchingVirtualConfig(row, config) {
 }
 include {
     handleError;
-    logProgress;
+    logDebug;
     tryWithContext
 } from '../modules/utils/error_handling.nf'
 
@@ -35,7 +35,7 @@ workflow emit_plain_sets {
     main:
     
     // Input validation and parsing now done by calling workflow
-    logProgress("emit_plain_sets", "Creating plain set channels ...")
+    logDebug("emit_plain_sets", "Creating plain set channels ...")
 
     input_files = parsed_csv
         .splitCsv(header: true)
@@ -95,9 +95,9 @@ workflow emit_plain_sets {
                 // Handle parts logic for plain sets
                 def filesByExtAndPart = [:]
                 
-                extFiles.each { extension, filePath, partValue, hasPartsConfigFile ->
-                    if (partValue && partValue != "NA") {
-                        def key = "${extension}_${partValue}"
+                extFiles.each { extension, filePath, _partValue, _hasPartsConfigFile ->
+                    if (_partValue && _partValue != "NA") {
+                        def key = "${extension}_${_partValue}"
                         filesByExtAndPart[key] = filePath
                     } else {
                         filesByExtAndPart[extension] = filePath
@@ -137,7 +137,7 @@ workflow emit_plain_sets {
                         tuple(entityValues + [virtualSuffixKey], allFiles)
                     } else {
                         // Fall back to regular processing if not all parts are present
-                        def regularNiiFiles = filesByExtAndPart.findAll { key, path -> 
+                        def regularNiiFiles = filesByExtAndPart.findAll { key, _path -> 
                             key == 'nii' || key == 'nii.gz' 
                         }
                         if (regularNiiFiles.size() > 0) {
@@ -154,7 +154,7 @@ workflow emit_plain_sets {
             } else {
                 // Regular plain set processing
                 def fileMap = [:]
-                extFiles.each { extension, filePath, partValue, hasPartsConfigFile ->
+                extFiles.each { extension, filePath, _partValue, _hasPartsConfigFile ->
                     fileMap[extension] = filePath
                 }
                 

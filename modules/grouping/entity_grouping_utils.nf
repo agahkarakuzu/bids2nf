@@ -29,19 +29,20 @@ def findMatchingGrouping(row, suffixConfig) {
         return null
     }
     
-    for (entry in suffixConfig.named_set) {
+    def matchingEntry = suffixConfig.named_set.find { entry ->
         def groupingName = entry.key
         def groupingConfig = entry.value
         
         def matches = groupingConfig.every { entity, value ->
-            entity == 'description' || entityValuesMatch(row[entity], value)
+            def rowValue = row[entity]
+            def isMatch = entity == 'description' || entityValuesMatch(rowValue, value)
+            return isMatch
         }
         
-        if (matches) {
-            return groupingName
-        }
+        return matches
     }
-    return null
+    
+    return matchingEntry ? matchingEntry.key : null
 }
 
 def createFileMap(extFiles) {
@@ -88,7 +89,7 @@ def validateRequiredFilesWithConfig(fileMap, subject, session, run, suffix, grou
     if (hasNii) foundFiles.add('nii')
     if (hasJson) foundFiles.add('json')
     if (hasAdditional) foundFiles.addAll(additionalExtensions.findAll { ext -> fileMap.containsKey(ext) })
-    log.info "Subject ${subject}, Session ${session}, Run ${run}, Suffix ${suffix}, grouping ${groupName}: Found valid files: ${foundFiles}"
+    log.debug "Subject ${subject}, Session ${session}, Run ${run}, Suffix ${suffix}, grouping ${groupName}: Found valid files: ${foundFiles}"
     
     return true
 }

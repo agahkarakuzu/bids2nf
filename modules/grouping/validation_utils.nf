@@ -72,11 +72,13 @@ def validateGroupingConfiguration(config, suffix) {
     }
     
     def entityBasedGrouping = suffixConfig.named_set
-    for (requiredGroup in required) {
-        if (!entityBasedGrouping.containsKey(requiredGroup)) {
-            log.error "${context}: Required grouping '${requiredGroup}' not found in named_set for suffix: ${suffix}"
-            return false
-        }
+    def missingGroups = required.findAll { requiredGroup ->
+        !entityBasedGrouping.containsKey(requiredGroup)
+    }
+    
+    if (missingGroups.size() > 0) {
+        log.error "${context}: Required groupings ${missingGroups} not found in named_set for suffix: ${suffix}"
+        return false
     }
     
     log.debug "${context}: Configuration validation passed for suffix: ${suffix}"
@@ -86,19 +88,23 @@ def validateGroupingConfiguration(config, suffix) {
 def validateEntityGroupingMatch(row, groupingConfig, groupingName) {
     def context = "ENTITY_MATCHING"
     
-    for (entity in groupingConfig.keySet()) {
-        def expectedValue = groupingConfig[entity]
+    def matchingEntities = groupingConfig.every { entity, expectedValue ->
         def actualValue = row[entity]
         
         // Special handling for description field
         if (entity == 'description') {
-            continue
+            return true
         }
         
         if (actualValue != expectedValue) {
             log.debug "${context}: Entity mismatch for grouping '${groupingName}': ${entity} = '${actualValue}' (expected: '${expectedValue}')"
             return false
         }
+        return true
+    }
+    
+    if (!matchingEntities) {
+        return false
     }
     
     log.debug "${context}: Entity matching passed for grouping: ${groupingName}"
@@ -109,24 +115,30 @@ def validateCompleteGrouping(allGroupingMaps, config, subject, session, run) {
     def context = "COMPLETE_GROUPING_VALIDATION"
     def identifier = "Subject ${subject}, Session ${session}, Run ${run}"
     
-    for (suffix in allGroupingMaps.keySet()) {
-        def groupingMap = allGroupingMaps[suffix]
+    def allSuffixesValid = allGroupingMaps.every { suffix, groupingMap ->
         def suffixConfig = config[suffix]
         
         if (!suffixConfig.containsKey('required')) {
             log.warn "${context}: No required groupings specified for suffix: ${suffix}"
-            continue
+            return true
         }
         
         def requiredGroupings = suffixConfig.required
         def availableGroupings = groupingMap.keySet()
         
-        for (requiredGrouping in requiredGroupings) {
-            if (!availableGroupings.contains(requiredGrouping)) {
-                log.error "${context}: ${identifier}, Suffix ${suffix}: Missing required grouping '${requiredGrouping}'. Available: ${availableGroupings}, Required: ${requiredGroupings}"
-                return false
-            }
+        def missingGroupings = requiredGroupings.findAll { requiredGrouping ->
+            !availableGroupings.contains(requiredGrouping)
         }
+        
+        if (missingGroupings.size() > 0) {
+            log.error "${context}: ${identifier}, Suffix ${suffix}: Missing required groupings ${missingGroupings}. Available: ${availableGroupings}, Required: ${requiredGroupings}"
+            return false
+        }
+        return true
+    }
+    
+    if (!allSuffixesValid) {
+        return false
     }
     
     log.info "${context}: Complete grouping validation passed for ${identifier}"

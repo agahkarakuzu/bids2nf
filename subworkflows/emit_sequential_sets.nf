@@ -1,6 +1,7 @@
 include {
     handleError;
     logProgress;
+    logDebug;
     tryWithContext
 } from '../modules/utils/error_handling.nf'
 
@@ -33,12 +34,11 @@ def findMatchingVirtualConfig(row, config) {
     }
     
     // Test each candidate to see which one can actually process this file
-    for (entry in candidateConfigs) {
-        if (canProcessFileWithConfig(row, entry.value)) {
-            return [configKey: entry.key, configValue: entry.value]
-        }
+    def matchingConfig = candidateConfigs.find { entry ->
+        canProcessFileWithConfig(row, entry.value)
     }
-    return null
+    
+    return matchingConfig ? [configKey: matchingConfig.key, configValue: matchingConfig.value] : null
 }
 
 workflow emit_sequential_sets {
@@ -50,7 +50,7 @@ workflow emit_sequential_sets {
     main:
     
     // Input validation and parsing now done by calling workflow  
-    logProgress("emit_sequential_sets", "Starting list collection workflow")
+    logDebug("emit_sequential_sets", "Starting list collection workflow")
     
     // Validate multi-entity configurations
     config.each { suffix, suffixConfig ->
@@ -62,9 +62,9 @@ workflow emit_sequential_sets {
                     throw new IllegalArgumentException("Sequential_set for ${suffix} must specify at least 1 entity in 'by_entities' array")
                 }
                 if (entities.size() > 1) {
-                    logProgress("emit_sequential_sets", "Validated multi-entity configuration for ${suffix}: ${entities.join(', ')}")
+                    logDebug("emit_sequential_sets", "Validated multi-entity configuration for ${suffix}: ${entities.join(', ')}")
                 } else {
-                    logProgress("emit_sequential_sets", "Validated single-entity configuration for ${suffix}: ${entities[0]}")
+                    logDebug("emit_sequential_sets", "Validated single-entity configuration for ${suffix}: ${entities[0]}")
                 }
             }
         }
@@ -114,7 +114,6 @@ workflow emit_sequential_sets {
             if (allEntitiesPresent) {
                 // Create composite key for multiple entities, or single key for single entity
                 def compositeEntityKey = entityKeys.join('_')
-                def compositeEntityValue = sequentialEntityValues.join('_')
                 def entityGroupValues = loopOverEntities.collect { entity -> 
                     def value = row.containsKey(entity) ? row[entity] : "NA"
                     return (value == null || value == "") ? "NA" : value
@@ -137,7 +136,6 @@ workflow emit_sequential_sets {
             def entityCount = loopOverEntities.size()
             def entityValues = groupingKeyWithSuffixEntity[0..entityCount-1]
             def suffix = groupingKeyWithSuffixEntity[entityCount]
-            def compositeEntityKey = groupingKeyWithSuffixEntity[entityCount+1]
             def (entityKeys, sequentialEntityValues, orderType, extension, filePath, partValue, partsConfig) = entityData
             tuple(entityValues + [suffix], [entityKeys, sequentialEntityValues, orderType, extension, filePath, partValue, partsConfig])
         }
@@ -167,7 +165,7 @@ workflow emit_sequential_sets {
                 
                 // Create hierarchical key structure
                 def currentMap = fileMap
-                for (int i = 0; i < sequentialEntityValues.size() - 1; i++) {
+                (0..<sequentialEntityValues.size() - 1).each { i ->
                     def entityValue = sequentialEntityValues[i]
                     if (!currentMap.containsKey(entityValue)) {
                         currentMap[entityValue] = [:]
@@ -274,7 +272,7 @@ workflow emit_sequential_sets {
                     def jsonNestedArray = []
                     
                     sortedKeys.each { key ->
-                        def result = createNestedArrays(currentMap[key], depth + 1)
+                        def result = createNestedArrays.call(currentMap[key], depth + 1)
                         niiNestedArray << result.nii
                         jsonNestedArray << result.json
                     }
@@ -348,14 +346,14 @@ workflow emit_sequential_sets {
                             return aNum <=> bNum
                         }
                         sortedKeys.each { key ->
-                            collectFlat(currentMap[key], depth + 1)
+                            collectFlat.call(currentMap[key], depth + 1)
                         }
                     }
                 }
-                collectFlat(fileMap, 0)
+                collectFlat.call(fileMap, 0)
             } else {
                 // Multi-entity with hierarchical ordering - create nested array structure
-                def nestedResult = createNestedArrays(fileMap, 0)
+                def nestedResult = createNestedArrays.call(fileMap, 0)
                 niiFiles = nestedResult.nii
                 jsonFiles = nestedResult.json
             }

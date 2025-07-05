@@ -1,6 +1,9 @@
 include { serializeMapToJson } from '../utils/json_utils'
+include { logDebug } from '../utils/error_handling'
 
 process unified_process_template {
+  
+  publishDir { "tests/new_outputs/${value.bidsBasename}" }, mode: 'copy'
   
   input:
   tuple val(key), val(value)
@@ -8,8 +11,6 @@ process unified_process_template {
   
   output:
   path "*.json", emit: output_file
-  
-  publishDir { "tests/new_outputs/${value.bidsBasename}" }, mode: 'copy'
   
   script:
   def enrichedData = value
@@ -22,16 +23,16 @@ process unified_process_template {
   def entityFields = []
   ['subject', 'session', 'run', 'task', 'acquisition'].each { entity ->
     if (enrichedData.containsKey(entity)) {
-      def value = enrichedData[entity] ?: "null"
-      entityValues.add(value)
-      entityFields.add("\"${entity}\": \"${value}\"")
+      def _value = enrichedData[entity] ?: "null"
+      entityValues.add(_value)
+      entityFields.add("\"${entity}\": \"${_value}\"")
     }
   }
   
   def filename = entityValues.join('_') + '_unified.json'
   def entityJson = entityFields.join(',\n  ')
 
-  println "Unified processing .... ${entityValues.join(' ')}"
+  logDebug("unified_process_template", "Unified processing .... ${entityValues.join(' ')}")
   
   def jsonString = serializeMapToJson(data)
   

@@ -20,68 +20,66 @@ process BIDS_VALIDATOR {
 
 def validateBidsDirectory(bidsDir) {
     if (!file(bidsDir).exists()) {
-        error "BIDS directory does not exist: ${bidsDir}"
+        error "[bids2nf] ☹︎ BIDS directory does not exist: ${bidsDir}"
     }
     
     if (!file(bidsDir).isDirectory()) {
-        error "BIDS path is not a directory: ${bidsDir}"
+        error "[bids2nf] ☹︎ BIDS path is not a directory: ${bidsDir}"
     }
     
     // Check if BIDS validation is enabled in config
     if (!params.bids_validation) {
-        log.info "BIDS validation disabled by configuration - ${bidsDir}"
+        log.info "[bids2nf] ✌︎ BIDS validation disabled by configuration - ${bidsDir}"
         return true
     }
-    
-    def validationResult = BIDS_VALIDATOR(file(bidsDir), [99, 36])
     
     return true
 }
 
 def validateBids2nfConfig(configPath) {
     if (!file(configPath).exists()) {
-        error "Configuration file does not exist: ${configPath}"
+        error "[bids2nf] ☹︎ Configuration file does not exist: ${configPath}"
     }
     
     if (!file(configPath).isFile()) {
-        error "Configuration path is not a file: ${configPath}"
+        error "[bids2nf] ☹︎ Configuration path is not a file: ${configPath}"
     }
     
     def configFile = file(configPath)
     if (!configFile.name.endsWith('.yaml') && !configFile.name.endsWith('.yml')) {
-        error "Configuration file must be YAML format: ${configPath}"
+        error "[bids2nf] ☹︎ Configuration file must be YAML format: ${configPath}"
     }
     
-    log.info "Configuration file validation passed: ${configPath}"
+    log.info "[bids2nf] ✌︎ Configuration file validation passed: ${configPath}"
     return true
 }
 
 def validateLibBidsScript(scriptPath) {
     if (!file(scriptPath).exists()) {
-        error "libBIDS.sh script does not exist: ${scriptPath}"
+        error "[bids2nf] ☹︎ libBIDS.sh script does not exist: ${scriptPath}"
     }
     
     if (!file(scriptPath).isFile()) {
-        error "libBIDS.sh path is not a file: ${scriptPath}"
+        error "[bids2nf] ☹︎ libBIDS.sh path is not a file: ${scriptPath}"
     }
     
     def scriptFile = file(scriptPath)
     if (!scriptFile.canExecute()) {
-        log.warn "libBIDS.sh script is not executable, attempting to make executable: ${scriptPath}"
+        log.warn "[bids2nf] ☹︎ libBIDS.sh script is not executable, attempting to make executable: ${scriptPath}"
         scriptFile.setExecutable(true)
     }
     
-    log.info "libBIDS.sh script validation passed: ${scriptPath}"
+    log.info "[bids2nf] ✌︎ libBIDS.sh script validation passed: ${scriptPath}"
     return true
 }
 
-def validateAllInputs(bidsDir, configPath, scriptPath) {
-    log.info "Validating all input parameters..."
+def preFlightChecks(bidsDir, configPath, scriptPath) {
+    log.info "[bids2nf] ✈︎✈︎✈︎ Pre-flight checks started..."
     
     validateBidsDirectory(bidsDir)
     validateBids2nfConfig(configPath)
     validateLibBidsScript(scriptPath)
     
-    log.info "All input validation checks passed successfully"
+    log.info "[bids2nf] ✓✓✓ All pre-flight checks passed successfully"
     return true
 }

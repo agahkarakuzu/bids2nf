@@ -1,13 +1,10 @@
-import groovy.json.JsonBuilder
-import groovy.json.JsonSlurper
-
 def serializeMapToJson(data) {
-def jsonBuilder = new JsonBuilder(data)
-return jsonBuilder.toPrettyString()
+    def jsonBuilder = new groovy.json.JsonBuilder(data)
+    return jsonBuilder.toPrettyString()
 }
 
 def readJsonFromFile(file) {
-    def jsonSlurper = new JsonSlurper()
+    def jsonSlurper = new groovy.json.JsonSlurper()
     return jsonSlurper.parse(file)
 }
 

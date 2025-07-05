@@ -10,6 +10,7 @@ include {
 include {
     handleError;
     logProgress;
+    logDebug;
     tryWithContext
 } from '../modules/utils/error_handling.nf'
 
@@ -54,11 +55,9 @@ def entityValuesMatch(rowValue, configValue) {
 }
 
 def findMatchingMixedGrouping(row, mixedConfig) {
-    // Find matching named group based on named_dimension
-    def namedDimension = mixedConfig.named_dimension
     def namedGroups = mixedConfig.named_groups
     
-    for (entry in namedGroups) {
+    def matchingEntry = namedGroups.find { entry ->
         def groupingName = entry.key
         def groupingConfig = entry.value
         
@@ -66,11 +65,10 @@ def findMatchingMixedGrouping(row, mixedConfig) {
             entity == 'description' || entityValuesMatch(row[entity], value)
         }
         
-        if (matches) {
-            return groupingName
-        }
+        return matches
     }
-    return null
+    
+    return matchingEntry ? matchingEntry.key : null
 }
 
 workflow emit_mixed_sets {
@@ -82,7 +80,7 @@ workflow emit_mixed_sets {
     main:
     
     // Input validation and parsing now done by calling workflow
-    logProgress("emit_mixed_sets", "Creating mixed set channels ...")
+    logDebug("emit_mixed_sets", "Creating mixed set channels ...")
 
     // Process files with mixed set configuration
     input_files = parsed_csv
