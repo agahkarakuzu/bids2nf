@@ -1,0 +1,19 @@
+{
+  "subject": "sub-cbm002",
+  "session": "NA",
+  "run": "NA",
+  "task": "task-protmap",
+  "totalFiles": 4,
+  "data": {
+    "channels": {
+        "tsv": "eeg_cbm/sub-cbm002/eeg/sub-cbm002_task-protmap_channels.tsv"
+    },
+    "eeg": {
+        "json": "eeg_cbm/sub-cbm002/eeg/sub-cbm002_task-protmap_eeg.json",
+        "edf": "eeg_cbm/sub-cbm002/eeg/sub-cbm002_task-protmap_eeg.edf"
+    },
+    "events": {
+        "tsv": "eeg_cbm/sub-cbm002/eeg/sub-cbm002_task-protmap_events.tsv"
+    }
+}
+}

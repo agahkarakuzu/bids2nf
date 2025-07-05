@@ -1,0 +1,23 @@
+{
+  "subject": "sub-01",
+  "session": "ses-005",
+  "run": "NA",
+  "task": "NA",
+  "totalFiles": 8,
+  "data": {
+    "T1w": {
+        "nii": "ds-dwi2/sub-01/ses-005/anat/sub-01_ses-005_T1w.nii.gz",
+        "json": "ds-dwi2/sub-01/ses-005/anat/sub-01_ses-005_T1w.json"
+    },
+    "dwi": {
+        "nii": "ds-dwi2/sub-01/ses-005/dwi/sub-01_ses-005_dir-AP_dwi.nii.gz",
+        "json": "ds-dwi2/sub-01/ses-005/dwi/sub-01_ses-005_dir-AP_dwi.json",
+        "bval": "ds-dwi2/sub-01/ses-005/dwi/sub-01_ses-005_dir-AP_dwi.bval",
+        "bvec": "ds-dwi2/sub-01/ses-005/dwi/sub-01_ses-005_dir-AP_dwi.bvec"
+    },
+    "epi": {
+        "nii": "ds-dwi2/sub-01/ses-005/fmap/sub-01_ses-005_dir-AP_epi.nii.gz",
+        "json": "ds-dwi2/sub-01/ses-005/fmap/sub-01_ses-005_dir-AP_epi.json"
+    }
+}
+}

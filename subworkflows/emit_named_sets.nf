@@ -124,21 +124,28 @@ workflow emit_named_sets {
                 allFilePaths.addAll(channelData.values())
             }
 
-            def allComplete = allGroupingMaps.every { suffix, groupingMap ->
+            // Validate each suffix configuration independently and filter out invalid ones
+            def validGroupingMaps = [:]
+            def validFilePaths = []
+            
+            allGroupingMaps.each { suffix, groupingMap ->
                 def suffixConfig = config[suffix]
                 def hasAllGroupings = suffixConfig.required.every { requiredGrouping ->
                     groupingMap.containsKey(requiredGrouping)
                 }
-                if (!hasAllGroupings) {
+                if (hasAllGroupings) {
+                    validGroupingMaps[suffix] = groupingMap
+                    validFilePaths.addAll(groupingMap.values().flatten())
+                } else {
                     def entityDesc = loopOverEntities.collect { entity -> "${entity}: ${entityMap[entity]}" }.join(", ")
                     log.warn "Entities ${entityDesc}, Suffix ${suffix}: Missing required groupings. Available: ${groupingMap.keySet()}, Required: ${suffixConfig.required}"
-                    return false
                 }
-                return true
             }
             
+            def allComplete = validGroupingMaps.size() > 0
+            
             if (allComplete) {
-                tuple(groupingKey, [allGroupingMaps, allFilePaths])
+                tuple(groupingKey, [validGroupingMaps, validFilePaths])
             } else {
                 null
             }

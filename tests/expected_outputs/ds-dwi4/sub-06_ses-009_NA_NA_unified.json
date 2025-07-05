@@ -1,0 +1,93 @@
+{
+  "subject": "sub-06",
+  "session": "ses-009",
+  "run": "NA",
+  "task": "NA",
+  "totalFiles": 31,
+  "data": {
+    "MP2RAGE": {
+        "nii": [
+            "ds-dwi4/sub-06/ses-009/anat/sub-06_ses-009_inv-1_MP2RAGE.nii.gz",
+            "ds-dwi4/sub-06/ses-009/anat/sub-06_ses-009_inv-2_MP2RAGE.nii.gz"
+        ],
+        "json": [
+            "ds-dwi4/sub-06/ses-009/anat/sub-06_ses-009_inv-1_MP2RAGE.json",
+            "ds-dwi4/sub-06/ses-009/anat/sub-06_ses-009_inv-2_MP2RAGE.json"
+        ]
+    },
+    "T1w": {
+        "nii": "ds-dwi4/sub-06/ses-009/anat/sub-06_ses-009_rec-norm_T1w.nii.gz",
+        "json": "ds-dwi4/sub-06/ses-009/anat/sub-06_ses-009_rec-norm_T1w.json"
+    },
+    "T2w": {
+        "nii": "ds-dwi4/sub-06/ses-009/anat/sub-06_ses-009_rec-norm_T2w.nii.gz",
+        "json": "ds-dwi4/sub-06/ses-009/anat/sub-06_ses-009_rec-norm_T2w.json"
+    },
+    "UNIT1": {
+        "nii": "ds-dwi4/sub-06/ses-009/anat/sub-06_ses-009_rec-dis2d_UNIT1.nii.gz",
+        "json": "ds-dwi4/sub-06/ses-009/anat/sub-06_ses-009_rec-dis2d_UNIT1.json"
+    },
+    "T2starw": {
+        "nii": "ds-dwi4/sub-06/ses-009/anat/sub-06_ses-009_bp-cspine_T2starw.nii.gz",
+        "json": "ds-dwi4/sub-06/ses-009/anat/sub-06_ses-009_bp-cspine_T2starw.json"
+    },
+    "dwi": {
+        "nii": "ds-dwi4/sub-06/ses-009/dwi/sub-06_ses-009_dir-PA_dwi.nii.gz",
+        "json": "ds-dwi4/sub-06/ses-009/dwi/sub-06_ses-009_dir-PA_dwi.json",
+        "bval": "ds-dwi4/sub-06/ses-009/dwi/sub-06_ses-009_dir-PA_dwi.bval",
+        "bvec": "ds-dwi4/sub-06/ses-009/dwi/sub-06_ses-009_dir-PA_dwi.bvec"
+    },
+    "sbref": {
+        "nii": "ds-dwi4/sub-06/ses-009/dwi/sub-06_ses-009_dir-PA_sbref.nii.gz",
+        "json": "ds-dwi4/sub-06/ses-009/dwi/sub-06_ses-009_dir-PA_sbref.json"
+    },
+    "MTS": {
+        "PDw": {
+            "nii": "ds-dwi4/sub-06/ses-009/anat/sub-06_ses-009_rec-dis2d_flip-1_mt-off_MTS.nii.gz",
+            "json": "ds-dwi4/sub-06/ses-009/anat/sub-06_ses-009_rec-dis2d_flip-1_mt-off_MTS.json"
+        },
+        "MTw": {
+            "nii": "ds-dwi4/sub-06/ses-009/anat/sub-06_ses-009_rec-dis2d_flip-1_mt-on_MTS.nii.gz",
+            "json": "ds-dwi4/sub-06/ses-009/anat/sub-06_ses-009_rec-dis2d_flip-1_mt-on_MTS.json"
+        },
+        "T1w": {
+            "nii": "ds-dwi4/sub-06/ses-009/anat/sub-06_ses-009_rec-dis2d_flip-2_mt-off_MTS.nii.gz",
+            "json": "ds-dwi4/sub-06/ses-009/anat/sub-06_ses-009_rec-dis2d_flip-2_mt-off_MTS.json"
+        }
+    },
+    "dwi_fullreverse": {
+        "ap": {
+            "nii": "ds-dwi4/sub-06/ses-009/dwi/sub-06_ses-009_dir-AP_dwi.nii.gz",
+            "json": "ds-dwi4/sub-06/ses-009/dwi/sub-06_ses-009_dir-AP_dwi.json",
+            "bval": "ds-dwi4/sub-06/ses-009/dwi/sub-06_ses-009_dir-AP_dwi.bval",
+            "bvec": "ds-dwi4/sub-06/ses-009/dwi/sub-06_ses-009_dir-AP_dwi.bvec"
+        },
+        "pa": {
+            "nii": "ds-dwi4/sub-06/ses-009/dwi/sub-06_ses-009_dir-PA_dwi.nii.gz",
+            "json": "ds-dwi4/sub-06/ses-009/dwi/sub-06_ses-009_dir-PA_dwi.json",
+            "bval": "ds-dwi4/sub-06/ses-009/dwi/sub-06_ses-009_dir-PA_dwi.bval",
+            "bvec": "ds-dwi4/sub-06/ses-009/dwi/sub-06_ses-009_dir-PA_dwi.bvec"
+        }
+    },
+    "sbref_fullreverse": {
+        "ap": {
+            "nii": "ds-dwi4/sub-06/ses-009/dwi/sub-06_ses-009_dir-AP_sbref.nii.gz",
+            "json": "ds-dwi4/sub-06/ses-009/dwi/sub-06_ses-009_dir-AP_sbref.json"
+        },
+        "pa": {
+            "nii": "ds-dwi4/sub-06/ses-009/dwi/sub-06_ses-009_dir-PA_sbref.nii.gz",
+            "json": "ds-dwi4/sub-06/ses-009/dwi/sub-06_ses-009_dir-PA_sbref.json"
+        }
+    },
+    "TB1TFL": {
+        "anat": {
+            "nii": "ds-dwi4/sub-06/ses-009/fmap/sub-06_ses-009_acq-anat_TB1TFL.nii.gz",
+            "json": "ds-dwi4/sub-06/ses-009/fmap/sub-06_ses-009_acq-anat_TB1TFL.json"
+        },
+        "famp": {
+            "nii": "ds-dwi4/sub-06/ses-009/fmap/sub-06_ses-009_acq-famp_TB1TFL.nii.gz",
+            "json": "ds-dwi4/sub-06/ses-009/fmap/sub-06_ses-009_acq-famp_TB1TFL.json"
+        }
+    }
+}
+}

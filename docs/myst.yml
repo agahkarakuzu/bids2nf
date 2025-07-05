@@ -19,6 +19,12 @@ project:
     - file: contributors.md
 site:
   template: book-theme
+  parts:
+    footer: |
+      :::{image} ../assets/footer.png
+      :width: 80px
+      :align: center
+      :::
   actions:
   - title: BIDS specification
     url: https://bids-specification.readthedocs.io/en/stable/

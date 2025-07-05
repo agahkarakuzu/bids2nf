@@ -17,27 +17,32 @@ loop_over: [subject, session, run, task]
 #        ℹ️ Example output file for the channel for documentation generation purposes.
 #        Not intended for users.        
 
+eeg:
+  plain_set:
+    additional_extensions: ["tsv", "edf", "eeg"]
 
-dwi_fr:
-  note: "A special (full-reverse) case for DWI data."
-  suffix_maps_to: "dwi"
-  named_set:
-    ap:
-      direction: "dir-AP"
-    pa:
-      direction: "dir-PA"
-  required: ["ap", "pa"]
-  additional_extensions: ["bval", "bvec"]
+channels:
+  plain_set:
+    additional_extensions: ["tsv"]
 
 dwi:
   example_output: "tests/expected_outputs/ds-dwi/sub-01_NA_NA_NA_unified.json"
   plain_set:
     additional_extensions: ["bval", "bvec"]
 
-epi:
+sbref:
+  example_output: "tests/expected_outputs/ds-dwi/sub-01_NA_NA_NA_unified.json"
   plain_set: {}
 
 T1w:
+  example_output: "tests/expected_outputs/ds-dwi/sub-01_NA_NA_NA_unified.json"
+  plain_set: {}
+
+T2w:
+  example_output: "tests/expected_outputs/ds-dwi/sub-01_NA_NA_NA_unified.json"
+  plain_set: {}
+
+T2starw:
   example_output: "tests/expected_outputs/ds-dwi/sub-01_NA_NA_NA_unified.json"
   plain_set: {}
 
@@ -82,25 +87,14 @@ events:
   example_output: "tests/expected_outputs/ds-mrs_fmrs/sub-01_NA_NA_task-pain_unified.json"
   plain_set:
     additional_extensions: ["tsv"]
+  
+UNIT1:
+  example_output: "tests/expected_outputs/ds-mrs_fmrs/sub-01_NA_NA_task-pain_unified.json"
+  plain_set: {}
 
-# =============================== Special case 
-# WIP virtual suffixes, quite tricky....
-# The more strict the rules for the same suffix, 
-# the earlier it should appear in the config list. 
-MP2RAGE_multiecho:
-  suffix_maps_to: "MP2RAGE"
-  sequential_set:
-    by_entities: [inversion, echo]
-    parts: ["mag", "phase"]
-
-# Can handle single-echo MP2RAGE both with and without the `parts` option.
-MP2RAGE:
-  example_output: "tests/new_outputs/qmri_mp2rage/sub-1_NA_NA_NA_unified.json"
-  sequential_set:
-    by_entity: inversion
-    parts: ["mag", "phase"]
-# ===============================
-
+epi:
+  example_output: "tests/expected_outputs/ds-mrs_fmrs/sub-01_NA_NA_task-pain_unified.json"
+  plain_set: {}
 
 # NAMED (GROUPING) SETS
 # File collections that call for a grouping logic that depends on single or multiple entities.
@@ -189,6 +183,7 @@ RB1COR:
       acquisition: "acq-headPDw"
   required: ["bodyMTw", "bodyT1w", "bodyPDw", "headMTw", "headT1w", "headPDw"]
 
+
 # SEQUENTIAL SETS
 # File collections that require sequential logic based on one or more entities.
 # These groups of files are organized as flat ([index]) or nested lists ([index][index]).
@@ -245,6 +240,13 @@ TB1EPI:
     by_entities: [echo,flip]
     order: hierarchical
 
+# Can handle single-echo MP2RAGE both with and without the `parts` option.
+MP2RAGE:
+  example_output: "tests/new_outputs/qmri_mp2rage/sub-1_NA_NA_NA_unified.json"
+  sequential_set:
+    by_entity: inversion
+    parts: ["mag", "phase"]
+
 # MIXED SETS
 # File collections that require a combination of named and sequential logic.
 # 🔑 mixed_set:
@@ -282,3 +284,42 @@ MPM:
         flip: "flip-2"
         mtransfer: "mt-off"
     required: ["MTw", "PDw", "T1w"]
+
+# =============================== Special cases
+
+dwi_fullreverse:
+  note: "A special (full-reverse) case for DWI data."
+  suffix_maps_to: "dwi"
+  named_set:
+    ap:
+      direction: "dir-AP"
+    pa:
+      direction: "dir-PA"
+  required: ["ap", "pa"]
+  additional_extensions: ["bval", "bvec"]
+
+sbref_fullreverse:
+  note: "A special (full-reverse) case for SBREF data."
+  suffix_maps_to: "sbref"
+  named_set:
+    ap:
+      direction: "dir-AP"
+    pa:
+      direction: "dir-PA"
+  required: ["ap", "pa"]
+
+epi_fullreverse:
+  note: "A special (full-reverse) case for EPI data."
+  suffix_maps_to: "epi"
+  named_set:
+    ap:
+      direction: "dir-AP"
+    pa:
+      direction: "dir-PA"
+  required: ["ap", "pa"]
+
+MP2RAGE_multiecho:
+  suffix_maps_to: "MP2RAGE"
+  sequential_set:
+    by_entities: [inversion, echo]
+    parts: ["mag", "phase"]

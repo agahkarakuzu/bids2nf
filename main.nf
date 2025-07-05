@@ -275,7 +275,7 @@ workflow bids2nf {
                     "  - Configuration issues with entity matching\n" +
                     "  - Missing required files for complete groupings")
             }
-            logProgress("bids2nf", "├─ ✅ SUCCESS\n" + "[bids2nf] └─ Bids2nf workflow complete: ${count} data groups processed]")
+            logProgress("bids2nf", "├─ ✅ SUCCESS\n" + "[bids2nf] └─ Bids2nf workflow complete: ${count} data groups processed")
         }
 
     emit:

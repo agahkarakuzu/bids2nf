@@ -57,42 +57,6 @@ graph LR
 ::::
 
 ::::{card}
-:header: <span class="custom-heading-plain"><h4>epi</h4></span>
-:footer: **Additional extensions:** None
-
-**EPI**
-
-The phase-encoding polarity (PEpolar) technique combines two or more Spin Echo
-EPI scans with different phase encoding directions to estimate the underlying
-inhomogeneity/deformation map.
-
-
-:::{mermaid}
-graph LR
-    A[epi] --> B[.nii/.nii.gz]
-    A -.-> C[.json]
-    classDef mainNode fill:#e1f5fe
-    classDef fileNode fill:#f3e5f5
-    classDef optionalNode fill:#f3e5f5,stroke-dasharray: 5 5
-    classDef crossModalNode fill:#fff3e0,stroke:#ff9800,stroke-width:2px
-    class A mainNode
-    class B fileNode
-    class C optionalNode
-:::
-
-[⌬ Hover to see the diagram legend](#mermaidlegend)
-
-:::{seealso} Example usage within a process
-:class: dropdown
-```groovy
-  // Access main files:
-  bids_channel['epi']['nii']
-  bids_channel['epi']['json']
-```
-:::
-::::
-
-::::{card}
 :header: <span class="custom-heading-plain"><h4>T1w</h4></span>
 :footer: **Additional extensions:** None
 
@@ -136,6 +100,91 @@ graph LR
   bids_channel['T1w']['json']
   // → ds-dwi/sub-01/anat/sub-01_T1w.json
 
+```
+:::
+{button}`Example channel data structure <https://github.com/agahkarakuzu/bids2nf/blob/main/tests/expected_outputs/ds-dwi/sub-01_NA_NA_NA_unified.json>`
+::::
+
+::::{card}
+:header: <span class="custom-heading-plain"><h4>T2w</h4></span>
+:footer: **Additional extensions:** None
+
+**T2-weighted image**
+
+In arbitrary units (arbitrary).
+The contrast of these images is mainly determined by spatial variations in
+the (true) transverse relaxation time of the imaged specimen.
+In spin-echo sequences this contrast is achieved at relatively long
+repetition and echo times.
+Generally, gradient echo sequences are not the most suitable option for
+achieving T2 weighting, as their contrast natively depends on T2-star rather
+than on T2.
+
+
+:::{mermaid}
+graph LR
+    A[T2w] --> B[.nii/.nii.gz]
+    A -.-> C[.json]
+    classDef mainNode fill:#e1f5fe
+    classDef fileNode fill:#f3e5f5
+    classDef optionalNode fill:#f3e5f5,stroke-dasharray: 5 5
+    classDef crossModalNode fill:#fff3e0,stroke:#ff9800,stroke-width:2px
+    class A mainNode
+    class B fileNode
+    class C optionalNode
+:::
+
+[⌬ Hover to see the diagram legend](#mermaidlegend)
+
+:::{seealso} Example usage within a process
+:class: dropdown
+```groovy
+  // Access main files:
+  bids_channel['T2w']['nii']
+  bids_channel['T2w']['json']
+```
+:::
+{button}`Example channel data structure <https://github.com/agahkarakuzu/bids2nf/blob/main/tests/expected_outputs/ds-dwi/sub-01_NA_NA_NA_unified.json>`
+::::
+
+::::{card}
+:header: <span class="custom-heading-plain"><h4>T2starw</h4></span>
+:footer: **Additional extensions:** None
+
+**T2star weighted image**
+
+In arbitrary units (arbitrary).
+The contrast of these images is mainly determined by spatial variations in
+the (observed) transverse relaxation time of the imaged specimen.
+In spin-echo sequences, this effect is negated as the excitation is followed
+by an inversion pulse.
+The contrast of gradient-echo images natively depends on T2-star effects.
+However, for T2-star variation to dominate the image contrast,
+gradient-echo acquisitions are carried out at long repetition and echo times,
+and at small flip angles.
+
+
+:::{mermaid}
+graph LR
+    A[T2starw] --> B[.nii/.nii.gz]
+    A -.-> C[.json]
+    classDef mainNode fill:#e1f5fe
+    classDef fileNode fill:#f3e5f5
+    classDef optionalNode fill:#f3e5f5,stroke-dasharray: 5 5
+    classDef crossModalNode fill:#fff3e0,stroke:#ff9800,stroke-width:2px
+    class A mainNode
+    class B fileNode
+    class C optionalNode
+:::
+
+[⌬ Hover to see the diagram legend](#mermaidlegend)
+
+:::{seealso} Example usage within a process
+:class: dropdown
+```groovy
+  // Access main files:
+  bids_channel['T2starw']['nii']
+  bids_channel['T2starw']['json']
 ```
 :::
 {button}`Example channel data structure <https://github.com/agahkarakuzu/bids2nf/blob/main/tests/expected_outputs/ds-dwi/sub-01_NA_NA_NA_unified.json>`
@@ -391,6 +440,49 @@ graph LR
 {button}`Example channel data structure <https://github.com/agahkarakuzu/bids2nf/blob/main/tests/expected_outputs/ds-mrs_fmrs/sub-01_NA_NA_task-pain_unified.json>`
 ::::
 
+::::{card}
+:header: <span class="custom-heading-plain"><h4>UNIT1</h4></span>
+:footer: **Additional extensions:** None
+
+**Homogeneous (flat) T1-weighted MP2RAGE image**
+
+In arbitrary units (arbitrary).
+UNIT1 images are REQUIRED to use this suffix regardless of the method used to
+generate them.
+Note that although this image is T1-weighted, regions without MR signal will
+contain white salt-and-pepper noise that most segmentation algorithms will
+fail on.
+Therefore, it is important to dissociate it from `T1w`.
+Please see [`MP2RAGE` specific notes](SPEC_ROOT/appendices/qmri.md#unit1-images)
+in the qMRI appendix for further information.
+
+
+:::{mermaid}
+graph LR
+    A[UNIT1] --> B[.nii/.nii.gz]
+    A -.-> C[.json]
+    classDef mainNode fill:#e1f5fe
+    classDef fileNode fill:#f3e5f5
+    classDef optionalNode fill:#f3e5f5,stroke-dasharray: 5 5
+    classDef crossModalNode fill:#fff3e0,stroke:#ff9800,stroke-width:2px
+    class A mainNode
+    class B fileNode
+    class C optionalNode
+:::
+
+[⌬ Hover to see the diagram legend](#mermaidlegend)
+
+:::{seealso} Example usage within a process
+:class: dropdown
+```groovy
+  // Access main files:
+  bids_channel['UNIT1']['nii']
+  bids_channel['UNIT1']['json']
+```
+:::
+{button}`Example channel data structure <https://github.com/agahkarakuzu/bids2nf/blob/main/tests/expected_outputs/ds-mrs_fmrs/sub-01_NA_NA_task-pain_unified.json>`
+::::
+
 ## Named Sets
 
 Named sets define specific collections of files with predefined names and properties.
@@ -615,67 +707,57 @@ graph TD
 :::
 ::::
 
-## Sequential Sets
-
-Sequential sets define collections of files organized by BIDS entities.
-
 ::::{card}
-:header: <span class="custom-heading-2"><h4>MP2RAGE</h4></span>
-:footer: **Entity: `inversion`**
+:header: <span class="custom-heading"><h4>epi</h4></span>
+:footer: **Required keys:** `ap`, `pa`
 
-**Magnetization Prepared Two Gradient Echoes**
+**EPI**
 
-The MP2RAGE method is a special protocol that collects several images at
-different flip angles and inversion times to create a parametric T1map by
-combining the magnitude and phase images
-([Marques et al. 2010](https://doi.org/10.1016/j.neuroimage.2009.10.002)).
+The phase-encoding polarity (PEpolar) technique combines two or more Spin Echo
+EPI scans with different phase encoding directions to estimate the underlying
+inhomogeneity/deformation map.
 
 
 :::{mermaid}
 graph TD
-    A[MP2RAGE] --> B{Sequential Collection}
-    B --> C[Organized by inversion]
-    C --> D[Index 0]
-    C --> E[Index 1]
-    C --> F[Index ...]
-    D --> G[.nii/.nii.gz]
-    D --> H[.json]
-    E --> I[.nii/.nii.gz]
-    E --> J[.json]
+    A[epi] --> B{Named Groups}
+    B --> C[ap]
+    C --> D[.nii/.nii.gz]
+    C --> E[.json]
+    B --> F[pa]
+    F --> G[.nii/.nii.gz]
+    F --> H[.json]
     classDef mainNode fill:#e1f5fe
-    classDef collectionNode fill:#fff3e0
-    classDef entityNode fill:#e8f5e8
-    classDef indexNode fill:#fce4ec
+    classDef groupNode fill:#fff3e0
     classDef fileNode fill:#f3e5f5
+    classDef requiredNode fill:#ffebee,stroke:#d32f2f,stroke-width:2px
     class A mainNode
-    class B collectionNode
-    class C entityNode
-    class D,E,F indexNode
-    class G,H,I,J fileNode
+    class B groupNode
+    class C,F requiredNode
+    class D,E,G,H fileNode
 :::
 
 [⌬ Hover to see the diagram legend](#mermaidlegend)
 
+| Key | Description | Entity-based mapping |
+|------|-------------|------------|
+| ap | No description | direction: dir-AP |
+| pa | No description | direction: dir-PA |
+
 :::{seealso} Example usage within a process
 :class: dropdown
 ```groovy
-  // Get number of items in sequential set
-  bids_channel['MP2RAGE']['nii'].size()  // → 2
-  // Access first item
-  bids_channel['MP2RAGE']['nii'][0]
-  // → {'mag': 'qmri_mp2rage/sub-1/anat/sub-1_inv-1_part-mag_MP2RAGE.nii', 'phase': 'qmri_mp2rage/sub-1/anat/sub-1_inv-1_part-phase_MP2RAGE.nii'}
-  bids_channel['MP2RAGE']['json'][0]
-  // → qmri_mp2rage/sub-1/anat/sub-1_inv-1_MP2RAGE.json
-
-  // Access second item
-  bids_channel['MP2RAGE']['nii'][1]
-  // → {'mag': 'qmri_mp2rage/sub-1/anat/sub-1_inv-2_part-mag_MP2RAGE.nii', 'phase': 'qmri_mp2rage/sub-1/anat/sub-1_inv-2_part-phase_MP2RAGE.nii'}
-  bids_channel['MP2RAGE']['json'][1]
-  // → qmri_mp2rage/sub-1/anat/sub-1_inv-2_MP2RAGE.json
-
+  bids_channel['epi']['ap']['nii']
+  bids_channel['epi']['ap']['json']
+  bids_channel['epi']['pa']['nii']
+  bids_channel['epi']['pa']['json']
 ```
 :::
 ::::
+
+## Sequential Sets
+
+Sequential sets define collections of files organized by BIDS entities.
 
 ::::{card}
 :header: <span class="custom-heading-2"><h4>VFA</h4></span>
@@ -1033,6 +1115,55 @@ graph TD
 :::
 ::::
 
+::::{card}
+:header: <span class="custom-heading-2"><h4>MP2RAGE</h4></span>
+:footer: **Entity: `inversion`**
+
+**Magnetization Prepared Two Gradient Echoes**
+
+The MP2RAGE method is a special protocol that collects several images at
+different flip angles and inversion times to create a parametric T1map by
+combining the magnitude and phase images
+([Marques et al. 2010](https://doi.org/10.1016/j.neuroimage.2009.10.002)).
+
+
+:::{mermaid}
+graph TD
+    A[MP2RAGE] --> B{Sequential Collection}
+    B --> C[Organized by inversion]
+    C --> D[Index 0]
+    C --> E[Index 1]
+    C --> F[Index ...]
+    D --> G[.nii/.nii.gz]
+    D --> H[.json]
+    E --> I[.nii/.nii.gz]
+    E --> J[.json]
+    classDef mainNode fill:#e1f5fe
+    classDef collectionNode fill:#fff3e0
+    classDef entityNode fill:#e8f5e8
+    classDef indexNode fill:#fce4ec
+    classDef fileNode fill:#f3e5f5
+    class A mainNode
+    class B collectionNode
+    class C entityNode
+    class D,E,F indexNode
+    class G,H,I,J fileNode
+:::
+
+[⌬ Hover to see the diagram legend](#mermaidlegend)
+
+:::{seealso} Example usage within a process
+:class: dropdown
+```groovy
+  // Get number of items in sequential set
+  bids_channel['MP2RAGE']['nii'].size()
+  // Access first item
+  bids_channel['MP2RAGE']['nii'][0]
+  bids_channel['MP2RAGE']['json'][0]
+```
+:::
+::::
+
 ## Mixed Sets
 
 Mixed sets combine named groups with sequential organization within each group.
@@ -1126,14 +1257,14 @@ graph TD
 Special sets are special cases that do not fit into the other categories.
 
 ::::{card}
-:header: <span class="custom-heading-special"><h4>dwi_fr</h4></span>
+:header: <span class="custom-heading-special"><h4>dwi_fullreverse</h4></span>
 :footer: **Maps to:** `dwi` | **Additional extensions:** `bval`, `bvec`
 
 Additional grouping logic for [dwi](#dwi)
 
 :::{mermaid}
 graph TD
-    A[dwi_fr] --> B{Named Groups}
+    A[dwi_fullreverse] --> B{Named Groups}
     B --> C[ap]
     C --> D[.nii/.nii.gz]
     C --> E[.json]
@@ -1165,10 +1296,10 @@ graph TD
 :::{seealso} Example usage within a process
 :class: dropdown
 ```groovy
-  bids_channel['dwi_fr']['ap']['nii']
-  bids_channel['dwi_fr']['ap']['json']
-  bids_channel['dwi_fr']['pa']['nii']
-  bids_channel['dwi_fr']['pa']['json']
+  bids_channel['dwi_fullreverse']['ap']['nii']
+  bids_channel['dwi_fullreverse']['ap']['json']
+  bids_channel['dwi_fullreverse']['pa']['nii']
+  bids_channel['dwi_fullreverse']['pa']['json']
 ```
 :::
 

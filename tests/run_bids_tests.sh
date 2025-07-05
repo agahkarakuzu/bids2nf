@@ -23,6 +23,7 @@ DEFAULT_DIRS=(
     "qmri_tb1tfl"
     "asl001"
     "asl002"
+    "eeg_cbm"
 )
 
 # Get the directory where this script is located
