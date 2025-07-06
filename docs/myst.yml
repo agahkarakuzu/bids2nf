@@ -34,5 +34,5 @@ site:
     logo: ../assets/logo.svg
     logo_text: Use BIDS in Nextflow
     style: ./bids2nf.css
-    favicon: ../assets/favicon.ico
+    favicon: favicon.ico
     
