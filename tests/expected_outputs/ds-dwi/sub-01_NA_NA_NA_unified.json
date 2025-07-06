@@ -3,7 +3,6 @@
   "session": "NA",
   "run": "NA",
   "task": "NA",
-  "totalFiles": 6,
   "data": {
     "T1w": {
         "nii": "ds-dwi/sub-01/anat/sub-01_T1w.nii.gz",

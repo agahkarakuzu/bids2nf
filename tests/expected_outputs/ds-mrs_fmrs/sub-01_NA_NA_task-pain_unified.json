@@ -3,7 +3,6 @@
   "session": "NA",
   "run": "NA",
   "task": "task-pain",
-  "totalFiles": 5,
   "data": {
     "events": {
         "tsv": "ds-mrs_fmrs/sub-01/mrs/sub-01_task-pain_events.tsv"

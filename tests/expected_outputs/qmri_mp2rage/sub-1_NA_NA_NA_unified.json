@@ -3,8 +3,11 @@
   "session": "NA",
   "run": "NA",
   "task": "NA",
-  "totalFiles": 6,
   "data": {
+    "UNIT1": {
+        "nii": "qmri_mp2rage/sub-1/anat/sub-1_UNIT1.nii",
+        "json": "qmri_mp2rage/derivatives/pymp2rage/sub-1/anat/sub-1_UNIT1.json"
+    },
     "MP2RAGE": {
         "nii": [
             {

@@ -118,8 +118,7 @@ process unified_process_template {
   
 cat > ${filename} << 'EOF'
 {
-  ${entityJson},
-  "totalFiles": ${filePaths.size()},${includeBidsParentDir ? "\n  \"bidsParentDir\": \"${bidsParentDir}\"," : ""}
+  ${entityJson}${includeBidsParentDir ? ",\n  \"bidsParentDir\": \"${bidsParentDir}\"" : ""},
   "data": ${jsonString}
 }
 EOF

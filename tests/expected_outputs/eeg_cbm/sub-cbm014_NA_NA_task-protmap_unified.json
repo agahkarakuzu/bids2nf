@@ -3,7 +3,6 @@
   "session": "NA",
   "run": "NA",
   "task": "task-protmap",
-  "totalFiles": 4,
   "data": {
     "channels": {
         "tsv": "eeg_cbm/sub-cbm014/eeg/sub-cbm014_task-protmap_channels.tsv"
