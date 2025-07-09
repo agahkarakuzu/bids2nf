@@ -1,0 +1,36 @@
+cff-version: "1.2.0"
+authors:
+- family-names: Karakuzu
+  given-names: Agah
+- family-names: Blostein
+  given-names: Nadia
+- family-names: Caron
+  given-names: Alex Valcourt
+- family-names: Boré
+  given-names: Arnaud
+- family-names: Rheault
+  given-names: François
+- family-names: Descoteaux
+  given-names: Maxime
+- family-names: Stikov
+  given-names: Nikola
+message: To reference this work, please cite our article in Magnetic Resonance Materials in Physics, Biology and Medicine.
+preferred-citation:
+  authors:
+  - family-names: Karakuzu
+    given-names: Agah
+  - family-names: Biswas
+    given-names: Labonny
+  - family-names: Cohen-Adad
+    given-names: Julien
+  - family-names: Stikov
+    given-names: Nikola
+  date-published: 2025-04-24
+  doi: 10.1007/s10334-025-01245-3
+  journal: Magnetic Resonance Materials in Physics, Biology and Medicine
+  publisher:
+    name: Springer
+  title: Rethinking MRI as a measurement device through modular and portable pipelines
+  type: article
+  url: "https://link.springer.com/article/10.1007/s10334-025-01245-3"
+title: Rethinking MRI as a measurement device through modular and portable pipelines
