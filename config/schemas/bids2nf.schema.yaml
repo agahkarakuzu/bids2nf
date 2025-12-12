@@ -21,6 +21,11 @@ definitions:
       $ref: "#/definitions/file_extension"
     uniqueItems: true
     description: "Additional file extensions beyond the default nii.gz and json"
+
+  group_by_modality:
+    type: boolean
+    default: false
+    description: "When true, files are grouped by their BIDS modality folder (anat, dwi, func, etc.). Useful when the same suffix exists in multiple modalities (e.g., mask files in both anat and dwi folders)"
   
   grouping_config:
     type: object
@@ -116,7 +121,11 @@ properties:
       additional_extensions:
         $ref: "#/definitions/additional_extensions"
         description: "Additional file extensions for MTS data"
-    
+
+      group_by_modality:
+        $ref: "#/definitions/group_by_modality"
+        description: "Group files by their BIDS modality folder"
+
     required: ["named_set", "required"]
     additionalProperties: false
     description: "MTS (Magnetization Transfer Saturation) configuration"
@@ -202,7 +211,11 @@ properties:
       additional_extensions:
         $ref: "#/definitions/additional_extensions"
         description: "Additional file extensions for VFA data"
-    
+
+      group_by_modality:
+        $ref: "#/definitions/group_by_modality"
+        description: "Group files by their BIDS modality folder"
+
     required: ["sequential_set"]
     additionalProperties: false
     description: "Sequential set configuration"
@@ -260,7 +273,11 @@ properties:
       additional_extensions:
         $ref: "#/definitions/additional_extensions"
         description: "Additional file extensions for MPM data"
-    
+
+      group_by_modality:
+        $ref: "#/definitions/group_by_modality"
+        description: "Group files by their BIDS modality folder"
+
     required: ["mixed_set"]
     additionalProperties: false
     description: "Mixed set configuration for complex multi-parameter data"
@@ -285,14 +302,21 @@ properties:
           additional_extensions:
             $ref: "#/definitions/additional_extensions"
             description: "Additional optional file extensions"
+          group_by_modality:
+            $ref: "#/definitions/group_by_modality"
+            description: "Group files by their BIDS modality folder"
         required: ["description"]
         additionalProperties: false
         description: "Plain set configuration for simple multi-extension data"
-      
+
       additional_extensions:
         $ref: "#/definitions/additional_extensions"
         description: "Additional file extensions for this plain set"
-    
+
+      group_by_modality:
+        $ref: "#/definitions/group_by_modality"
+        description: "Group files by their BIDS modality folder"
+
     required: ["plain_set"]
     additionalProperties: false
     description: "Plain set configuration for DWI and similar data types"

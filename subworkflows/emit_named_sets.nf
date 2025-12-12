@@ -51,11 +51,12 @@ workflow emit_named_sets {
             def groupName = findMatchingGrouping(row, suffixConfig)
             
             if (groupName) {
-                def entityValues = loopOverEntities.collect { entity -> 
+                def entityValues = loopOverEntities.collect { entity ->
                     def value = row.containsKey(entity) ? row[entity] : "NA"
                     return (value == null || value == "") ? "NA" : value
                 }
-                tuple(entityValues + [virtualSuffixKey, groupName, row.extension], row.path)
+                def dataType = row.containsKey('data_type') ? row.data_type : 'NA'
+                tuple(entityValues + [virtualSuffixKey, groupName, row.extension], [row.path, dataType])
             } else {
                 null
             }
@@ -63,14 +64,16 @@ workflow emit_named_sets {
         .filter { it != null }
 
     input_pairs = input_files
-        .map { groupingKeyWithExtras, filePath ->
+        .map { groupingKeyWithExtras, pathWithDataType ->
             def entityCount = loopOverEntities.size()
             def entityValues = groupingKeyWithExtras[0..entityCount-1]
             def suffix = groupingKeyWithExtras[entityCount]
             def groupName = groupingKeyWithExtras[entityCount+1]
             def extension = groupingKeyWithExtras[entityCount+2]
-            
-            tuple(entityValues + [suffix, groupName], [extension, filePath])
+            def filePath = pathWithDataType[0]
+            def dataType = pathWithDataType[1]
+
+            tuple(entityValues + [suffix, groupName], [extension, filePath, dataType])
         }
         .groupTuple()
         .map { groupingKeyWithSuffixGroup, extFiles ->
@@ -78,17 +81,17 @@ workflow emit_named_sets {
             def entityValues = groupingKeyWithSuffixGroup[0..entityCount-1]
             def suffix = groupingKeyWithSuffixGroup[entityCount]
             def groupName = groupingKeyWithSuffixGroup[entityCount+1]
-            
-            def fileMap = createFileMap(extFiles)
-            
+
+            def (fileMap, dataTypeMap) = createFileMapWithDataType(extFiles)
+
             def suffixConfig = config[suffix]
             def entityMap = [:]
             loopOverEntities.eachWithIndex { entity, index ->
                 entityMap[entity] = entityValues[index]
             }
-            
+
             if (validateRequiredFilesWithConfig(fileMap, entityMap.subject ?: "NA", entityMap.session ?: "NA", entityMap.run ?: "NA", suffix, groupName, suffixConfig)) {
-                def channelData = buildChannelData(fileMap, suffixConfig)
+                def channelData = buildChannelData(fileMap, suffixConfig, dataTypeMap)
                 tuple(entityValues + [suffix, groupName], channelData)
             } else {
                 null
