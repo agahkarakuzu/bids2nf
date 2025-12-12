@@ -58,18 +58,26 @@ def validateLibBidsScript(scriptPath) {
     if (!file(scriptPath).exists()) {
         error "[bids2nf] ☹︎ libBIDS.sh script does not exist: ${scriptPath}"
     }
-    
-    if (!file(scriptPath).isFile()) {
-        error "[bids2nf] ☹︎ libBIDS.sh path is not a file: ${scriptPath}"
+
+    def scriptFile
+    if (file(scriptPath).isFile()) {
+        scriptFile = file(scriptPath)
+    } else if (file(scriptPath).isDirectory()) {
+        def libBidsPath = "${scriptPath}/libBIDS.sh"
+        if (!file(libBidsPath).exists()) {
+            error "[bids2nf] ☹︎ libBIDS.sh script not found in directory: ${scriptPath}"
+        }
+        scriptFile = file(libBidsPath)
+    } else {
+        error "[bids2nf] ☹︎ libBIDS.sh path is not a file or directory: ${scriptPath}"
     }
-    
-    def scriptFile = file(scriptPath)
+
     if (!scriptFile.canExecute()) {
-        log.warn "[bids2nf] ☹︎ libBIDS.sh script is not executable, attempting to make executable: ${scriptPath}"
+        log.warn "[bids2nf] ☹︎ libBIDS.sh script is not executable, attempting to make executable: ${scriptFile}"
         scriptFile.setExecutable(true)
     }
-    
-    log.info "[bids2nf] ✌︎ libBIDS.sh script validation passed: ${scriptPath}"
+
+    log.info "[bids2nf] ✌︎ libBIDS.sh script validation passed: ${scriptFile}"
     return true
 }
 
