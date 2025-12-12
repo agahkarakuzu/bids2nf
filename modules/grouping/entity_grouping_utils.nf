@@ -53,6 +53,31 @@ def createFileMap(extFiles) {
     return fileMap
 }
 
+def createFileMapWithDataType(extFiles) {
+    // Create both a fileMap and a dataTypeMap
+    // extFiles format: [[extension, filePath, dataType], ...]
+    def fileMap = [:]
+    def dataTypeMap = [:]
+
+    extFiles.each { item ->
+        if (item.size() >= 3) {
+            def extension = item[0]
+            def filePath = item[1]
+            def dataType = item[2]
+
+            fileMap[extension] = filePath
+            dataTypeMap[extension] = dataType
+        } else if (item.size() == 2) {
+            // Fallback for old format without dataType
+            def extension = item[0]
+            def filePath = item[1]
+            fileMap[extension] = filePath
+        }
+    }
+
+    return [fileMap, dataTypeMap]
+}
+
 def validateRequiredFiles(fileMap, subject, session, run, suffix, groupName) {
     def hasNii = fileMap.containsKey('nii') || fileMap.containsKey('nii.gz')
     def hasJson = fileMap.containsKey('json')
@@ -153,48 +178,142 @@ def extractAdditionalFiles(fileMap, suffixConfig) {
     return additionalFiles
 }
 
-def buildChannelData(fileMap, suffixConfig) {
+def buildChannelData(fileMap, suffixConfig, dataTypeMap = [:]) {
     // Build standardized channel data with normalized keys
+    // If group_by_modality is enabled, files are nested by their data_type (modality folder)
     def channelData = [:]
-    
-    // Handle NIfTI files with normalized key
-    def niiFile = fileMap.containsKey('nii.gz') ? fileMap['nii.gz'] : fileMap['nii']
-    if (niiFile) {
-        channelData['nii'] = niiFile
+
+    // Check if group_by_modality is enabled
+    def groupByModality = false
+    if (suffixConfig.containsKey('group_by_modality')) {
+        groupByModality = suffixConfig.group_by_modality
+    } else if (suffixConfig.containsKey('plain_set') && suffixConfig.plain_set.containsKey('group_by_modality')) {
+        groupByModality = suffixConfig.plain_set.group_by_modality
+    } else if (suffixConfig.containsKey('named_set') && suffixConfig.named_set.containsKey('group_by_modality')) {
+        groupByModality = suffixConfig.named_set.group_by_modality
     }
-    
-    // Handle JSON files
-    if (fileMap.containsKey('json')) {
-        channelData['json'] = fileMap['json']
+
+    if (groupByModality && dataTypeMap) {
+        // Group files by modality
+        def modalityGroups = [:]
+
+        // Handle NIfTI files
+        ['nii.gz', 'nii'].each { ext ->
+            if (fileMap.containsKey(ext)) {
+                def modality = dataTypeMap[ext] ?: 'unknown'
+                if (!modalityGroups.containsKey('nii')) {
+                    modalityGroups['nii'] = [:]
+                }
+                modalityGroups['nii'][modality] = fileMap[ext]
+            }
+        }
+
+        // Handle JSON files
+        if (fileMap.containsKey('json')) {
+            def modality = dataTypeMap['json'] ?: 'unknown'
+            if (!modalityGroups.containsKey('json')) {
+                modalityGroups['json'] = [:]
+            }
+            modalityGroups['json'][modality] = fileMap['json']
+        }
+
+        // Handle additional extensions
+        def additionalFiles = extractAdditionalFiles(fileMap, suffixConfig)
+        additionalFiles.each { ext, file ->
+            def modality = dataTypeMap[ext] ?: 'unknown'
+            if (!modalityGroups.containsKey(ext)) {
+                modalityGroups[ext] = [:]
+            }
+            modalityGroups[ext][modality] = file
+        }
+
+        channelData = modalityGroups
+    } else {
+        // Default behavior: flat structure
+        // Handle NIfTI files with normalized key
+        def niiFile = fileMap.containsKey('nii.gz') ? fileMap['nii.gz'] : fileMap['nii']
+        if (niiFile) {
+            channelData['nii'] = niiFile
+        }
+
+        // Handle JSON files
+        if (fileMap.containsKey('json')) {
+            channelData['json'] = fileMap['json']
+        }
+
+        // Handle additional extensions
+        def additionalFiles = extractAdditionalFiles(fileMap, suffixConfig)
+        additionalFiles.each { ext, file ->
+            channelData[ext] = file
+        }
     }
-    
-    // Handle additional extensions
-    def additionalFiles = extractAdditionalFiles(fileMap, suffixConfig)
-    additionalFiles.each { ext, file ->
-        channelData[ext] = file
-    }
-    
+
     return channelData
 }
 
 
-def buildSequentialChannelData(niiFiles, jsonFiles, suffixConfig) {
+def buildSequentialChannelData(niiFiles, jsonFiles, suffixConfig, niiDataTypes = [], jsonDataTypes = []) {
     // Build standardized channel data for sequential files (arrays)
+    // If group_by_modality is enabled, files are nested by their data_type (modality folder)
     def channelData = [:]
-    
-    // Always use 'nii' key for consistency
-    if (niiFiles && niiFiles.size() > 0) {
-        channelData['nii'] = niiFiles
+
+    // Check if group_by_modality is enabled
+    def groupByModality = false
+    if (suffixConfig.containsKey('group_by_modality')) {
+        groupByModality = suffixConfig.group_by_modality
+    } else if (suffixConfig.containsKey('sequential_set') && suffixConfig.sequential_set.containsKey('group_by_modality')) {
+        groupByModality = suffixConfig.sequential_set.group_by_modality
+    } else if (suffixConfig.containsKey('mixed_set') && suffixConfig.mixed_set.containsKey('group_by_modality')) {
+        groupByModality = suffixConfig.mixed_set.group_by_modality
     }
-    
-    // Handle JSON files
-    if (jsonFiles && jsonFiles.size() > 0) {
-        channelData['json'] = jsonFiles
+
+    if (groupByModality && (niiDataTypes || jsonDataTypes)) {
+        // Group files by modality
+        def modalityGroups = [:]
+
+        // Handle NIfTI files
+        if (niiFiles && niiFiles.size() > 0) {
+            def niiByModality = [:]
+            niiFiles.eachWithIndex { file, idx ->
+                def modality = (idx < niiDataTypes.size()) ? niiDataTypes[idx] : 'unknown'
+                if (!niiByModality.containsKey(modality)) {
+                    niiByModality[modality] = []
+                }
+                niiByModality[modality] << file
+            }
+            modalityGroups['nii'] = niiByModality
+        }
+
+        // Handle JSON files
+        if (jsonFiles && jsonFiles.size() > 0) {
+            def jsonByModality = [:]
+            jsonFiles.eachWithIndex { file, idx ->
+                def modality = (idx < jsonDataTypes.size()) ? jsonDataTypes[idx] : 'unknown'
+                if (!jsonByModality.containsKey(modality)) {
+                    jsonByModality[modality] = []
+                }
+                jsonByModality[modality] << file
+            }
+            modalityGroups['json'] = jsonByModality
+        }
+
+        channelData = modalityGroups
+    } else {
+        // Default behavior: flat structure
+        // Always use 'nii' key for consistency
+        if (niiFiles && niiFiles.size() > 0) {
+            channelData['nii'] = niiFiles
+        }
+
+        // Handle JSON files
+        if (jsonFiles && jsonFiles.size() > 0) {
+            channelData['json'] = jsonFiles
+        }
     }
-    
+
     // Note: additional_extensions for sequential sets would need special handling
     // This could be extended in the future if needed
-    
+
     return channelData
 }
 

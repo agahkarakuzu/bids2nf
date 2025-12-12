@@ -1,5 +1,6 @@
-include { 
-    createFileMap; 
+include {
+    createFileMap;
+    createFileMapWithDataType;
     createGroupingKey;
     buildChannelData
 } from '../modules/grouping/entity_grouping_utils.nf'
@@ -55,11 +56,12 @@ workflow emit_plain_sets {
             def suffixConfig = matchingConfig.configValue
             
             // Check if parts configuration exists
-            def hasPartsConfig = suffixConfig.containsKey('plain_set') && 
+            def hasPartsConfig = suffixConfig.containsKey('plain_set') &&
                                suffixConfig.plain_set.containsKey('parts')
             def partValue = hasPartsConfig ? (row.part ?: "NA") : "NA"
-            
-            tuple(entityValues + [virtualSuffixKey, row.extension], [row.path, partValue, hasPartsConfig])
+            def dataType = row.containsKey('data_type') ? row.data_type : 'NA'
+
+            tuple(entityValues + [virtualSuffixKey, row.extension], [row.path, partValue, hasPartsConfig, dataType])
         }
 
     input_pairs = input_files
@@ -68,8 +70,8 @@ workflow emit_plain_sets {
             def entityValues = groupingKeyWithSuffixExt[0..entityCount-1]
             def suffix = groupingKeyWithSuffixExt[entityCount]
             def extension = groupingKeyWithSuffixExt[entityCount+1]
-            def (filePath, partValue, hasPartsConfig) = fileData
-            tuple(entityValues + [suffix], [extension, filePath, partValue, hasPartsConfig])
+            def (filePath, partValue, hasPartsConfig, dataType) = fileData
+            tuple(entityValues + [suffix], [extension, filePath, partValue, hasPartsConfig, dataType])
         }
         .groupTuple()
         .map { groupingKeyWithSuffix, extFiles ->
@@ -94,8 +96,8 @@ workflow emit_plain_sets {
             if (hasPartsConfig) {
                 // Handle parts logic for plain sets
                 def filesByExtAndPart = [:]
-                
-                extFiles.each { extension, filePath, _partValue, _hasPartsConfigFile ->
+
+                extFiles.each { extension, filePath, _partValue, _hasPartsConfigFile, _dataType ->
                     if (_partValue && _partValue != "NA") {
                         def key = "${extension}_${_partValue}"
                         filesByExtAndPart[key] = filePath
@@ -153,13 +155,14 @@ workflow emit_plain_sets {
                 }
             } else {
                 // Regular plain set processing
-                def fileMap = [:]
-                extFiles.each { extension, filePath, _partValue, _hasPartsConfigFile ->
-                    fileMap[extension] = filePath
+                def extFilesForMap = extFiles.collect { extension, filePath, _partValue, _hasPartsConfigFile, dataType ->
+                    [extension, filePath, dataType]
                 }
-                
+
+                def (fileMap, dataTypeMap) = createFileMapWithDataType(extFilesForMap)
+
                 if (validatePlainSetFiles(fileMap, entityMap.subject ?: "NA", entityMap.session ?: "NA", entityMap.run ?: "NA", virtualSuffixKey, suffixConfig)) {
-                    def allFiles = buildChannelData(fileMap, suffixConfig)
+                    def allFiles = buildChannelData(fileMap, suffixConfig, dataTypeMap)
                     tuple(entityValues + [virtualSuffixKey], allFiles)
                 } else {
                     null
