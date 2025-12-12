@@ -1,6 +1,6 @@
 [submodule "libBIDS.sh"]
 	path = libBIDS.sh
-	url = https://github.com/CoBrALab/libBIDS.sh.git
+	url = https://github.com/agahkarakuzu/libBIDS.sh.git
 [submodule "tests/data/bids-examples"]
 	path = tests/data/bids-examples
 	url = https://github.com/bids-standard/bids-examples
