@@ -35,8 +35,8 @@ workflow bids2nf {
     }
     
     def bids_parent_dir = file(bids_dir).parent.toString()
-    
-    parsed_csv = libbids_sh_parse(bids_dir, params.libbids_sh)
+
+    parsed_csv = libbids_sh_parse(bids_dir, params.libbids_sh, params.libbids_config_dir)
     
     def config = tryWithContext("CONFIG_LOADING") {
         new org.yaml.snakeyaml.Yaml().load(new FileReader(bids2nf_config))
