@@ -56,6 +56,8 @@ def createFileMap(extFiles) {
 def createFileMapWithDataType(extFiles) {
     // Create both a fileMap and a dataTypeMap
     // extFiles format: [[extension, filePath, dataType], ...]
+    // When multiple files have the same extension but different dataTypes,
+    // store them as lists
     def fileMap = [:]
     def dataTypeMap = [:]
 
@@ -65,8 +67,19 @@ def createFileMapWithDataType(extFiles) {
             def filePath = item[1]
             def dataType = item[2]
 
-            fileMap[extension] = filePath
-            dataTypeMap[extension] = dataType
+            // Check if we already have a file with this extension
+            if (fileMap.containsKey(extension)) {
+                // Multiple files with same extension - convert to list if needed
+                if (!(fileMap[extension] instanceof List)) {
+                    fileMap[extension] = [fileMap[extension]]
+                    dataTypeMap[extension] = [dataTypeMap[extension]]
+                }
+                fileMap[extension] << filePath
+                dataTypeMap[extension] << dataType
+            } else {
+                fileMap[extension] = filePath
+                dataTypeMap[extension] = dataType
+            }
         } else if (item.size() == 2) {
             // Fallback for old format without dataType
             def extension = item[0]
@@ -200,31 +213,64 @@ def buildChannelData(fileMap, suffixConfig, dataTypeMap = [:]) {
         // Handle NIfTI files
         ['nii.gz', 'nii'].each { ext ->
             if (fileMap.containsKey(ext)) {
-                def modality = dataTypeMap[ext] ?: 'unknown'
                 if (!modalityGroups.containsKey('nii')) {
                     modalityGroups['nii'] = [:]
                 }
-                modalityGroups['nii'][modality] = fileMap[ext]
+
+                // Check if we have multiple files (list) or single file
+                if (fileMap[ext] instanceof List) {
+                    // Multiple files with different modalities
+                    fileMap[ext].eachWithIndex { file, idx ->
+                        def modality = (dataTypeMap[ext] instanceof List && idx < dataTypeMap[ext].size()) ?
+                                      dataTypeMap[ext][idx] : 'unknown'
+                        modalityGroups['nii'][modality] = file
+                    }
+                } else {
+                    // Single file
+                    def modality = dataTypeMap[ext] ?: 'unknown'
+                    modalityGroups['nii'][modality] = fileMap[ext]
+                }
             }
         }
 
         // Handle JSON files
         if (fileMap.containsKey('json')) {
-            def modality = dataTypeMap['json'] ?: 'unknown'
             if (!modalityGroups.containsKey('json')) {
                 modalityGroups['json'] = [:]
             }
-            modalityGroups['json'][modality] = fileMap['json']
+
+            // Check if we have multiple files (list) or single file
+            if (fileMap['json'] instanceof List) {
+                // Multiple JSON files with different modalities
+                fileMap['json'].eachWithIndex { file, idx ->
+                    def modality = (dataTypeMap['json'] instanceof List && idx < dataTypeMap['json'].size()) ?
+                                  dataTypeMap['json'][idx] : 'unknown'
+                    modalityGroups['json'][modality] = file
+                }
+            } else {
+                // Single JSON file
+                def modality = dataTypeMap['json'] ?: 'unknown'
+                modalityGroups['json'][modality] = fileMap['json']
+            }
         }
 
         // Handle additional extensions
         def additionalFiles = extractAdditionalFiles(fileMap, suffixConfig)
         additionalFiles.each { ext, file ->
-            def modality = dataTypeMap[ext] ?: 'unknown'
             if (!modalityGroups.containsKey(ext)) {
                 modalityGroups[ext] = [:]
             }
-            modalityGroups[ext][modality] = file
+
+            // Additional files might also be lists
+            if (file instanceof List && dataTypeMap.containsKey(ext) && dataTypeMap[ext] instanceof List) {
+                file.eachWithIndex { f, idx ->
+                    def modality = (idx < dataTypeMap[ext].size()) ? dataTypeMap[ext][idx] : 'unknown'
+                    modalityGroups[ext][modality] = f
+                }
+            } else {
+                def modality = dataTypeMap[ext] ?: 'unknown'
+                modalityGroups[ext][modality] = file
+            }
         }
 
         channelData = modalityGroups
@@ -233,18 +279,22 @@ def buildChannelData(fileMap, suffixConfig, dataTypeMap = [:]) {
         // Handle NIfTI files with normalized key
         def niiFile = fileMap.containsKey('nii.gz') ? fileMap['nii.gz'] : fileMap['nii']
         if (niiFile) {
-            channelData['nii'] = niiFile
+            // If multiple files, take the last one (backward compatible behavior)
+            channelData['nii'] = (niiFile instanceof List) ? niiFile[-1] : niiFile
         }
 
         // Handle JSON files
         if (fileMap.containsKey('json')) {
-            channelData['json'] = fileMap['json']
+            def jsonFile = fileMap['json']
+            // If multiple files, take the last one (backward compatible behavior)
+            channelData['json'] = (jsonFile instanceof List) ? jsonFile[-1] : jsonFile
         }
 
         // Handle additional extensions
         def additionalFiles = extractAdditionalFiles(fileMap, suffixConfig)
         additionalFiles.each { ext, file ->
-            channelData[ext] = file
+            // If multiple files, take the last one (backward compatible behavior)
+            channelData[ext] = (file instanceof List) ? file[-1] : file
         }
     }
 
